@@ -1,0 +1,512 @@
+<?php
+
+namespace App\Livewire\DailyProcess\Sales;
+
+use Livewire\Component;
+use App\Models\HistorialFactura;
+use App\Models\ActivityLog;
+use RealRashid\SweetAlert\Facades\Alert;
+use Livewire\WithPagination;
+use App\Models\Cambio;
+use App\Models\Setting;
+use App\Models\Product;
+use App\Models\Client;
+use App\Models\Sale;
+use App\Models\DetailSale;
+use App\Models\Discount;
+use App\Models\ProductSale;
+use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
+use Mike42\Escpos\Printer;
+use App\Events\SaleCreated;
+
+class Sales extends Component
+{
+
+    use WithPagination;
+    public $search_product = '', $search_client = '', $precioOriginal;
+    protected $listeners = ['eliminarRegistro' => 'destroy'];
+
+    public $sale_id, $product_id, $precio, $cantidad, $total, $producto;
+    public $productSel;
+    public $detailProduct = [];
+
+    //porcentaje de descuentos
+    public $descuentos;
+
+    public $metodos = [
+        'Efectivo',
+        'Transferencia Bancaria'
+    ];
+
+
+    public $descuento_i, $ver_descuento_individual = false, $descuento_individual, $precio_descuento, $monto_descontado_individual;
+
+
+    //mostrar y ocultar total cuando hay descuento
+    public $descuentoSel = false, $ocultarTotal = true;
+
+    public $client_id, $fecha, $numFactura, $descuento, $totalPagado, $fechaVencimiento,
+        $cambio, $totalRecibido, $totalDescuento, $totalPagadoDescuento, $user_id, $metodoPago, $exchangeRate;
+
+    public function updatedCantidad()
+    {
+        $this->precio = 0;
+        if ($this->productSel) {
+            if ($this->cantidad >= 3) {
+                $this->precio = $this->productSel->precio_venta_mayor;
+            } else {
+                $this->precio = $this->productSel->precio_venta_unidad;
+            }
+        }
+    }
+
+    public function mount()
+    {
+        // Obtener el registro de cambio para la fecha actual
+        $cambio = Cambio::where('fecha', today())->first();
+
+        // Verificar si se encontró un registro para la fecha actual
+        if ($cambio) {
+            $this->exchangeRate = $cambio->valor;
+        } else {
+            $this->exchangeRate = "Sin registro";
+        }
+    }
+
+
+    public function render()
+    {
+        $clients = Client::orderBy('id', 'asc')
+            ->whereAny(['nombreApellido', 'telefono'], 'like', '%' . $this->search_client . '%')->get();
+
+        $products = Product::orderBy('id', 'asc')
+            ->whereAny(['descripcion', 'codigo'], 'like', '%' . $this->search_product . '%')->get();
+
+        //algoritmo para recuperar la ultima factura disponible y le suma 1
+        $facturaDisponible = Setting::pluck('consecutivo');
+        $this->numFactura = $facturaDisponible->implode(',') + 1;
+
+        $this->fecha = now()->format('Y-m-d');
+        $this->descuentos = Discount::orderBy('id', 'asc')->get();
+        return view('livewire.daily-process.sales.sales', compact('clients', 'products', 'facturaDisponible'));
+    }
+
+    public function refresh()
+    {
+        return redirect('/private/sales');
+    }
+
+    public function mostrarDescuento()
+    {
+        if ($this->descuento) {
+            // Calcula el descuento sobre el total acumulado
+            $this->totalDescuento = round(($this->total * $this->descuento) / 100, 2);
+
+            // Calcula el total con el descuento aplicado
+            $this->totalPagadoDescuento = round($this->total - $this->totalDescuento, 2);
+            $this->totalPagado = $this->totalPagadoDescuento;
+        }
+    }
+
+   public function mostarDescuentoIndividual()
+    {
+        if ($this->productSel) {
+            if ($this->descuento_individual == "Si") {
+                $this->ver_descuento_individual = true;
+                
+                // Si ya eligió un porcentaje, calculamos. Si no, dejamos los montos en 0 o vacíos temporalmente
+                if ($this->descuento_i) {
+                    $subtotalSinDescuento = $this->precio * $this->cantidad;
+                    $this->monto_descontado_individual = round(($subtotalSinDescuento * $this->descuento_i) / 100, 2);
+                    $this->precio_descuento = round($subtotalSinDescuento - $this->monto_descontado_individual, 2);
+                } else {
+                    $this->monto_descontado_individual = 0;
+                    $this->precio_descuento = $this->precio * $this->cantidad;
+                }
+            } else {
+                // Si marca "No", limpiamos los valores del descuento individual
+                $this->ver_descuento_individual = false;
+                $this->descuento_i = null;
+                $this->monto_descontado_individual = 0;
+                $this->precio_descuento = $this->precio * $this->cantidad;
+            }
+        } else {
+            $this->descuento_individual = null;
+        }
+    }
+
+
+    //oculta el total sin descuento
+    public function ocultarTotal()
+    {
+        $this->ocultarTotal = false;
+    }
+
+    public function buscarProducto()
+    {
+        $this->precio_descuento = $this->precio;
+        $this->productSel = Product::whereAny(['codigo', 'descripcion'], 'like', '%' . $this->search_product . '%')->first();
+
+        if ($this->productSel) {
+            $this->cantidad = 1;
+            $this->precio = floatval($this->productSel->precio_venta_unidad);
+
+            if ($this->productSel->stock <= 0) {
+                session()->flash('producto', '*El producto seleccionado no tiene stock disponible.');
+                // ❌ ya no lo reseteamos a null
+            }
+        } else {
+            session()->flash('producto', '*El producto digitado no existe o es incorrecto.');
+        }
+    }
+
+
+    public function limpiarBusqueda()
+    {
+        $this->search_product = null;
+        $this->precio = null;
+        $this->cantidad = null;
+        $this->product_id = null;
+        $this->productSel = null;
+        $this->ver_descuento_individual = false;
+        $this->descuento_individual = null;
+        $this->precio_descuento = null;
+        $this->descuento_i = null;
+    }
+
+    public function historial()
+    {
+        $historial = new HistorialFactura();
+        //condicional que si el total a pagar es con descuento o no
+        if ($this->descuento) {
+            $historial->monto = $this->totalPagadoDescuento;
+        } else {
+            $historial->monto = $this->totalPagado;
+        }
+        $historial->numFactura = $this->numFactura;
+        $historial->fecha = $this->fecha;
+
+        $historial->descripcion = "Nuevo Registro - Venta Realizada";
+        $historial->client_id = $this->client_id;
+        $historial->user_id = auth()->user()->id;
+        $historial->metodoPago = $this->metodoPago;
+        $historial->save();
+    }
+
+
+
+
+    public function calcular()
+    {
+        if (!$this->productSel) {
+            return $this->totalPagado = 0;
+        }
+
+        if (!$this->cantidad) $this->cantidad = 1;
+
+        if ($this->cantidad > $this->productSel->stock) {
+            session()->flash('cantidad', '*La cantidad digitada no puede ser mayor al stock disponible.');
+            $this->cantidad = $this->productSel->stock;
+        }
+
+        if ($this->cantidad < 1) {
+            session()->flash('cantidad', '*La cantidad digitada no puede ser menor a 1.');
+            $this->cantidad = 1;
+        }
+
+        // Precio por mayor o unidad base
+        $this->precio = $this->cantidad >= 3
+            ? floatval($this->productSel->precio_venta_mayor)
+            : floatval($this->productSel->precio_venta_unidad);
+
+        $this->totalPagado = round($this->precio * $this->cantidad, 2);
+
+        // Si hay descuento individual activo, recalculamos al cambiar la cantidad
+        if ($this->descuento_individual == "Si" && $this->descuento_i) {
+            $this->mostarDescuentoIndividual();
+        }
+    }
+
+
+    public function comprobarPago()
+    {
+        //Valida que el total recibido es menor a total a pagar
+        if ($this->totalRecibido < $this->totalPagado) {
+            session()->flash('message', '*El total recibido no puede ser menor al total a pagar.');
+            $this->totalRecibido = $this->totalPagado;
+            $this->cambio = 0;
+            return false;
+        }
+    }
+
+    public function comprobarPagoDescuento()
+    {
+        if ($this->totalRecibido < $this->totalPagadoDescuento) {
+            session()->flash('message', '*El total recibido no puede ser menor al total a pagar.');
+            $this->totalRecibido = $this->totalPagadoDescuento;
+            $this->cambio = 0;
+            return false;
+        }
+    }
+
+    public function pagoTransferencia()
+    {
+        if ($this->metodoPago == "Transferencia Bancaria") {
+            $this->totalRecibido = $this->totalPagado;
+            $this->cambio = 0;
+        }
+    }
+
+    public function updated($field)
+    {
+        if ($field === 'totalRecibido' || $field === 'totalPagadoDescuento' || $field === 'totalPagado') {
+            $this->cambio();
+        }
+    }
+
+    public function cambio()
+    {
+        //verifica si el cambio a dar es resultado de un descuento
+        if ($this->descuento) {
+            $this->cambio = round($this->totalRecibido - $this->totalPagadoDescuento, 2);
+            $this->comprobarPagoDescuento();
+        } else {
+            $this->cambio = round($this->totalRecibido - $this->totalPagado, 2);
+            $this->comprobarPago();
+        }
+    }
+
+    //radio button que valida si se va a aplicar descuento individual
+    public function getPrecio()
+    {
+        return $this->descuento_individual == "Si" ? $this->precio_descuento : $this->precio;
+    }
+
+    //funcion para agregar el producto al carrito
+    public function addItem($array)
+    {
+        if ($this->productSel == null) {
+            session()->flash('addItem', '*Campos Vacíos. Agrega un producto primero.');
+            return false;
+        }
+
+        // Determinamos si se aplicó descuento individual para guardar el precio unitario final con descuento
+        $precioFinalUnitario = $this->precio;
+        if ($this->descuento_individual == "Si" && $this->descuento_i) {
+            $precioUnitarioBase = $this->precio;
+            $montoDescuentoUnitario = ($precioUnitarioBase * $this->descuento_i) / 100;
+            $precioFinalUnitario = round($precioUnitarioBase - $montoDescuentoUnitario, 2);
+        }
+
+        $datos = [
+            "id" => $this->productSel->id,
+            "descripcion" => $this->productSel->descripcion,
+            "precio_venta" => $precioFinalUnitario, // Guardamos el precio unitario ya descontado
+            "cantidad" => $this->cantidad,
+            "total" => round($precioFinalUnitario * $this->cantidad, 2),
+        ];
+
+        $indexBuscar = array_search($this->productSel->id, array_column($this->detailProduct, 'id'));
+
+        if ($indexBuscar !== false) {
+            $this->detailProduct[$indexBuscar]['cantidad'] += $this->cantidad;
+            $this->detailProduct[$indexBuscar]['total'] = round($this->detailProduct[$indexBuscar]['cantidad'] * $this->detailProduct[$indexBuscar]['precio_venta'], 2);
+        } else {
+            array_push($this->detailProduct, $datos);
+        }
+
+        $this->limpiarBusqueda();
+        $this->recalcularTotales();
+    }
+
+
+    //funcion para eliminar el producto de la cesta
+    public function destroy($key)
+    {
+        array_splice($this->detailProduct, $key, 1);
+        $valorInicial = 0;
+
+        $suma = array_reduce($this->detailProduct, function ($acc, $arr) {
+            return $acc + $arr['total'];
+        }, $valorInicial);
+
+        $this->total = $suma;
+        $this->totalPagado = round($this->total, 2);
+    }
+
+    public function store()
+    {
+
+        $this->validate([
+            'numFactura' => 'required|numeric|unique:sales,numFactura',
+            'fecha' => 'required|date',
+            'client_id' => 'required',
+            'descuento' => 'nullable|numeric',
+            'totalPagado' => 'required|numeric',
+            'cambio' => 'required|numeric',
+            'totalRecibido' => 'required|numeric',
+            'totalDescuento' => 'nullable|numeric',
+            'totalPagadoDescuento' => 'nullable|numeric',
+            'metodoPago' => 'required|string'
+
+        ]);
+        $newventa = new Sale();
+        $newventa->client_id = $this->client_id;
+        $newventa->descuento = $this->descuento;
+        $newventa->numFactura = $this->numFactura;
+        $newventa->fecha = $this->fecha;
+        $newventa->totalPagado = $this->totalPagado;
+        $newventa->cambio = $this->cambio;
+        $newventa->totalRecibido = $this->totalRecibido;
+        $newventa->totalDescuento = $this->totalDescuento;
+        $newventa->totalPagadoDescuento = $this->totalPagadoDescuento;
+        $newventa->user_id = auth()->user()->id;
+        $newventa->metodoPago = $this->metodoPago;
+        $newventa->save();
+
+        event(new SaleCreated());
+
+        //historial de factura
+        $this->historial();
+
+        //añade el numero de factura y lo suma
+        $setting = Setting::first();
+        $setting->consecutivo = $this->numFactura;
+        $setting->save();
+
+        //itera los productos añadidos a la cesta
+        foreach ($this->detailProduct as $product) {
+            $detaProduc = new DetailSale();
+            $detaProduc->product_id = $product['id'];
+            $detaProduc->sale_id = $newventa->id;
+            $detaProduc->precio = $product['precio_venta'];
+            $detaProduc->cantidad = $product['cantidad'];
+            $detaProduc->total = $product['total'];
+            $detaProduc->save();
+
+            //elimina del inventario las cantidades del producto facturado
+            $stock = Product::find($product['id']);
+            $stock->stock = $stock->stock - $product['cantidad'];
+            $stock->save();
+
+            $newActivity = new ActivityLog();
+            $newActivity->user_id = auth()->user()->id;
+            $newActivity->activity = "Nuevo Registro - Venta Realizada";
+            $newActivity->detail = "No Factura: " . $newventa->numFactura;
+            $newActivity->save();
+
+            // Registramos la venta del producto en `product_sales`
+            $productoVenta = new ProductSale();
+            $productoVenta->product_id = $product['id'];
+            $productoVenta->quantity_sold = $product['cantidad'];
+            $productoVenta->date = now(); // Puedes usar now()
+            $productoVenta->save();
+        }
+        //algoritmo para imprimir voucher **importante*** solo para windows
+
+        //$impresora = "//localhost/POS-58";
+        //$connector = new WindowsPrintConnector($impresora);
+        //$printer = new Printer($connector);
+        //$printer->getPrintConnector()->write(chr(27) . chr(112) . chr(0) . chr(55) . chr(255));
+        //$img = EscposImage::load("main.jpg");
+        //datos del negocio
+        //justificado al centro
+        //$printer->setjustification(Printer::JUSTIFY_CENTER);
+        //$printer->text("Eli Makeup Store\n\n");
+        //$printer->graphics($img);
+        //$printer->text("Dirección: Matagalpa, de gasolinera gas central 90mtrs al oeste, contigo a restaurante el" . "\n");
+        //$printer->text("taquero" . "\n");
+        //$printer->text("Teléfono: 8841-6715 / 8703-2918" . "\n");
+        //$printer->text("===============================\n");
+
+        //justificar a la derecha
+        //$printer->setjustification(Printer::JUSTIFY_LEFT);
+        //$printer->text("Fecha: " . Carbon::parse($newventa->created_at) . "\n");
+        //$printer->text("No de factura: " . $newventa->numFactura . "\n");
+        //$printer->text("===============================\n");
+
+        //justificado a la izquierda
+        //$printer->setjustification(Printer::JUSTIFY_LEFT);
+        //$printer->text("Cliente: ". $newventa->client->nombreApellido . "\n\n");
+
+        //justificado al centro
+        //$printer->setjustification(Printer::JUSTIFY_CENTER);
+        //$printer->text("==================\n");
+        //$printer->text("Detalle de la venta\n");
+        //$printer->text("==================\n");
+
+        //justificado a la izquierda
+        //$printer->setjustification(Printer::JUSTIFY_LEFT);
+        //$fonts = array(Printer::FONT_A, Printer::FONT_B, Printer::FONT_C);
+        //$printer->text("Producto|" . "Precio|" . "Cantidad|" . "Total" . "\n");
+        //$printer->text("------------------------------"  . "\n");
+        //foreach($this->detailProduct as $product){
+        //$printer->setFont($fonts[2]);
+        //$printer->text("* " . $product['descripcion'] . " |" . $product['precio_venta'] . "|" . " * " . $product['cantidad'] . " = " .  $product['total'] . "\n" );
+
+        //}
+        //$printer->text("=======================\n");
+        //$printer->text("Total: " . $newventa->totalPagado . "\n");
+        //$printer->text("Cambio: " . $newventa->cambio . "\n");
+        //$printer->text("Atendido por: " . $newventa->user->name . "\n\n\n\n");
+        //$printer->text('Nota: revise su árticulo, no se aceptan devoluciones');
+        //$printer ->cut();
+        //$printer ->close();
+
+        Alert::success('Venta', 'Venta realizada exitosamente');
+        $this->refresh();
+    }
+
+    // Incrementar cantidad desde la tabla
+    public function incrementarCantidad($key)
+    {
+        if (isset($this->detailProduct[$key])) {
+            // Validar stock antes de incrementar si lo deseas
+            $product = Product::find($this->detailProduct[$key]['id']);
+            if ($product && $this->detailProduct[$key]['cantidad'] < $product->stock) {
+                $this->detailProduct[$key]['cantidad']++;
+                
+                // Mantiene el precio unitario que ya tenía (con o sin descuento) y recalcula el total
+                $precioUnitario = $this->detailProduct[$key]['precio_venta'];
+                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
+
+                $this->recalcularTotales();
+            } else {
+                session()->flash('addItem', '*No hay más stock disponible para este producto.');
+            }
+        }
+    }
+   
+    // Decrementar cantidad desde la tabla
+    public function decrementarCantidad($key)
+    {
+        if (isset($this->detailProduct[$key])) {
+            if ($this->detailProduct[$key]['cantidad'] > 1) {
+                $this->detailProduct[$key]['cantidad']--;
+                
+                $precioUnitario = $this->detailProduct[$key]['precio_venta'];
+                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
+
+                $this->recalcularTotales();
+            }
+        }
+    }
+
+    // Método auxiliar para no repetir código de suma de totales
+    private function recalcularTotales()
+    {
+        $suma = array_reduce($this->detailProduct, function ($acc, $arr) {
+            return $acc + $arr['total'];
+        }, 0);
+
+        $this->total = $suma;
+        $this->totalPagado = round($this->total, 2);
+
+        // Si ya había un descuento general aplicado, lo recalculamos también
+        if ($this->descuento) {
+            $this->mostrarDescuento();
+        }
+    }
+   
+
+}
