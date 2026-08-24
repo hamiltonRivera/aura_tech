@@ -19,10 +19,8 @@
         "livewire/flux": "^2.0",
         "livewire/livewire": "^3.8",
         "livewire/volt": "*",
-        "mike42/escpos-php": "^4.0",
         "pusher/pusher-php-server": "^7.2",
         "realrashid/sweet-alert": "*",
-        "spatie/laravel-backup": "*",
         "spatie/laravel-permission": "^6.16"
     },
     "require-dev": {
