@@ -8082,15 +8082,17 @@ function diff(left, right, diffs = {}, path = "") {
   let leftKeys = Object.keys(left);
   let rightKeys = Object.keys(right);
   if (isObject(left) && leftKeys.length === rightKeys.length && leftKeys.some((key, i) => key !== rightKeys[i])) {
-    diffs[path] = right;
-    return diffs;
+    if (path !== "") {
+      diffs[path] = right;
+      return diffs;
+    }
   }
   Object.entries(right).forEach(([key, value]) => {
     diffs = { ...diffs, ...diff(left[key], right[key], diffs, path === "" ? key : `${path}.${key}`) };
     leftKeys = leftKeys.filter((i) => i !== key);
   });
   leftKeys.forEach((key) => {
-    diffs[`${path}.${key}`] = "__rm__";
+    diffs[path === "" ? key : `${path}.${key}`] = "__rm__";
   });
   return diffs;
 }
@@ -8855,6 +8857,8 @@ async function sendRequest(pool) {
   }
   if (response.redirected) {
     window.location.href = response.url;
+    finishProfile({ content, failed: false });
+    return;
   }
   if (contentIsFromDump(content)) {
     let dump;
@@ -9680,6 +9684,12 @@ function extractDestinationFromLink(linkEl) {
 function createUrlObjectFromString(urlString) {
   return urlString !== null && new URL(urlString, document.baseURI);
 }
+function isSameOrigin(destination) {
+  return !!destination && destination.origin === window.location.origin;
+}
+function visitNatively(destination) {
+  window.location.href = destination.href;
+}
 function getUriStringFromUrlObject(urlObject) {
   return urlObject.pathname + urlObject.search + urlObject.hash;
 }
@@ -10178,7 +10188,7 @@ function navigate_default(Alpine24) {
     let preserveScroll = modifiers.includes("preserve-scroll");
     shouldPrefetchOnHover && whenThisLinkIsHoveredFor(el, 60, () => {
       let destination = extractDestinationFromLink(el);
-      if (!destination)
+      if (!isSameOrigin(destination))
         return;
       prefetchHtml(destination, (html, finalDestination) => {
         storeThePrefetchedHtmlForWhenALinkIsClicked(html, destination, finalDestination);
@@ -10188,7 +10198,7 @@ function navigate_default(Alpine24) {
       let destination = extractDestinationFromLink(el);
       if (!destination)
         return;
-      prefetchHtml(destination, (html, finalDestination) => {
+      isSameOrigin(destination) && prefetchHtml(destination, (html, finalDestination) => {
         storeThePrefetchedHtmlForWhenALinkIsClicked(html, destination, finalDestination);
       });
       whenItIsReleased(() => {
@@ -10204,8 +10214,12 @@ function navigate_default(Alpine24) {
     });
   });
   function navigateTo(destination, { preserveScroll = false, shouldPushToHistoryState = true }) {
+    if (!isSameOrigin(destination))
+      return visitNatively(destination);
     showProgressBar && showAndStartProgressBar();
     fetchHtmlOrUsePrefetchedHtml(destination, (html, finalDestination) => {
+      if (!isSameOrigin(finalDestination))
+        return visitNatively(finalDestination);
       let swapCallbacks = [];
       fireEventForOtherLibrariesToHookInto("alpine:navigating", {
         onSwap: (callback) => swapCallbacks.push(callback)
@@ -10739,7 +10753,8 @@ async function onlyIfAssetsHaventBeenLoadedAlreadyOnThisPage(key, callback) {
 async function addAssetsToHeadTagOfPage(rawHtml) {
   let newDocument = new DOMParser().parseFromString(rawHtml, "text/html");
   let newHead = document.adoptNode(newDocument.head);
-  for (let child of newHead.children) {
+  let children = [...newHead.children];
+  for (let child of children) {
     try {
       await runAssetSynchronously(child);
     } catch (error2) {
