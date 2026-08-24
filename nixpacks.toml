@@ -1,0 +1,18 @@
+[phases.setup]
+nixPkgs = [
+    "php82",
+    "php82extensions.pdo_mysql",
+    "php82extensions.mbstring",
+    "php82extensions.openssl",
+    "php82extensions.curl",
+    "php82extensions.fileinfo",
+    "composer",
+    "nodejs"
+]
+
+[phases.build]
+cmds = [
+    "composer install --no-dev --optimize-autoloader",
+    "npm install",
+    "npm run build"
+]
