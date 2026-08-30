@@ -26,6 +26,7 @@ Route::controller(DailyProcessController::class)->group(function(){
   Route::get('credit_sales_done', 'credit_sales_done')->name('credit_sales_done');
   Route::get('catalog', 'catalog')->name('catalog');
   Route::get('proforma', 'proforma')->name('proforma');
+  Route::get('combos', 'combos')->name('combos');
   });
 });
 

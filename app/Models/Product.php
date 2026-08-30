@@ -44,4 +44,9 @@ class Product extends Model
     {
         return $this->hasMany(CreditSale::class);
     }
+
+    public function comboDetails()
+    {
+        return $this->hasMany(ComboDetail::class);
+    }
 }

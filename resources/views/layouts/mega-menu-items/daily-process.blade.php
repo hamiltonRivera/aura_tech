@@ -77,9 +77,15 @@
                             </a>
                         </li>
 
-                        <li>
+                        {{-- <li>
                             <a href="{{ route('catalog') }}" class="mega-menu-ul-li-a">
                                 <i class="fa-solid fa-book-open"></i> Catálogo
+                            </a>
+                        </li> --}}
+
+                        <li>
+                            <a href="{{ route('combos') }}" class="mega-menu-ul-li-a">
+                                <i class="fa-solid fa-book-open"></i> Combos
                             </a>
                         </li>
 
