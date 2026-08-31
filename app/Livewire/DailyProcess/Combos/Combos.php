@@ -4,11 +4,13 @@ namespace App\Livewire\DailyProcess\Combos;
 
 use Livewire\Component;
 use App\Models\ActivityLog;
+use App\Models\Category;
 use RealRashid\SweetAlert\Facades\Alert;
 use Livewire\WithPagination;
 use App\Models\Product;
 use App\Models\Discount;
 use App\Models\ComboDetail;
+use App\Models\Combo;
 class Combos extends Component
 {
 
@@ -18,9 +20,8 @@ class Combos extends Component
     public $productSel;
     public $detailProduct = [];
 
-    public $product_id, $quantity, $discount, $total_price, $total_discount, $ver_descuento_individual, $descuento_i, $description;
+    public $product_id, $quantity, $discount, $total_price, $description, $stock;
 
-    public $monto_descontado_individual, $subtotalSinDescuento, $precio_descuento, $descuento_individual;
 
     //porcentaje de descuentos
     public $descuentos;
@@ -56,32 +57,6 @@ class Combos extends Component
         return view('livewire.daily-process.combos.combos', compact('products'));
     }
 
-    public function mostarDescuentoIndividual()
-    {
-        if ($this->productSel) {
-            if ($this->descuento_individual == "Si") {
-                $this->ver_descuento_individual = true;
-
-                // Si ya eligió un porcentaje, calculamos. Si no, dejamos los montos en 0 o vacíos temporalmente
-                if ($this->descuento_i) {
-                    $subtotalSinDescuento = $this->total_price * $this->quantity;
-                    $this->monto_descontado_individual = round(($subtotalSinDescuento * $this->descuento_i) / 100, 2);
-                    $this->precio_descuento = round($subtotalSinDescuento - $this->monto_descontado_individual, 2);
-                } else {
-                    $this->monto_descontado_individual = 0;
-                    $this->precio_descuento = $this->total_discount * $this->quantity;
-                }
-            } else {
-                // Si marca "No", limpiamos los valores del descuento individual
-                $this->ver_descuento_individual = false;
-                $this->descuento_i = null;
-                $this->monto_descontado_individual = 0;
-                $this->precio_descuento = $this->total_price * $this->quantity;
-            }
-        } else {
-            $this->descuento_individual = null;
-        }
-    }
 
     public function refresh()
     {
@@ -108,28 +83,21 @@ class Combos extends Component
     public function limpiarBusqueda()
     {
         $this->search_product = null;
-        $this->total_price = null;
         $this->quantity = null;
         $this->product_id = null;
         $this->productSel = null;
-        $this->ver_descuento_individual = false;
-        $this->descuento_individual = null;
-        $this->precio_descuento = null;
-        $this->descuento_i = null;
     }
 
     // Incrementar cantidad desde la tabla
     public function incrementarCantidad($key)
     {
         if (isset($this->detailProduct[$key])) {
-            // Validar stock antes de incrementar si lo deseas
-            $product = Product::find($this->detailProduct[$key]['id']);
-            if ($product && $this->detailProduct[$key]['cantidad'] < $product->stock) {
-                $this->detailProduct[$key]['cantidad']++;
+            $product = Product::find($this->detailProduct[$key]['product_id']);
+            if ($product && $this->detailProduct[$key]['quantity'] < $product->stock) {
+                $this->detailProduct[$key]['quantity']++;
                 
-                // Mantiene el precio unitario que ya tenía (con o sin descuento) y recalcula el total
                 $precioUnitario = $this->detailProduct[$key]['precio_venta'];
-                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
+                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['quantity'] * $precioUnitario, 2);
 
                 $this->recalcularTotales();
             } else {
@@ -142,12 +110,11 @@ class Combos extends Component
     public function decrementarCantidad($key)
     {
         if (isset($this->detailProduct[$key])) {
-            if ($this->detailProduct[$key]['cantidad'] > 1) {
-                $this->detailProduct[$key]['cantidad']--;
+            if ($this->detailProduct[$key]['quantity'] > 1) {
+                $this->detailProduct[$key]['quantity']--;
                 
                 $precioUnitario = $this->detailProduct[$key]['precio_venta'];
-                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
-
+                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['quantity'] * $precioUnitario, 2);
                 $this->recalcularTotales();
             }
         }
@@ -160,13 +127,7 @@ class Combos extends Component
             return $acc + $arr['total'];
         }, 0);
 
-        $this->total = $suma;
-        $this->totalPagado = round($this->total, 2);
-
-        // Si ya había un descuento general aplicado, lo recalculamos también
-        if ($this->descuento) {
-            $this->mostrarDescuento();
-        }
+        $this->total_price = round($suma, 2);
     }
 
     public function addItem($array = null)
@@ -180,7 +141,6 @@ class Combos extends Component
             $this->quantity = 1;
         }
 
-        // Verificamos si el producto ya está en la cesta temporal para acumular su cantidad
         $cantidadEnCesta = 0;
         $indexBuscar = array_search($this->productSel->id, array_column($this->detailProduct, 'product_id'));
         if ($indexBuscar !== false) {
@@ -189,23 +149,13 @@ class Combos extends Component
 
         $cantidadTotalSolicitada = $cantidadEnCesta + $this->quantity;
 
-        // Validación estricta contra el stock actual del producto
         if ($cantidadTotalSolicitada > $this->productSel->stock) {
             session()->flash('addItem', '*No se puede agregar más de lo que hay en inventario. Stock disponible: ' . $this->productSel->stock);
             return false;
         }
 
-        // Tomamos el precio base asignado al combo
-        $precioBaseCombo = floatval($this->total_price); 
-        $precioFinalUnitario = $precioBaseCombo;
+        $precioFinalUnitario = floatval($this->total_price); 
 
-        // Si se activó el descuento individual, recalculamos el precio unitario
-        if ($this->descuento_individual == "Si" && $this->descuento_i) {
-            $montoDescuentoUnitario = ($precioBaseCombo * $this->descuento_i) / 100;
-            $precioFinalUnitario = round($precioBaseCombo - $montoDescuentoUnitario, 2);
-        }
-
-        // Estructura adaptada a las columnas reales del modelo ComboDetail y la vista
         $datos = [
             "product_id" => $this->productSel->id,
             "descripcion" => $this->productSel->descripcion,
@@ -222,9 +172,72 @@ class Combos extends Component
         }
 
         $this->limpiarBusqueda();
-        $this->recalcularTotales();
     }
 
+    //funcion para eliminar el producto de la cesta
+    public function destroy($key)
+    {
+        array_splice($this->detailProduct, $key, 1);
+        $valorInicial = 0;
 
+        $suma = array_reduce($this->detailProduct, function ($acc, $arr) {
+            return $acc + $arr['total'];
+        }, $valorInicial);
+
+        $this->total_price = round($suma, 2);
+    }
+
+    public function store()
+    {
+        $this->validate([
+            'description' => 'required|string|max:255',
+            'total_price' => 'required|numeric|min:0',
+        ]);
+
+        $category = Category::where('name', 'combos')->first();
+
+        $newCombo = new Combo();
+        $newCombo->description = $this->description;
+        $newCombo->total_price = $this->total_price;
+        $newCombo->save();
+        
+        //itera los productos añadidos a la cesta
+        foreach ($this->detailProduct as $item) {
+            $comboDetail = new ComboDetail();
+            $comboDetail->combo_id = $newCombo->id;
+            $comboDetail->product_id = $item['product_id'];
+            $comboDetail->quantity = $item['quantity'];
+            $comboDetail->save();
+        }
+
+        //guarda el producto 
+        $newProduct = new Product();
+        $newProduct->descripcion = $this->description;
+        $newProduct->stock = $this->stock; // Asignar un stock alto para el combo
+        $newProduct->precio_compra = 0; // Asignar un precio de compra de 0 para el combo
+        $newProduct->precio_venta_unidad = $this->total_price; // Asignar el precio de venta del combo
+        $newProduct->precio_venta_mayor = $this->total_price; // Asignar el precio de venta del combo
+        $newProduct->codigo = $this->generateUniqueCode();
+        $newProduct->category_id = $category->id;
+        $newProduct->save();
+
+        $newActivitie = new ActivityLog();
+        $newActivitie->user_id = auth()->user()->id;
+        $newActivitie->activity = "Nuevo Registro - Combo";
+        $newActivitie->detail = $newCombo->description;
+        $newActivitie->save();
+
+        Alert::success('Combo', 'Combo creado exitosamente');
+        $this->refresh();
+    }
+
+    public function generateUniqueCode()
+    {
+        do {
+            $code = chr(mt_rand(65, 90)) . mt_rand(10000000, 99999999);
+        } while (Product::where('codigo', $code)->exists());
+        
+        return $code;
+    }
 
 }

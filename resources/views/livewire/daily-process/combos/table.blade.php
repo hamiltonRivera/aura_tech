@@ -12,30 +12,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {{-- @foreach ($detailProduct as $key => $item)
+                        @foreach ($detailProduct as $key => $item)
                             <tr class="text-center">
                                 <td>{{ $key + 1 }}</td>
                                 <td>{{ $item['descripcion'] }}</td>
                                 <td>
                                     <!-- Controles de Cantidad -->
                                     <div class="flex items-center justify-center space-x-2">
-                                        <!-- Botón MENOS: Fondo Rojo, Texto Blanco -->
+                                        <!-- Botón MENOS -->
                                         <button type="button" wire:click="decrementarCantidad({{ $key }})"
                                             class="bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-1 rounded shadow text-xs">
                                             <i class="fa-solid fa-minus"></i>
                                         </button>
 
-                                        <span
-                                            class="font-semibold w-8 text-center text-gray-700">{{ $item['cantidad'] }}</span>
+                                        <span class="font-semibold w-8 text-center text-gray-700">{{ $item['quantity'] }}</span>
 
-                                        <!-- Botón MÁS: Fondo Verde, Texto Blanco -->
+                                        <!-- Botón MÁS -->
                                         <button type="button" wire:click="incrementarCantidad({{ $key }})"
                                             class="bg-green-500 hover:bg-green-600 text-white font-bold px-2 py-1 rounded shadow text-xs">
                                             <i class="fa-solid fa-plus"></i>
                                         </button>
                                     </div>
                                 </td>
-                                <td>{{ $item['total'] }}</td>
                                 <td>
                                     <button class="boton-eliminar" wire:confirm="Confirmacion de eliminar producto"
                                         wire:click="destroy({{ $key }})">
@@ -43,7 +41,7 @@
                                     </button>
                                 </td>
                             </tr>
-                        @endforeach --}}
+                        @endforeach
                     </tbody>
                 </table>
             </div>

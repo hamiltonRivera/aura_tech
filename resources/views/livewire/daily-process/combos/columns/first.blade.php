@@ -1,19 +1,21 @@
 <div class="ml-5 mb-3 mt-3">
     <label for="">Descripción</label>
-    <input type="text" name="descripcion" wire:model="descripcion" placeholder="Descripción:"
+    <input type="text" name="description" wire:model="description" placeholder="Descripción:"
         class="inputs-formularios-cortos form-control" required>
 </div>
-@error('descripcion')
+@error('description')
     <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
 @enderror
 
 <div class="ml-5 mb-3 mt-3">
-    <label for="">cantidad</label>
-    <input type="number" min="1" max="{{ optional($this->productSel)->stock ?? 9999 }}" wire:model.live="quantity" name="quantity" placeholder="cantidad:"
-        class="inputs-formularios-cortos forn-control" required>
+    <label for="">Cantidad</label>
+    <input type="number" name="cantidad" wire:model="quantity" min="1"
+        max="{{ $productSel ? $productSel->stock : '' }}" class="inputs-formularios-cortos" required>
     @error('quantity')
         <p class="error">{{ $message }}</p>
     @enderror
+
+    
 </div>
 
 <div class="ml-5 mb-3 mt-3">

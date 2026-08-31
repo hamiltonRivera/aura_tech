@@ -402,57 +402,6 @@ class Sales extends Component
             $productoVenta->date = now(); // Puedes usar now()
             $productoVenta->save();
         }
-        //algoritmo para imprimir voucher **importante*** solo para windows
-
-        //$impresora = "//localhost/POS-58";
-        //$connector = new WindowsPrintConnector($impresora);
-        //$printer = new Printer($connector);
-        //$printer->getPrintConnector()->write(chr(27) . chr(112) . chr(0) . chr(55) . chr(255));
-        //$img = EscposImage::load("main.jpg");
-        //datos del negocio
-        //justificado al centro
-        //$printer->setjustification(Printer::JUSTIFY_CENTER);
-        //$printer->text("Eli Makeup Store\n\n");
-        //$printer->graphics($img);
-        //$printer->text("Dirección: Matagalpa, de gasolinera gas central 90mtrs al oeste, contigo a restaurante el" . "\n");
-        //$printer->text("taquero" . "\n");
-        //$printer->text("Teléfono: 8841-6715 / 8703-2918" . "\n");
-        //$printer->text("===============================\n");
-
-        //justificar a la derecha
-        //$printer->setjustification(Printer::JUSTIFY_LEFT);
-        //$printer->text("Fecha: " . Carbon::parse($newventa->created_at) . "\n");
-        //$printer->text("No de factura: " . $newventa->numFactura . "\n");
-        //$printer->text("===============================\n");
-
-        //justificado a la izquierda
-        //$printer->setjustification(Printer::JUSTIFY_LEFT);
-        //$printer->text("Cliente: ". $newventa->client->nombreApellido . "\n\n");
-
-        //justificado al centro
-        //$printer->setjustification(Printer::JUSTIFY_CENTER);
-        //$printer->text("==================\n");
-        //$printer->text("Detalle de la venta\n");
-        //$printer->text("==================\n");
-
-        //justificado a la izquierda
-        //$printer->setjustification(Printer::JUSTIFY_LEFT);
-        //$fonts = array(Printer::FONT_A, Printer::FONT_B, Printer::FONT_C);
-        //$printer->text("Producto|" . "Precio|" . "Cantidad|" . "Total" . "\n");
-        //$printer->text("------------------------------"  . "\n");
-        //foreach($this->detailProduct as $product){
-        //$printer->setFont($fonts[2]);
-        //$printer->text("* " . $product['descripcion'] . " |" . $product['precio_venta'] . "|" . " * " . $product['cantidad'] . " = " .  $product['total'] . "\n" );
-
-        //}
-        //$printer->text("=======================\n");
-        //$printer->text("Total: " . $newventa->totalPagado . "\n");
-        //$printer->text("Cambio: " . $newventa->cambio . "\n");
-        //$printer->text("Atendido por: " . $newventa->user->name . "\n\n\n\n");
-        //$printer->text('Nota: revise su árticulo, no se aceptan devoluciones');
-        //$printer ->cut();
-        //$printer ->close();
-
         Alert::success('Venta', 'Venta realizada exitosamente');
         $this->refresh();
     }

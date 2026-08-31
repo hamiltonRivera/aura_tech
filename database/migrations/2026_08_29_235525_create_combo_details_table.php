@@ -18,6 +18,11 @@ return new class extends Migration
             ->onDelete('cascade')
             ->onUpdate('cascade');
 
+            $table->foreignId('combo_id')
+            ->constrained('combos')
+            ->onDelete('cascade')
+            ->onUpdate('cascade');  
+
              $table->integer('quantity');
             $table->timestamps();
         });

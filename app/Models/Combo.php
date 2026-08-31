@@ -9,9 +9,7 @@ class Combo extends Model
     use HasFactory;
 
     protected $fillable = [
-        'discount',
         'total_price',
-        'total_discount',
         'description'
     ];
 

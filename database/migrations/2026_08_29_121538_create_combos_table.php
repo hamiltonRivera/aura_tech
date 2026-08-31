@@ -18,7 +18,6 @@ return new class extends Migration
            
             $table->decimal('discount', 8,2)->nullable();
             $table->decimal('total_price', 8,2);
-            $table->decimal('total_discount', 8,2)->nullable();
             $table->string('description');
             
             $table->timestamps();
