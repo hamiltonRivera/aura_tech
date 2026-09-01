@@ -17,6 +17,7 @@ class CombosEUD extends Component
     public $search_product = '';
     public $comboSel;
     public $description, $total_price;
+    public $combo_id, $product_id,$quantity;
 
     public function render()
     {
