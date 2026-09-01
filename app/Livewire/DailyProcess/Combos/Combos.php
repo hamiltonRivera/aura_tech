@@ -16,7 +16,7 @@ class Combos extends Component
 
     use WithPagination;
     public $search = '';
-    public $search_product = '';
+   
     public $productSel;
     public $detailProduct = [];
 
