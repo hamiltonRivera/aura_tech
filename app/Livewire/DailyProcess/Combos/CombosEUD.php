@@ -16,7 +16,7 @@ class CombosEUD extends Component
     use WithPagination;
     public $search_product = '';
     public $comboSel;
-    public $description;
+    public $description, $total_price;
 
     public function render()
     {
