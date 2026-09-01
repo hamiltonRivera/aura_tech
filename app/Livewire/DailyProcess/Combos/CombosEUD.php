@@ -7,6 +7,8 @@ use App\Models\ActivityLog;
 use RealRashid\SweetAlert\Facades\Alert;
 use Livewire\WithPagination;
 use App\Models\Product;
+use App\Models\ComboDetail;
+use App\Models\Combo;
 
 class CombosEUD extends Component
 {
