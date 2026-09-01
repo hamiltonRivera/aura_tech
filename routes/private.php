@@ -27,6 +27,7 @@ Route::controller(DailyProcessController::class)->group(function(){
   Route::get('catalog', 'catalog')->name('catalog');
   Route::get('proforma', 'proforma')->name('proforma');
   Route::get('combos', 'combos')->name('combos');
+  Route::get('combos_e_u_d', 'combos_e_u_d')->name('combos_e_u_d');
   });
 });
 

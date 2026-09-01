@@ -246,4 +246,9 @@ class DailyProcessController extends Controller
     {
         return view('daily-process.combos');
     }
+
+    public function combos_e_u_d()
+    {
+        return view('daily-process.combos_e_u_d');
+    }
 }
