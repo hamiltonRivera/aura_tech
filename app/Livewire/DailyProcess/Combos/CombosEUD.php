@@ -3,6 +3,7 @@
 namespace App\Livewire\DailyProcess\Combos;
 
 use Livewire\Component;
+use App\Models\ActivityLog;
 
 class CombosEUD extends Component
 {
