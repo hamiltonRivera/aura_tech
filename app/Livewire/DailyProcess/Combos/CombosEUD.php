@@ -20,7 +20,8 @@ class CombosEUD extends Component
     public $combo_id, $product_id,$quantity;
 
     public function render()
-    {
-        return view('livewire.daily-process.combos.combos-e-u-d');
+    {   
+        $combos = Combo:where('description', 'like', '%'. $this->search_product . '%')->paginate(10);
+        return view('livewire.daily-process.combos.combos-e-u-d',compact('combos));
     }
 }
