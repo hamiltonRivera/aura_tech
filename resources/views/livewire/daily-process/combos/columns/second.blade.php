@@ -1,6 +1,6 @@
 <div class="ml-5 mb-3 mt-3">
     <label for="">Buscador sensible --Productos--</label>
-    <input type="text" wire:model.live.debounce.300ms="search_product" placeholder="Busca por código o descripción..."
+    <input type="text" wire:model.live.debounce.300ms="search" placeholder="Busca por código o descripción..."
         class="inputs-formularios-cortos">
 </div>
 

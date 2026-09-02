@@ -27,7 +27,7 @@ class Combos extends Component
     public $descuentos;
 
 
-    public function updatedSearchProduct()
+    public function updatedSearch()
     {
         $this->buscarProducto();
     }
@@ -65,7 +65,7 @@ class Combos extends Component
 
     public function buscarProducto()
     {
-        $this->productSel = Product::whereAny(['codigo', 'descripcion'], 'like', '%' . $this->search_product . '%')->first();
+        $this->productSel = Product::whereAny(['codigo', 'descripcion'], 'like', '%' . $this->search . '%')->first();
 
         if ($this->productSel) {
             $this->quantity = 1;
@@ -82,7 +82,7 @@ class Combos extends Component
 
     public function limpiarBusqueda()
     {
-        $this->search_product = null;
+        $this->search = null;
         $this->quantity = null;
         $this->product_id = null;
         $this->productSel = null;
