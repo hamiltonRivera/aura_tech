@@ -14,14 +14,14 @@ class CombosEUD extends Component
 {   
 
     use WithPagination;
-    public $search_product = '';
+    public $search_combo = '';
     public $comboSel;
     public $description, $total_price;
     public $combo_id, $product_id,$quantity;
 
     public function render()
     {   
-        $combos = Combo:where('description', 'like', '%'. $this->search_product . '%')->paginate(10);
+        $combos = Combo::where('description', 'like', '%'. $this->search_combo . '%')->paginate(10);
         return view('livewire.daily-process.combos.combos-e-u-d',compact('combos'));
     }
     

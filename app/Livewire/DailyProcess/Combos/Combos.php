@@ -52,7 +52,7 @@ class Combos extends Component
         $this->descuentos = Discount::orderBy('id', 'asc')->get();
 
         $products = Product::orderBy('id', 'asc')
-            ->whereAny(['descripcion', 'codigo'], 'like', '%' . $this->search_product . '%')->get();
+            ->whereAny(['descripcion', 'codigo'], 'like', '%' . $this->search . '%')->get();
 
         return view('livewire.daily-process.combos.combos', compact('products'));
     }
