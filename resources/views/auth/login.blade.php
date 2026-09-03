@@ -2,7 +2,7 @@
     <x-authentication-card>
         <x-slot name="logo">
            <!-- <x-authentication-card-logo /> -->
-           <img src="images/logo.jpg" alt="" class="mx-auto" style="width: 290px; height: auto;">
+           <img src="images/login.png" alt="" class="">
         </x-slot>
 
         <x-validation-errors class="mb-4" />
