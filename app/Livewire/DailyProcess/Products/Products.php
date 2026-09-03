@@ -99,7 +99,7 @@ class Products extends Component
         $newActivitie->detail = $newProduct->descripcion;
         $newActivitie->save();
 
-        Alert::success('Categoría', 'Categoría registrada exitosamente');
+        Alert::success('Producto', 'Producto registrado exitosamente');
         $this->refresh();
     }
 
