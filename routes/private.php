@@ -28,6 +28,8 @@ Route::controller(DailyProcessController::class)->group(function(){
   Route::get('proforma', 'proforma')->name('proforma');
   Route::get('combos', 'combos')->name('combos');
   Route::get('combos_e_u_d', 'combos_e_u_d')->name('combos_e_u_d');
+  //vista movil
+  Route::get('processes', 'processes')->name('processes');
   });
 });
 

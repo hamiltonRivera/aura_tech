@@ -19,4 +19,10 @@ class Combo extends Model
     {
         return $this->hasMany(ComboDetail::class);
     }
+
+    public function products()
+{
+    return $this->belongsToMany(Product::class, 'combo_details', 'combo_id', 'product_id')
+                ->withPivot('quantity');
+}
 }

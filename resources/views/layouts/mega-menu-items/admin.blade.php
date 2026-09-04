@@ -75,11 +75,11 @@
                                     <i class="fa-solid fa-percent"></i> Descuentos
                                 </a>
                             </li>
-                            <li>
+                            {{-- <li>
                                 <a href="{{ route('backup') }}" class="mega-menu-ul-li-a">
                                     <i class="fa-solid fa-database"></i> Backup
                                 </a>
-                            </li>
+                            </li> --}}
 
                         </ul>
                     </div>

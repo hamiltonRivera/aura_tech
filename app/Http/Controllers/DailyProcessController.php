@@ -251,4 +251,9 @@ class DailyProcessController extends Controller
     {
         return view('daily-process.combos_e_u_d');
     }
+
+    public function processes()
+    {
+        return view('layouts.mobile_view.processes');
+    }
 }

@@ -16,6 +16,7 @@ class Product extends Model
         'precio_venta_unidad',
         'precio_venta_mayor',
         'category_id',
+        'combo_id',
         'codigo'
     ];
     public $timestamp = true;

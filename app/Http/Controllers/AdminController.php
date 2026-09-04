@@ -100,4 +100,9 @@ class AdminController extends Controller
         }
         return response()->download($path);
     }
+
+    public function admin_panel()
+    {
+        return view('layouts.mobile_view.admin_panel');
+    }
 }
