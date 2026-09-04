@@ -20,7 +20,7 @@
 
 <div class="ml-5 mb-3 mt-3">
     <button wire:click="addItem([{{ $product_id }}])" class="boton-lima">
-        <i class="fa-solid fa-cart-plus"></i> Añadir a cesta
+        <i class="fa-solid fa-cart-plus"></i> Añadir al combo
     </button>
 </div>
 
