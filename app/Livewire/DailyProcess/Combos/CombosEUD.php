@@ -45,8 +45,21 @@ class CombosEUD extends Component
             'description' => 'required|string',
             'total_price' => 'required|numeric',
         ]);
+
         $record = Combo::findOrFail($this->comboSel);
+        $oldDescription = $record->description;
+
+        // Actualizamos el combo
         $record->update($validation);
+
+        // Actualizamos en cascada el producto gemelo en la tabla 'products'
+        $product = Product::where('descripcion', $oldDescription)->first();
+        if ($product) {
+            $product->descripcion = $this->description;
+            $product->precio_venta_unidad = $this->total_price;
+            $product->precio_venta_mayor = $this->total_price;
+            $product->save();
+        }
 
         $newActivity = new ActivityLog();
         $newActivity->user_id = auth()->user()->id;
@@ -61,6 +74,14 @@ class CombosEUD extends Component
     public function destroy($id)
     {
         $record = Combo::findOrFail($id);
+
+        // Buscamos y eliminamos en cascada el producto gemelo en la tabla 'products'
+        $product = Product::where('descripcion', $record->description)->first();
+        if ($product) {
+            $product->delete();
+        }
+
+        // Eliminamos el combo (los combo_details se borran solos si configuraste onDelete('cascade') en la migración)
         $record->delete();
 
         $newActivity = new ActivityLog();
