@@ -144,6 +144,8 @@
         </div>
 
         @include('layouts.mobile_view.mobile_panel')
+        @include('layouts.mobile_view.sales')
+        @include('layouts.mobile_view.proforma')
 
         <!-- Responsive Settings Options -->
         <div class="pt-4 pb-1 border-t border-gray-200 dark:border-gray-600">
