@@ -108,12 +108,12 @@ class Sales extends Component
         }
     }
 
-   public function mostarDescuentoIndividual()
+    public function mostarDescuentoIndividual()
     {
         if ($this->productSel) {
             if ($this->descuento_individual == "Si") {
                 $this->ver_descuento_individual = true;
-                
+
                 // Si ya eligió un porcentaje, calculamos. Si no, dejamos los montos en 0 o vacíos temporalmente
                 if ($this->descuento_i) {
                     $subtotalSinDescuento = $this->precio * $this->cantidad;
@@ -334,9 +334,9 @@ class Sales extends Component
         $this->totalPagado = round($this->total, 2);
     }
 
+    
     public function store()
     {
-
         $this->validate([
             'numFactura' => 'required|numeric|unique:sales,numFactura',
             'fecha' => 'required|date',
@@ -348,8 +348,8 @@ class Sales extends Component
             'totalDescuento' => 'nullable|numeric',
             'totalPagadoDescuento' => 'nullable|numeric',
             'metodoPago' => 'required|string'
-
         ]);
+
         $newventa = new Sale();
         $newventa->client_id = $this->client_id;
         $newventa->descuento = $this->descuento;
@@ -375,19 +375,41 @@ class Sales extends Component
         $setting->save();
 
         //itera los productos añadidos a la cesta
-        foreach ($this->detailProduct as $product) {
+        foreach ($this->detailProduct as $item) {
             $detaProduc = new DetailSale();
-            $detaProduc->product_id = $product['id'];
+            $detaProduc->product_id = $item['id'];
             $detaProduc->sale_id = $newventa->id;
-            $detaProduc->precio = $product['precio_venta'];
-            $detaProduc->cantidad = $product['cantidad'];
-            $detaProduc->total = $product['total'];
+            $detaProduc->precio = $item['precio_venta'];
+            $detaProduc->cantidad = $item['cantidad'];
+            $detaProduc->total = $item['total'];
             $detaProduc->save();
 
-            //elimina del inventario las cantidades del producto facturado
-            $stock = Product::find($product['id']);
-            $stock->stock = $stock->stock - $product['cantidad'];
-            $stock->save();
+            // --- INICIO DE LA LÓGICA DE STOCK Y COMBO ---
+            $productModel = Product::find($item['id']);
+            if ($productModel) {
+                // 1. Descontamos el stock del producto principal (ya sea producto normal o combo)
+                $productModel->stock = $productModel->stock - $item['cantidad'];
+                $productModel->save();
+
+                // 2. Verificamos si este producto es un combo buscando por su descripción limpia
+                $descripcionLimpia = trim(strtolower($productModel->descripcion));
+                $combo = \App\Models\Combo::whereRaw('TRIM(LOWER(description)) = ?', [$descripcionLimpia])->first();
+
+                if ($combo) {
+                    // 3. Si es un combo, obtenemos sus componentes y descontamos el stock de cada uno
+                    $comboDetails = \App\Models\ComboDetail::where('combo_id', $combo->id)->get();
+
+                    foreach ($comboDetails as $detail) {
+                        $componentProduct = Product::find($detail->product_id);
+                        if ($componentProduct) {
+                            $quantityToDeduct = $detail->quantity * $item['cantidad'];
+                            $componentProduct->stock = $componentProduct->stock - $quantityToDeduct;
+                            $componentProduct->save();
+                        }
+                    }
+                }
+            }
+            // --- FIN DE LA LÓGICA DE STOCK Y COMBO ---
 
             $newActivity = new ActivityLog();
             $newActivity->user_id = auth()->user()->id;
@@ -397,42 +419,23 @@ class Sales extends Component
 
             // Registramos la venta del producto en `product_sales`
             $productoVenta = new ProductSale();
-            $productoVenta->product_id = $product['id'];
-            $productoVenta->quantity_sold = $product['cantidad'];
-            $productoVenta->date = now(); // Puedes usar now()
+            $productoVenta->product_id = $item['id'];
+            $productoVenta->quantity_sold = $item['cantidad'];
+            $productoVenta->date = now();
             $productoVenta->save();
         }
+
         Alert::success('Venta', 'Venta realizada exitosamente');
         $this->refresh();
     }
-
-    // Incrementar cantidad desde la tabla
-    public function incrementarCantidad($key)
-    {
-        if (isset($this->detailProduct[$key])) {
-            // Validar stock antes de incrementar si lo deseas
-            $product = Product::find($this->detailProduct[$key]['id']);
-            if ($product && $this->detailProduct[$key]['cantidad'] < $product->stock) {
-                $this->detailProduct[$key]['cantidad']++;
-                
-                // Mantiene el precio unitario que ya tenía (con o sin descuento) y recalcula el total
-                $precioUnitario = $this->detailProduct[$key]['precio_venta'];
-                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
-
-                $this->recalcularTotales();
-            } else {
-                session()->flash('addItem', '*No hay más stock disponible para este producto.');
-            }
-        }
-    }
-   
+    
     // Decrementar cantidad desde la tabla
     public function decrementarCantidad($key)
     {
         if (isset($this->detailProduct[$key])) {
             if ($this->detailProduct[$key]['cantidad'] > 1) {
                 $this->detailProduct[$key]['cantidad']--;
-                
+
                 $precioUnitario = $this->detailProduct[$key]['precio_venta'];
                 $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
 
@@ -456,6 +459,4 @@ class Sales extends Component
             $this->mostrarDescuento();
         }
     }
-   
-
 }
