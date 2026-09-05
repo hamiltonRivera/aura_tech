@@ -251,7 +251,7 @@ class Proformas extends Component
         $this->totalPagado = round($this->total, 2);
     }
 
-  public function store()
+ public function store()
 {
     // 1. Buscamos el cliente para obtener su nombre real (o asignar 'Cliente General')
     $client = DB::table('clients')->where('id', $this->client_id)->first();
@@ -279,20 +279,20 @@ class Proformas extends Component
     $newActivity->detail = "Proforma | Cliente: " . ($client ? $client->nombreApellido : 'N/A');
     $newActivity->save();
 
-    // Disparamos el evento para abrir la nueva pestaña con los datos frescos
-    
-
-    Alert::success('Proforma', 'Proforma generada exitosamente');
     // 1. Limpiamos los productos de la proforma y los campos para dejar la vista en blanco
     $this->detailProduct = [];
     $this->total = 0;
     $this->totalPagado = 0;
     $this->client_id = null;
     $this->search_client = '';
+    
+    Alert::success('Proforma', 'Proforma generada exitosamente');
 
-    // 2. Disparamos la descarga
-    $this->dispatch('descargarPdf');
+    // 2. Redirección limpia que dispara la descarga y actualiza la vista de forma nativa
+    return redirect()->route('proforma.pdf');
 }
+    
+
 
     // Incrementar cantidad desde la tabla
     public function incrementarCantidad($key)
