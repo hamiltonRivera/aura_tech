@@ -253,13 +253,10 @@ class Proformas extends Component
 
  public function store()
 {
-    // 1. Buscamos el cliente para obtener su nombre real (o asignar 'Cliente General')
     $client = DB::table('clients')->where('id', $this->client_id)->first();
     $nombreCliente = $client ? $client->nombreApellido : 'Cliente General';
 
-    // 2. Limpiamos y guardamos los datos frescos en la sesión
     session()->forget('proformaData');
-    
     session([
         'proformaData' => [
             'cliente'     => $nombreCliente,
@@ -268,28 +265,30 @@ class Proformas extends Component
             'totalPagado' => $this->totalPagado
         ]
     ]);
-    
-    // Forzamos a que la sesión se guarde inmediatamente
     session()->save();
 
-    // Registro de actividad...
     $newActivity = new ActivityLog();
     $newActivity->user_id = auth()->user()->id;
     $newActivity->activity = "Registro de Proforma";
     $newActivity->detail = "Proforma | Cliente: " . ($client ? $client->nombreApellido : 'N/A');
     $newActivity->save();
 
-    // 1. Limpiamos los productos de la proforma y los campos para dejar la vista en blanco
+ 
+
+    // Limpiamos todas las variables y la tabla por completo
     $this->detailProduct = [];
     $this->total = 0;
     $this->totalPagado = 0;
     $this->client_id = null;
     $this->search_client = '';
-    
+    $this->search_product = '';
+    $this->productSel = null;
     Alert::success('Proforma', 'Proforma generada exitosamente');
+    // Disparamos el evento para que abra el PDF en una pestaña nueva sin perder tu vista limpia
+    $this->dispatch('abrir-pdf', url: route('proforma.pdf'));
+    
 
-    // 2. Redirección limpia que dispara la descarga y actualiza la vista de forma nativa
-    return redirect()->route('proforma.pdf');
+          
 }
     
 

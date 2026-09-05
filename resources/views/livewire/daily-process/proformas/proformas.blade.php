@@ -26,4 +26,10 @@
      @include('livewire.daily-process.proformas.table')
     </div>
 </div>
-
+@script
+<script>
+    $wire.on('abrir-pdf', (event) => {
+        window.open(event.url, '_blank');
+    });
+</script>
+@endscript

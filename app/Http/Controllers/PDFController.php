@@ -17,87 +17,88 @@ use Livewire\WithPagination;
 
 class PDFController extends Controller
 {
-    use WithPagination;
+  use WithPagination;
 
- public function exchange_rate()
- {
+  public function exchange_rate()
+  {
     $records = Cambio::all();
-   $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.exchange_rate', compact('records'));
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.exchange_rate', compact('records'));
     return $pdf->stream('reporte.pdf');
- }
+  }
 
- public function categories()
- {
-   $records = Category::all();
-   $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.categories', compact('records'));
-   return $pdf->stream('reporte.pdf');
- }
+  public function categories()
+  {
+    $records = Category::all();
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.categories', compact('records'));
+    return $pdf->stream('reporte.pdf');
+  }
 
- public function clients()
- {
-  $records = Client::all();
-  $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.clients', compact('records'));
-  return $pdf->stream('reporte.pdf');
- }
+  public function clients()
+  {
+    $records = Client::all();
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.clients', compact('records'));
+    return $pdf->stream('reporte.pdf');
+  }
 
- public function discounts()
- {
-   $records = Discount::all();
-   $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.discounts', compact('records'));
-   return $pdf->stream('reporte.pdf');
- }
+  public function discounts()
+  {
+    $records = Discount::all();
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.discounts', compact('records'));
+    return $pdf->stream('reporte.pdf');
+  }
 
- public function expenses()
- {
-   $records = Gasto::all();
-   $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.expenses', compact('records'));
-   return $pdf->stream('reporte.pdf');
- }
+  public function expenses()
+  {
+    $records = Gasto::all();
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.expenses', compact('records'));
+    return $pdf->stream('reporte.pdf');
+  }
 
- public function products()
- {
-   $records = Product::with('category')->paginate(100);
-   $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.products', compact('records'));
-   return $pdf->stream('reporte.pdf');
- }
+  public function products()
+  {
+    $records = Product::with('category')->paginate(100);
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.products', compact('records'));
+    return $pdf->stream('reporte.pdf');
+  }
 
- public function products_most_sold()
- {
-   $records = ProductSale::with('product')->paginate(100);
-  $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.products_most_sold', compact('records'));
-   return $pdf->stream('reporte.pdf');
- }
+  public function products_most_sold()
+  {
+    $records = ProductSale::with('product')->paginate(100);
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.products_most_sold', compact('records'));
+    return $pdf->stream('reporte.pdf');
+  }
 
- public function users()
- {
-   $records = User::all();
-   $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.users', compact('records'));
-   return $pdf->stream('reporte.pdf');
- }
+  public function users()
+  {
+    $records = User::all();
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.users', compact('records'));
+    return $pdf->stream('reporte.pdf');
+  }
 
- public function credits_record()
- {
-   return view('daily-process.PDFs.credits');
- }
+  public function credits_record()
+  {
+    return view('daily-process.PDFs.credits');
+  }
 
-   public function credit_details_pdf($id)
-   {
-      $credit = \App\Models\CreditSale::with(['client', 'creditDetails.product', 'creditPayments'])->findOrFail($id);
-      $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.credits_details', compact('credit'));
-      return $pdf->stream('detalle_credito.pdf');
-   }
+  public function credit_details_pdf($id)
+  {
+    $credit = \App\Models\CreditSale::with(['client', 'creditDetails.product', 'creditPayments'])->findOrFail($id);
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.credits_details', compact('credit'));
+    return $pdf->stream('detalle_credito.pdf');
+  }
 
-public function proforma()
-{
+  public function proforma()
+  {
     $proformaData = session('proformaData');
 
     if (!$proformaData) {
-        return response('No hay datos de proforma activos.', 400);
+      return response('No hay datos de proforma activos.', 400);
     }
 
     $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.proforma', compact('proformaData'));
-    
+
     // Cambiamos stream por download para forzar la descarga directa
     return $pdf->download('proforma.pdf');
-}
+    
+  }
 }
