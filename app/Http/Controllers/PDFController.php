@@ -90,12 +90,12 @@ class PDFController extends Controller
 public function proforma()
 {
     $proformaData = session('proformaData');
-
-    // Si la sesión está vacía, evitamos el pantallazo rojo de error
+    
     if (!$proformaData) {
-        return redirect()->back()->with('error', 'No hay datos de proforma activos.');
+        // En lugar de redirect()->back(), muestra un mensaje plano o cierra la pestaña
+        return response('No hay datos de proforma activos o la sesión expiró.', 400);
     }
-
+    
     $pdf = PDF::loadView('daily-process.PDFs.proforma', compact('proformaData'));
     return $pdf->stream('proforma.pdf');
 }
