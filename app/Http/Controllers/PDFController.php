@@ -89,12 +89,7 @@ class PDFController extends Controller
 
 public function proforma()
 {
-    $proformaData = session('proformaData');
-    
-    if (!$proformaData) {
-        // En lugar de redirect()->back(), muestra un mensaje plano o cierra la pestaña
-        return response('No hay datos de proforma activos o la sesión expiró.', 400);
-    }
+    $proformaData = // Obtienes los datos de la proforma usando el $id recibido;
     
     $pdf = PDF::loadView('daily-process.PDFs.proforma', compact('proformaData'));
     return $pdf->stream('proforma.pdf');

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\DailyProcessController;
+use App\Http\Controllers\PDFController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(DailyProcessController::class)->group(function(){
@@ -25,7 +26,7 @@ Route::controller(DailyProcessController::class)->group(function(){
   Route::get('credit-sales', 'credit_sales')->name('credit_sales');
   Route::get('credit_sales_done', 'credit_sales_done')->name('credit_sales_done');
   Route::get('catalog', 'catalog')->name('catalog');
-  Route::get('proforma', 'proforma')->name('proforma');
+  Route::get('proforma', [PDFController::class, 'proforma'])->name('proforma.pdf');
   Route::get('combos', 'combos')->name('combos');
   Route::get('combos_e_u_d', 'combos_e_u_d')->name('combos_e_u_d');
   //vista movil
