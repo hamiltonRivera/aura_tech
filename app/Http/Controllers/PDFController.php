@@ -29,7 +29,7 @@ class PDFController extends Controller
  public function categories()
  {
    $records = Category::all();
-   $pdf = PDF::loadView('daily-process.PDFs.categories', compact('records'));
+   $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.categories', compact('records'));
    return $pdf->stream('reporte.pdf');
  }
 
