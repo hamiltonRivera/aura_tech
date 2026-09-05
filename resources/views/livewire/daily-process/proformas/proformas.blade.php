@@ -29,8 +29,17 @@
 
 @script
 <script>
-    $wire.on('abrirPdf', () => {
-        window.open("{{ route('proforma.pdf') }}", "_blank");
+    $wire.on('descargarPdf', () => {
+        // Creamos un iframe invisible para que el navegador descargue el PDF en segundo plano
+        const iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = "{{ route('proforma.pdf') }}";
+        document.body.appendChild(iframe);
+
+        // Limpiamos el iframe del DOM después de unos segundos para mantener limpio el código
+        setTimeout(() => {
+            document.body.removeChild(iframe);
+        }, 10000);
     });
 </script>
 @endscript

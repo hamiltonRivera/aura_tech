@@ -48,9 +48,6 @@
   <div class="mb-3">
 
       <button wire:click="store()" class="boton-rosa"><i class="fa-solid fa-check"></i> Realizar proforma</button>
-      {{-- <a href="{{ route('proforma.pdf') }}" target="_blank" class="boton-rosa"><i class="fa-solid fa-check"></i> --}}
-    {{-- Generar Proforma --}}
-</a>
-  </div>
+ </div>
 
 

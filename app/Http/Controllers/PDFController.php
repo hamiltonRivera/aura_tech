@@ -89,9 +89,15 @@ class PDFController extends Controller
 
 public function proforma()
 {
-    $proformaData = // Obtienes los datos de la proforma usando el $id recibido;
-    
+    $proformaData = session('proformaData');
+
+    if (!$proformaData) {
+        return response('No hay datos de proforma activos.', 400);
+    }
+
     $pdf = PDF::loadView('daily-process.PDFs.proforma', compact('proformaData'));
-    return $pdf->stream('proforma.pdf');
+    
+    // Cambiamos stream por download para forzar la descarga directa
+    return $pdf->download('proforma.pdf');
 }
 }

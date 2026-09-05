@@ -280,10 +280,18 @@ class Proformas extends Component
     $newActivity->save();
 
     // Disparamos el evento para abrir la nueva pestaña con los datos frescos
-    $this->dispatch('abrirPdf');
+    
 
     Alert::success('Proforma', 'Proforma generada exitosamente');
-    $this->refresh();
+    // 1. Limpiamos los productos de la proforma y los campos para dejar la vista en blanco
+    $this->detailProduct = [];
+    $this->total = 0;
+    $this->totalPagado = 0;
+    $this->client_id = null;
+    $this->search_client = '';
+
+    // 2. Disparamos la descarga
+    $this->dispatch('descargarPdf');
 }
 
     // Incrementar cantidad desde la tabla
