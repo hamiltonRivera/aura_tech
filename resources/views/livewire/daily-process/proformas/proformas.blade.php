@@ -29,7 +29,25 @@
 @script
 <script>
     $wire.on('abrir-pdf', (event) => {
-        window.open(event.url, '_blank');
+        // Obtenemos la URL de forma segura sin importar cómo llegue el parámetro
+        const data = event[0] || event;
+        const url = data.url;
+
+        // Mostramos la animación / alerta con SweetAlert2
+        Swal.fire({
+            title: '¡Éxito!',
+            text: 'Venta realizada exitosamente', // O el mensaje que corresponda según el módulo
+            icon: 'success',
+            timer: 2500,               // Se cierra sola a los 2.5 segundos (opcional)
+            timerProgressBar: true,
+            showConfirmButton: true,
+            confirmButtonText: 'Aceptar'
+        }).then((result) => {
+            // Cuando se cierre la alerta (por temporizador o por dar clic en Aceptar), abrimos el PDF
+            if (url) {
+                window.open(url, '_blank');
+            }
+        });
     });
 </script>
 @endscript

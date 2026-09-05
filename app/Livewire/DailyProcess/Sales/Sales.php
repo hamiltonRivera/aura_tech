@@ -366,15 +366,12 @@ class Sales extends Component
 
         event(new SaleCreated());
 
-        //historial de factura
         $this->historial();
 
-        //añade el numero de factura y lo suma
         $setting = Setting::first();
         $setting->consecutivo = $this->numFactura;
         $setting->save();
 
-        //itera los productos añadidos a la cesta
         foreach ($this->detailProduct as $item) {
             $detaProduc = new DetailSale();
             $detaProduc->product_id = $item['id'];
@@ -384,21 +381,16 @@ class Sales extends Component
             $detaProduc->total = $item['total'];
             $detaProduc->save();
 
-            // --- INICIO DE LA LÓGICA DE STOCK Y COMBO ---
             $productModel = Product::find($item['id']);
             if ($productModel) {
-                // 1. Descontamos el stock del producto principal (ya sea producto normal o combo)
                 $productModel->stock = $productModel->stock - $item['cantidad'];
                 $productModel->save();
 
-                // 2. Verificamos si este producto es un combo buscando por su descripción limpia
                 $descripcionLimpia = trim(strtolower($productModel->descripcion));
                 $combo = \App\Models\Combo::whereRaw('TRIM(LOWER(description)) = ?', [$descripcionLimpia])->first();
 
                 if ($combo) {
-                    // 3. Si es un combo, obtenemos sus componentes y descontamos el stock de cada uno
                     $comboDetails = \App\Models\ComboDetail::where('combo_id', $combo->id)->get();
-
                     foreach ($comboDetails as $detail) {
                         $componentProduct = Product::find($detail->product_id);
                         if ($componentProduct) {
@@ -409,7 +401,6 @@ class Sales extends Component
                     }
                 }
             }
-            // --- FIN DE LA LÓGICA DE STOCK Y COMBO ---
 
             $newActivity = new ActivityLog();
             $newActivity->user_id = auth()->user()->id;
@@ -417,7 +408,6 @@ class Sales extends Component
             $newActivity->detail = "No Factura: " . $newventa->numFactura;
             $newActivity->save();
 
-            // Registramos la venta del producto en `product_sales`
             $productoVenta = new ProductSale();
             $productoVenta->product_id = $item['id'];
             $productoVenta->quantity_sold = $item['cantidad'];
@@ -425,8 +415,37 @@ class Sales extends Component
             $productoVenta->save();
         }
 
+        $clientObj = Client::find($this->client_id);
+        $nombreCliente = $clientObj ? $clientObj->nombreApellido : 'Cliente General';
+        $totalFinalVenta = $this->descuento ? $this->totalPagadoDescuento : $this->totalPagado;
+
+        session()->forget('ventaData');
+        session([
+            'ventaData' => [
+                'numFactura'  => $this->numFactura,
+                'cliente'     => $nombreCliente,
+                'fecha'       => $this->fecha,
+                'detalles'    => $this->detailProduct,
+                'totalPagado' => $totalFinalVenta
+            ]
+        ]);
+        session()->save();
+
+        
+
+        $this->detailProduct = [];
+        $this->total = 0;
+        $this->totalPagado = 0;
+        $this->client_id = null;
+        $this->search_client = '';
+        $this->search_product = '';
+        $this->productSel = null;
+        $this->descuento = null;
+        $this->totalRecibido = null;
+        $this->cambio = null;
         Alert::success('Venta', 'Venta realizada exitosamente');
-        $this->refresh();
+        // Disparamos el evento para abrir el PDF en otra pestaña
+        $this->dispatch('abrir-pdf', url: route('venta.pdf'));
     }
     
     // Decrementar cantidad desde la tabla

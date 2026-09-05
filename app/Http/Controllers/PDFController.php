@@ -101,4 +101,17 @@ class PDFController extends Controller
     return $pdf->download('proforma.pdf');
     
   }
+
+ public function venta_pdf()
+{
+    $ventaData = session('ventaData');
+
+    if (!$ventaData) {
+        return response('No hay datos de venta activos.', 400);
+    }
+
+    $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.sale', compact('ventaData'));
+    
+    return $pdf->stream('factura-' . $ventaData['numFactura'] . '.pdf');
+}
 }
