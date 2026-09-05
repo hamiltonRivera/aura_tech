@@ -12,7 +12,7 @@ use App\Models\Gasto;
 use App\Models\Product;
 use App\Models\ProductSale;
 use App\Models\User;
-use Barryvdh\DomPDF\Facade\PdF;
+use Barryvdh\DomPDF\Facade\PDF;
 use Livewire\WithPagination;
 
 class PDFController extends Controller
