@@ -34,7 +34,7 @@
 <div class="mb-4 bg-gray-800 border border-gray-700 rounded-lg p-4 shadow-md text-white flex items-center justify-between">
     <div>
         <span class="text-sm text-gray-400 block">Gastos hasta la fecha</span>
-        <span class="text-2xl font-bold text-red-400">$ {{ number_format($totalGastos ?? 0, 2) }}</span>
+        <span class="text-2xl font-bold text-red-400">C$ {{ number_format($totalGastos ?? 0, 2) }}</span>
     </div>
     <div class="p-3 bg-gray-700 rounded-full text-red-400">
         <i class="fa-solid fa-wallet text-xl"></i>
