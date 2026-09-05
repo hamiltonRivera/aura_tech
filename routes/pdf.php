@@ -16,6 +16,5 @@ Route::controller(PDFController::class)->group(function(){
    Route::get('users', 'users')->name('users_report');
    Route::get('credits', 'credits_record')->name('credits_report');
    Route::get('credits/details/{id}', 'credit_details_pdf')->name('credits_details_pdf');
-   Route::get('/proforma_printed', [PDFController::class, 'proforma'])->name('proforma.pdf');
  });
 });
