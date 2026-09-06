@@ -28,18 +28,13 @@
    </div>
    </div>
 
-   {{-- tercer fila --}}
+
+     {{-- tercer fila --}}
 <div class="mt-2">
     <label for="">Total de gastos</label>
-    <div class="inputs-formularios-cortos bg-gray-900 border border-red-500/50 rounded-xl shadow-lg text-white flex items-center justify-between px-3 py-1.5 !h-auto">
-        <div>
-            <span class="text-[9px] uppercase tracking-wider text-red-400 font-semibold block">Gastos hasta la fecha</span>
-            <span class="text-base font-bold text-white">C$ {{ number_format($totalGastos ?? 0, 2) }}</span>
-        </div>
-        <div class="text-red-400">
-            <i class="fa-solid fa-wallet text-sm"></i>
-        </div>
-    </div>
+    <input type="text" value="C$ {{ number_format($totalGastos ?? 0, 2) }}" class="inputs-formularios-cortos !bg-gray-900 !border-red-500/50 !text-white font-bold" disabled>
+</div>
+
 </div>
 
 
