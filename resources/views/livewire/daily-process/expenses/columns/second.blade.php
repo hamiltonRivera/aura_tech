@@ -30,7 +30,7 @@
 
    {{-- tercer fila --}}
    <div>
-     <div class="max-w-sm sm:max-w-md mx-auto my-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-red-500/50 rounded-xl shadow-lg text-white flex items-center justify-between">
+     <div class=" inputs-formularios-cortos bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-red-500/50 rounded-xl shadow-lg text-white flex items-center justify-between">
     <div>
         <span class="text-[10px] uppercase tracking-wider text-red-400 font-semibold block">Gastos hasta la fecha</span>
         <span class="text-xl font-bold tracking-tight text-white">$ {{ number_format($totalGastos ?? 0, 2) }}</span>
