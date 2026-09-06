@@ -30,16 +30,7 @@
 
    {{-- tercer fila --}}
    <div>
-<div class="inputs-formularios-cortos flex items-center justify-between px-3 py-2 bg-gray-900 text-white !h-auto">
-    <div>
-        <span class="text-[9px] uppercase tracking-wider text-red-400 font-semibold block">Gastos hasta la fecha</span>
-        <span class="text-lg font-bold text-white">$ {{ number_format($totalGastos ?? 0, 2) }}</span>
-    </div>
-    <div class="text-red-400">
-        <i class="fa-solid fa-wallet text-base"></i>
-    </div>
-</div>
-
+    
    </div>
 
 </div>
