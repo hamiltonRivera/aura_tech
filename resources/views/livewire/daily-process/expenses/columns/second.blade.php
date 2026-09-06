@@ -29,7 +29,7 @@
    </div>
 
    {{-- tercer fila --}}
-   <div>
+   <div class= "mt-2">
      <label for="">Total de gastos</label>
       <input type="text" placeholder=" C$ {{number_format($totalGastos ?? 0,2)}}" class="inputs-formularios-cortos" disabled>
    </div>
