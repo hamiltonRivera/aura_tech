@@ -30,16 +30,15 @@
 
    {{-- tercer fila --}}
    <div>
-    <div class="mb-3 p-3 bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 border border-red-500/50 rounded-xl shadow-lg text-white flex items-center justify-between">
+<div class="inputs-formularios-cortos flex items-center justify-between px-3 py-2 bg-gray-900 text-white !h-auto">
     <div>
-        <span class="text-[10px] uppercase tracking-wider text-red-400 font-semibold block">Gastos hasta la fecha</span>
-        <span class="text-xl font-bold tracking-tight text-white">$ {{ number_format($totalGastos ?? 0, 2) }}</span>
+        <span class="text-[9px] uppercase tracking-wider text-red-400 font-semibold block">Gastos hasta la fecha</span>
+        <span class="text-lg font-bold text-white">$ {{ number_format($totalGastos ?? 0, 2) }}</span>
     </div>
-    <div class="p-2 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 flex items-center justify-center">
-        <i class="fa-solid fa-wallet text-lg"></i>
+    <div class="text-red-400">
+        <i class="fa-solid fa-wallet text-base"></i>
     </div>
 </div>
-
 
    </div>
 
