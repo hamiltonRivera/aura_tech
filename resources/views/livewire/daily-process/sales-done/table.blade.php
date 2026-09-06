@@ -9,7 +9,7 @@
                 <th scope="col" class="px-6 py-3">Método Pago</th>
                 <th scope="col" class="px-6 py-3">Total Pagado</th>
                 <th scope="col" class="px-6 py-3">Realizado Por</th>
-                <th scope="col" class="px-6 py-3">Opciones</th>
+                <th scope="col" class="px-6 py-3 text-center">Opciones</th>
             </tr>
         </thead>
         <tbody>
@@ -22,19 +22,24 @@
                 <td class="td">{{ $sale->metodoPago }}</td>
                 <td class="td">{{ $sale->totalPagado }}</td>
                 <td class="td">{{ $sale->user->name }}</td>
-                <td class="td">
-                    <a href="{{ route('detailItems', $sale->id) }}" class="boton-azul" target="_blank"><i class="fa-solid fa-eye"></i> Ver Detalles</a>
-                    <a href="{{ route('reprint', $sale->id) }}" class="boton-lima"><i class="fa-solid fa-print"></i> Reimprimir</a>
+                <td class="td !px-2 whitespace-nowrap">
+                    <div class="flex flex-col sm:flex-row items-center justify-center gap-1.5">
+                        <a href="{{ route('detailItems', $sale->id) }}" class="boton-azul inline-flex items-center gap-1 text-xs" target="_blank">
+                            <i class="fa-solid fa-eye"></i> Ver Detalles
+                        </a>
+                        <a href="{{ route('reprint', $sale->id) }}" class="boton-lima inline-flex items-center gap-1 text-xs">
+                            <i class="fa-solid fa-print"></i> Reimprimir
+                        </a>
+                    </div>
                 </td>
               </tr>
             @endforeach
-
         </tbody>
     </table>
-    <div class=" flex justify-left">
+    <div class="flex justify-left">
         <nav aria-label="Page navigation example">
           <ul class="flex list-style-none">
-            <li class="page-item disabled ">
+            <li class="page-item disabled">
               {{ $sales->links() }}
             </li>
           </ul>
