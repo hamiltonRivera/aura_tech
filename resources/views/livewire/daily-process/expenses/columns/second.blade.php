@@ -16,8 +16,7 @@
    
 
    {{-- segunda fila --}}
-   <div>
-   <div>
+   <div class="mb-3">
        @if ($selected_id)
        <button type="button" class="boton-verde" wire:click="update()"><i class="fa-solid fa-pen"></i> Actualizar F2</button>
        @else
@@ -25,7 +24,7 @@
        @endif
        <button type="button" class="boton-rosa" wire:click="refresh()"><i class="fa-solid fa-arrows-rotate"></i> Refrescar</button>
    </div>
-   </div>
+   
 
 
      {{-- tercer fila --}}
