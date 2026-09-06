@@ -17,7 +17,6 @@
 
    {{-- segunda fila --}}
    <div>
-     {{-- primer fila --}}
    <div>
        @if ($selected_id)
        <button type="button" class="boton-verde" wire:click="update()"><i class="fa-solid fa-pen"></i> Actualizar F2</button>
@@ -34,9 +33,5 @@
     <label for="">Total de gastos</label>
     <input type="text" value="C$ {{ number_format($totalGastos ?? 0, 2) }}" class="inputs-formularios-cortos !bg-gray-900 !border-red-500/50 !text-white font-bold" disabled>
 </div>
-
-</div>
-
-
 
 </div>
