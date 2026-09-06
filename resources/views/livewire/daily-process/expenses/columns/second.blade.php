@@ -13,7 +13,7 @@
     <p class="error">{{ $message }}</p>
     @enderror
     </div>
-   </div>
+   
 
    {{-- segunda fila --}}
    <div>
