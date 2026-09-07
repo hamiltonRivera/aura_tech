@@ -32,10 +32,23 @@ class Expenses extends Component
     {   
         
         // Total acumulado de todos los gastos registrados en la base de datos
+        // Sumas por mes del año actual
+        $enero = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 1)->sum('monto');
+        $febrero = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 2)->sum('monto');
+        $marzo = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 3)->sum('monto');
+        $abril = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 4)->sum('monto');
+        $mayo = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 5)->sum('monto');
+        $junio = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 6)->sum('monto');
+        $julio = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 7)->sum('monto');
+        $agosto = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 8)->sum('monto');
+        $septiembre = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 9)->sum('monto');
+        $octubre = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 10)->sum('monto');
+        $noviembre = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 11)->sum('monto');
+        $diciembre = Gasto::whereYear('fecha', date('Y'))->whereMonth('fecha', 12)->sum('monto');
         
         $expenses = Gasto::orderBy('id', 'asc')
         ->where('descripcion', 'like', '%' . $this->search . '%')->paginate(10);
-        return view('livewire.daily-process.expenses.expenses', compact('expenses', 'totalGastos'));
+        return view('livewire.daily-process.expenses.expenses', compact('expenses','enero','febrero', 'marzo','abril','mayo','junio','julio',agosto','septiembre','octubre','noviembre','diciembre'));
     }
 
     public function refresh()
