@@ -10,6 +10,7 @@
 
     {{-- tercer columna --}}
     <div>
+      <label for="">Gastos por mes</label>
        @include('livewire.daily-process.expenses.columns.third')
     </div>
    </div>
