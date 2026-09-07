@@ -1,30 +1,8 @@
 {{-- Título de la sección --}}
 
-{{-- Primera fila: Enero y Febrero --}}
-<div class="flex gap-2 mb-2">
-    <div>
-        <label for="" class="block text-xs font-medium text-gray-700">Enero</label>
-        <input type="text" value="C$ {{ number_format($enero ?? 0, 2) }}" class="inputs-formularios-cortos !bg-gray-900 !border-red-500/50 !text-white font-bold" disabled>
-    </div>
 
-    <div>
-        <label for="febrero" class="block text-xs font-medium text-gray-700">Febrero</label>
-        <input type="text" value="C$ {{ number_format($febrero ?? 0, 2) }}" class="inputs-formularios-cortos !bg-gray-900 !border-red-500/50 !text-white font-bold" disabled>
-    </div>
-</div>
 
-{{-- Segunda fila: Marzo y Abril --}}
-<div class="flex gap-2 mb-2">
-    <div>
-        <label for="" class="block text-xs font-medium text-gray-700">Marzo</label>
-        <input type="text" value="C$ {{ number_format($marzo ?? 0, 2) }}" class="inputs-formularios-cortos !bg-gray-900 !border-red-500/50 !text-white font-bold" disabled>
-    </div>
 
-    <div>
-        <label for="" class="block text-xs font-medium text-gray-700">Abril</label>
-        <input type="text" value="C$ {{ number_format($abril ?? 0, 2) }}" class="inputs-formularios-cortos !bg-gray-900 !border-red-500/50 !text-white font-bold" disabled>
-    </div>
-</div>
 
 {{-- Tercera fila: Mayo y Junio --}}
 <div class="flex gap-2 mb-2">

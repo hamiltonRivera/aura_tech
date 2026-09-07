@@ -1,5 +1,5 @@
 <div>
-    <div class="lg:grid grid-cols-4 sm:grid-col-1" wire:key="{{ $selected_id ?? 'new' }}">
+    <div class="lg:grid grid-cols-2 sm:grid-col-1" wire:key="{{ $selected_id ?? 'new' }}">
         {{-- primer columna --}}
         <div>
          @include('livewire.daily-process.combos.combos_e_u_d_columns.first')
