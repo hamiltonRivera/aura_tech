@@ -32,9 +32,9 @@ class Expenses extends Component
     {   
         
         // Total acumulado de todos los gastos registrados en la base de datos
-        $totalGastos = Gasto::sum('monto');
+        
         $expenses = Gasto::orderBy('id', 'asc')
-        ->whereAny(['descripcion', 'fecha', 'tipo_gasto'], 'like', '%' . $this->search . '%')->paginate(10);
+        ->where('descripcion', 'like', '%' . $this->search . '%')->paginate(10);
         return view('livewire.daily-process.expenses.expenses', compact('expenses', 'totalGastos'));
     }
 
