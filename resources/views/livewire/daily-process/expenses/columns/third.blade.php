@@ -1,5 +1,4 @@
 {{-- Título de la sección --}}
-<label class="font-bold text-gray-700 block mb-2">Gastos por mes</label>
 
 {{-- Primera fila: Enero y Febrero --}}
 <div class="flex gap-2 mb-2">
