@@ -48,7 +48,7 @@ class Expenses extends Component
         
         $expenses = Gasto::orderBy('id', 'asc')
         ->where('descripcion', 'like', '%' . $this->search . '%')->paginate(10);
-        return view('livewire.daily-process.expenses.expenses', compact('expenses','enero','febrero', 'marzo','abril','mayo','junio','julio',agosto','septiembre','octubre','noviembre','diciembre'));
+        return view('livewire.daily-process.expenses.expenses', compact('expenses','enero','febrero', 'marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'));
     }
 
     public function refresh()
