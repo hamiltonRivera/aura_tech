@@ -29,8 +29,7 @@
 
      {{-- tercer fila --}}
 <div class="mt-2">
-    <label for="">Total de gastos</label>
-    <input type="text" value="C$ {{ number_format($totalGastos ?? 0, 2) }}" class="inputs-formularios-cortos !bg-gray-900 !border-red-500/50 !text-white font-bold" disabled>
+
 </div>
 
 </div>
