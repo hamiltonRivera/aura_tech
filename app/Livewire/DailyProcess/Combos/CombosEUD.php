@@ -137,31 +137,52 @@ class CombosEUD extends Component
     }
 
     public function addItem()
-    {
-        if (empty($this->productoSel)) {
-            session()->flash('error_product', 'Debes seleccionar un producto.');
+{
+    // 1. Validar selección de producto
+    if (empty($this->productoSel)) {
+        session()->flash('error_stock', 'Debes seleccionar un producto del dropdown.');
+        return;
+    }
+
+    $stockDisponible = (int) ($this->productoSel->stock ?? 0);
+    $cantAgregar = max(1, (int) ($this->quantity ?? 1));
+    $nombreItem = $this->productoSel->descripcion;
+
+    // 2. Buscar si el producto ya está en la lista actual ($itemsCombo)
+    $index = array_search($this->productoSel->id, array_column($this->itemsCombo, 'product_id'));
+
+    if ($index !== false) {
+        // Ítem ya existente: evaluar la suma de la cantidad actual + la nueva
+        $cantidadActual = $this->itemsCombo[$index]['cantidad'];
+        $nuevaCantidad = $cantidadActual + $cantAgregar;
+
+        if ($nuevaCantidad > $stockDisponible) {
+            session()->flash('error_stock', "El ítem {$nombreItem} que intentas incrementar no tiene más de {$stockDisponible} en inventario.");
             return;
         }
 
-        $cant = max(1, (int)$this->quantity);
-
-        // Verificar si el producto ya está en la lista actual
-        $index = array_search($this->productoSel->id, array_column($this->itemsCombo, 'product_id'));
-
-        if ($index !== false) {
-            $this->itemsCombo[$index]['cantidad'] += $cant;
-        } else {
-            $this->itemsCombo[] = [
-                'id' => null,
-                'product_id' => $this->productoSel->id,
-                'descripcion' => $this->productoSel->descripcion,
-                'cantidad' => $cant
-            ];
+        // Si está dentro del stock, se acumula la cantidad
+        $this->itemsCombo[$index]['cantidad'] = $nuevaCantidad;
+    } else {
+        // Ítem nuevo: evaluar si la cantidad inicial supera el stock
+        if ($cantAgregar > $stockDisponible) {
+            session()->flash('error_stock', "El ítem {$nombreItem} que intentas incrementar no tiene más de {$stockDisponible} en inventario.");
+            return;
         }
 
-        // Limpiar campos tras añadir
-        $this->clearFields();
+        // Agregar nuevo registro a la matriz
+        $this->itemsCombo[] = [
+            'id'          => null,
+            'product_id'  => $this->productoSel->id,
+            'descripcion' => $nombreItem,
+            'cantidad'    => $cantAgregar,
+            'stock'       => $stockDisponible
+        ];
     }
+
+    // 3. Limpiar formulario de selección y refrescar cantidad a null/1
+    $this->clearFields();
+}
 
     public function removeItem($index)
     {
