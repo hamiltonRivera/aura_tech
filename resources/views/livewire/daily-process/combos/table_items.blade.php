@@ -1,40 +1,53 @@
-<div class="relative overflow-x-auto">
-    <table class="table">
-        <thead class="table-thead">
-            <tr>
-                <th scope="col" class="px-6 py-3">#</th>
-                <th scope="col" class="px-6 py-3">Descripcion</th>
-                <th scope="col" class="px-6 py-3">Cantidad</th>
-                <th scope="col" class="px-6 py-3">Opciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{-- @foreach ($combos as $combo)
-              <tr class="tr">
-                <td class="td">{{ $loop->iteration }}) </td>
-                <td class="td">{{ $combo->description }}</td>
-                <td class="td">{{ $combo->total_price }}</td>
-                <td class="td">
-                    <button type="button" class="boton-azul" wire:click="edit({{ $combo->id }})">
-                        <i class="fa-solid fa-pen-to-square"></i>
-                    </button>
+<div>
+    <div class="relative overflow-x-auto">
+        <table class="table">
+            <thead class="table-thead">
+                <tr>
+                    <th scope="col" class="px-6 py-3">#</th>
+                    <th scope="col" class="px-6 py-3">DESCRIPCION</th>
+                    <th scope="col" class="px-6 py-3">CANTIDAD</th>
+                    <th scope="col" class="px-6 py-3">OPCIONES</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse ($itemsCombo as $key => $item)
+                    <tr class="tr text-center">
+                        <td class="td">{{ $key + 1 }})</td>
+                        <td class="td">{{ $item['descripcion'] }}</td>
+                        <td class="td">
+                            <!-- Controles de Cantidad -->
+                            <div class="flex items-center justify-center space-x-2">
+                                <!-- Botón MENOS -->
+                                <button type="button" wire:click="decrementarCantidad({{ $key }})"
+                                    class="bg-red-500 hover:bg-red-600 text-white font-bold px-2 py-1 rounded shadow text-xs">
+                                    <i class="fa-solid fa-minus"></i>
+                                </button>
 
-                    <button type="button" class="boton-amarillo" onclick="confirmarEliminacion({{ $combo->id }})" wire:confirm="Seguro que deseas eliminar el registro?">
-                        <i class="fa-solid fa-trash"></i>
-                    </button>
-                </td>
-              </tr>
-            @endforeach --}}
+                                <span class="font-semibold w-8 text-center text-gray-700">
+                                    {{ $item['cantidad'] }}
+                                </span>
 
-        </tbody>
-    </table>
-    {{-- <div class=" flex justify-left">
-        <nav aria-label="Page navigation example">
-          <ul class="flex list-style-none">
-            <li class="page-item disabled ">
-              {{ $combos->links() }}
-            </li>
-          </ul>
-        </nav>
-      </div> --}}
+                                <!-- Botón MÁS -->
+                                <button type="button" wire:click="incrementarCantidad({{ $key }})"
+                                    class="bg-green-500 hover:bg-green-600 text-white font-bold px-2 py-1 rounded shadow text-xs">
+                                    <i class="fa-solid fa-plus"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td class="td">
+                            <button type="button" class="boton-amarillo" wire:click="removeItem({{ $key }})">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                @empty
+                    <tr class="tr">
+                        <td colspan="4" class="td text-center py-4">
+                            No hay productos agregados al combo.
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 </div>

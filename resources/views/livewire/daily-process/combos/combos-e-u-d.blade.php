@@ -1,14 +1,24 @@
 <div>
-    <div class="lg:grid grid-cols-2 sm:grid-col-1" wire:key="{{ $selected_id ?? 'new' }}">
+    <div class="lg:grid grid-cols-3 sm:grid-col-1" wire:key="{{ $selected_id ?? 'new' }}">
         {{-- primer columna --}}
         <div>
-         @include('livewire.daily-process.combos.combos_e_u_d_columns.first')
+            @include('livewire.daily-process.combos.combos_e_u_d_columns.first')
         </div>
 
         {{-- segunda columna --}}
-        <div>
-            @include('livewire.daily-process.combos.combos_e_u_d_columns.second')
-        </div>
+        @if ($comboSel)
+            <div>
+                @include('livewire.daily-process.combos.combos_e_u_d_columns.second')
+            </div>
+        @endif
+
+
+        {{-- tercera columna --}}
+        @if ($comboSel)
+            <div>
+                @include('livewire.daily-process.combos.combos_e_u_d_columns.third')
+            </div>
+        @endif
     </div>
 
     {{-- buscador --}}
