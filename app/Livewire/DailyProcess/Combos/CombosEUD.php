@@ -60,36 +60,60 @@ class CombosEUD extends Component
     }
 
     public function update()
-    {
-        $validation = $this->validate([
-            'description' => 'required|string',
-            'total_price' => 'required|numeric',
-        ]);
+{
+    $validation = $this->validate([
+        'description' => 'required|string',
+        'total_price' => 'required|numeric',
+    ]);
 
-        $record = Combo::findOrFail($this->comboSel);
-        $oldDescription = $record->description;
-
-        // Actualizamos el combo
-        $record->update($validation);
-
-        // Actualizamos en cascada el producto gemelo en la tabla 'products'
-        $product = Product::where('descripcion', $oldDescription)->first();
-        if ($product) {
-            $product->descripcion = $this->description;
-            $product->precio_venta_unidad = $this->total_price;
-            $product->precio_venta_mayor = $this->total_price;
-            $product->save();
-        }
-
-        $newActivity = new ActivityLog();
-        $newActivity->user_id = auth()->user()->id;
-        $newActivity->activity = "Actualización de registro - combo";
-        $newActivity->detail = $this->description;
-        $newActivity->save();
-
-        Alert::success('Combo', 'Combo actualizado exitosamente');
-        $this->refresh();
+    if (empty($this->comboSel)) {
+        session()->flash('error_stock', 'Debes seleccionar un combo para actualizar.');
+        return;
     }
+
+    if (empty($this->itemsCombo)) {
+        session()->flash('error_stock', 'El combo no puede estar vacío.');
+        return;
+    }
+
+    $record = Combo::findOrFail($this->comboSel);
+    $oldDescription = $record->description;
+
+    // 1. Actualizamos el combo
+    $record->update($validation);
+
+    // 2. Actualizamos en cascada el producto gemelo en la tabla 'products'
+    $product = Product::where('descripcion', $oldDescription)->first();
+    if ($product) {
+        $product->descripcion = $this->description;
+        $product->precio_venta_unidad = $this->total_price;
+        $product->precio_venta_mayor = $this->total_price;
+        $product->save();
+    }
+
+    // 3. Sincronizamos los detalles del combo (combo_details)
+    // Borramos los detalles viejos de este combo
+    ComboDetail::where('combo_id', $this->comboSel)->delete();
+
+    // Insertamos la lista actualizada de la tabla ($itemsCombo)
+    foreach ($this->itemsCombo as $item) {
+        ComboDetail::create([
+            'combo_id'   => $this->comboSel,
+            'product_id' => $item['product_id'],
+            'quantity'   => $item['cantidad'],
+        ]);
+    }
+
+    // 4. Registrar actividad y notificar
+    $newActivity = new ActivityLog();
+    $newActivity->user_id = auth()->user()->id;
+    $newActivity->activity = "Actualización de registro - combo";
+    $newActivity->detail = $this->description;
+    $newActivity->save();
+
+    Alert::success('Combo', 'Combo y detalles actualizados exitosamente');
+    $this->refresh();
+}
 
     public function destroy($id)
     {

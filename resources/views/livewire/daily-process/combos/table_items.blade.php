@@ -1,4 +1,4 @@
-<div>
+<div class="mr-2">
     <div class="relative overflow-x-auto">
         <table class="table">
             <thead class="table-thead">

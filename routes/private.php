@@ -29,7 +29,7 @@ Route::controller(DailyProcessController::class)->group(function(){
   Route::get('proforma', 'proforma')->name('proforma');
   Route::get('/proforma_printed', [PDFController::class, 'proforma'])->name('proforma.pdf');
   Route::get('combos', 'combos')->name('combos');
-  Route::get('combos_e_u_d', 'combos_e_u_d')->name('combos_e_u_d');
+  Route::get('combos_edit_update', 'combos_e_u_d')->name('combos_e_u_d');
   //vista movil
   Route::get('processes', 'processes')->name('processes');
   });

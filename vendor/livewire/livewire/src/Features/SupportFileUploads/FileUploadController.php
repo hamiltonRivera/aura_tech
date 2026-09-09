@@ -26,7 +26,7 @@ class FileUploadController implements HasMiddleware
 
     public function handle()
     {
-        abort_unless(request()->hasValidSignature(), 401);
+        abort_unless(request()->hasValidRelativeSignature(), 401);
 
         $disk = FileUploadConfiguration::disk();
 
@@ -42,14 +42,14 @@ class FileUploadController implements HasMiddleware
         ])->validate();
 
         $fileHashPaths = collect($files)->map(function ($file) use ($disk) {
-            $filename = TemporaryUploadedFile::generateHashNameWithOriginalNameEmbedded($file);
-
-            return $file->storeAs('/'.FileUploadConfiguration::path(), $filename, [
-                'disk' => $disk
-            ]);
+            return FileUploadConfiguration::storeTemporaryFile($file, $disk);
         });
 
-        // Strip out the temporary upload directory from the paths.
-        return $fileHashPaths->map(function ($path) { return str_replace(FileUploadConfiguration::path('/'), '', $path); });
+        // Strip out the temporary upload directory from the paths and sign them.
+        return $fileHashPaths->map(function ($path) {
+            $stripped = str_replace(FileUploadConfiguration::path('/'), '', $path);
+
+            return TemporaryUploadedFile::signPath($stripped);
+        });
     }
 }

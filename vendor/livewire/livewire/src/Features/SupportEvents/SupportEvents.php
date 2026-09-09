@@ -9,7 +9,7 @@ use Livewire\Features\SupportAttributes\AttributeLevel;
 use Livewire\Drawer\Utils;
 use Livewire\ComponentHook;
 use Livewire\Exceptions\EventHandlerDoesNotExist;
-use Livewire\Mechanisms\HandleComponents\BaseRenderless;
+use Livewire\Features\SupportAuthorization\BaseAuthorize;
 
 class SupportEvents extends ComponentHook
 {
@@ -33,26 +33,27 @@ class SupportEvents extends ComponentHook
                 throw new EventHandlerDoesNotExist($name);
             }
 
+            // Run any authorization checks on the listener method since
+            // its normal "call" hook doesn't get run when the method
+            // is called as an event listener...
+            $this->component->getAttributes()
+                ->filter(fn ($i) => $i instanceof BaseAuthorize)
+                ->filter(fn ($i) => $i->getName() === $method)
+                ->filter(fn ($i) => $i->getLevel() === AttributeLevel::METHOD)
+                ->each(fn ($i) => $i->call($params));
+
             $returnEarly(
                 wrap($this->component)->$method(...$params)
             );
-
-            // Here we have to manually check to see if the event listener method
-            // is "renderless" as it's normal "call" hook doesn't get run when
-            // the method is called as an event listener...
-            $isRenderless = $this->component->getAttributes()
-                ->filter(fn ($i) => is_subclass_of($i, BaseRenderless::class))
-                ->filter(fn ($i) => $i->getName() === $method)
-                ->filter(fn ($i) => $i->getLevel() === AttributeLevel::METHOD)
-                ->count() > 0;
-
-            if ($isRenderless) $this->component->skipRender();
         }
     }
 
     function dehydrate($context)
     {
-        if ($context->mounting) {
+        // Don't register listeners until a lazy component has fully mounted...
+        if ($this->storeGet('isLazyLoadMounting') === true) return;
+
+        if ($context->isMounting() || $this->storeGet('isLazyLoadHydrating') === true) {
             $listeners = static::getListenerEventNames($this->component);
 
             $listeners && $context->addEffect('listeners', $listeners);
