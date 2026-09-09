@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="">Precio de compra</label>
+    <label for="" class="label_class">Precio de compra</label>
     <input type="number" step="any" name="precio_compra" wire:model="precio_compra"
         placeholder="Precio de compra" class="inputs-formularios-cortos form-control" required>
 </div>

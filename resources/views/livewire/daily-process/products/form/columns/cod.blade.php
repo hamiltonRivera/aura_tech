@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="">Código</label>
+    <label for="" class="label_class">Código</label>
     <input type="string" wire:model="codigo" placeholder="Código:" class="inputs-formularios-cortos" autofocus required>
 </div>
 @error('codigo')

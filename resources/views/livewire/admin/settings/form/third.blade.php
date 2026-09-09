@@ -1,7 +1,7 @@
 {{-- primer fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Número de recibo consecutivo</label>
+        <label for="" class="label_class">Número de recibo consecutivo</label>
         <input type="number" name="consecutivo" wire:model="consecutivo" class="inputs-formularios-cortos" placeholder="Consecutivo:">
     </div>
     @error('consecutivo')

@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="">Descripción</label>
+    <label for="" class="label_class">Descripción</label>
     <input type="text" name="descripcion" wire:model="descripcion" placeholder="Descripción:"
         class="inputs-formularios-cortos form-control" required>
 </div>

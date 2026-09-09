@@ -1,7 +1,7 @@
 {{-- primer fila --}}
 <div>
     <div class="mb-3">
-      <label for="">Descripcion del gasto</label>
+      <label for="" class="label_class">Descripcion del gasto</label>
       <input type="text" wire:model='descripcion' placeholder="Descripcion" class="inputs-formularios-cortos" required>
       @error('descripcion')
       <p class="error">{{ $message }}</p>
@@ -30,7 +30,7 @@
  {{-- tercer fila --}}
  <div>
    <div class="mb-3">
-     <label for="">Monto</label>
+     <label for="" class="label_class">Monto</label>
      <input type="number" step="any" wire:model='monto' placeholder="monto:" class="inputs-formularios-cortos" required>
      @error('monto')
      <p class="error">{{ $message }}</p>

@@ -2,11 +2,11 @@
 <div>
     <div>
         <div class="text-center">
-            <label for=""><u>Gastos</u></label>
+            <label for="" class="label_class"><u>Gastos</u></label>
             <hr>
         </div><br>
         <div class="text-center">
-            <label for="" class="text-center">Egresos Totales</label>
+            <label for="" class="text-center label_class">Egresos Totales</label>
         </div>
         <div class="lg:grid grid-cols-2 sm:grid-col-1">
             {{-- primer columna --}}
@@ -26,7 +26,7 @@
                 {{-- primer fila --}}
                 <div>
                     <div class="">
-                        <label for="">Gasto del dia</label>
+                        <label for="" class="label_class">Gasto del dia</label>
                         <input type="number" step="any" class="inputs-formularios-cortos"
                             placeholder="gasto del día:" wire:model="gasto_dia" disabled>
                     </div>

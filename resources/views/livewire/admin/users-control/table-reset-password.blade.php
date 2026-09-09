@@ -14,9 +14,9 @@
             <tbody>
                 @foreach ($users as $user)
                 <tr class="text-center border-b ml-10">
-                    <td class="tr-td">{{ $loop->iteration }} </td>
-                    <td class="tr-td">{{ $user->name }}</td>
-                    <td class="tr-td">{{ $user->email }}</td>
+                    <td class="tr-td px-6 py-4 text-left text-gray-900 font-bold whitespace-nowrap">{{ $loop->iteration }} </td>
+                    <td class="tr-td px-6 py-4 text-left text-gray-900 font-bold whitespace-nowrap">{{ $user->name }}</td>
+                    <td class="tr-td px-6 py-4 text-left text-gray-900 font-bold whitespace-nowrap">{{ $user->email }}</td>
                     <td class="td">
                     <button type="button" class="boton-azul" wire:click="edit({{ $user->id }})">
                         <i class="fa-solid fa-pen-to-square"></i>

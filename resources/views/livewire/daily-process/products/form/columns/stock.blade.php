@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="">Existencia</label>
+    <label for="" class="label_class">Existencia</label>
     <input type="number" name="stock" wire:model="stock" placeholder="Existencia:"
         class="inputs-formularios-cortos form-control" required>
 </div>

@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="fechaVencimiento">Fecha de vencimiento --opcional--</label>
+    <label for="fechaVencimiento" class="label_class">Fecha de vencimiento --opcional--</label>
     <input wire:model.lazy="fecha_vencimiento" type="date" name="fechaVencimiento"
         class="form-control calendario" min="2021-01-01" max="2030-12-31">
 </div>

@@ -1,7 +1,7 @@
 {{-- tercer fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Número de recibo consecutivo</label>
+        <label for="" class="label_class">Número de recibo consecutivo</label>
         <input class="inputs-formularios-cortos" value="{{ $setting->consecutivo }}" disabled>
        </div>
 </div>

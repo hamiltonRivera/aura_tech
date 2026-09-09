@@ -26,7 +26,7 @@
               <div class="p-4 md:p-5 space-y-4">
                 {{-- nombre de categoria --}}
                 <div class="mb-3">
-                    <label for="">Descripción</label>
+                    <label for="" class="label_class">Descripción</label>
                     <input type="text" name="name" wire:model="name" placeholder="Descripción:"
                         class="inputs-formularios-cortos form-control" required>
                 </div>

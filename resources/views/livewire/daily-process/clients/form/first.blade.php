@@ -1,7 +1,7 @@
 {{-- primer fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Nombre y Apellido</label>
+        <label for="" class="label_class">Nombre y Apellido</label>
         <input type="text" name="nombreApellido" wire:model="nombreApellido" placeholder="nombre y apellido:"
             class="inputs-formularios-cortos form-control" required>
     </div>
@@ -13,7 +13,7 @@
 {{-- segunda fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Ciudad</label>
+        <label for="" class="label_class">Ciudad</label>
         <input type="text" name="ciudad" wire:model="ciudad" placeholder="Ciudad:"
             class="inputs-formularios-cortos form-control" required>
     </div>
@@ -24,7 +24,7 @@
 
 {{-- tercer fila --}}
 <div>
-    <label for="">Dirección</label>
+    <label for="" class="label_class">Dirección</label>
     <div class="mb-3">
 
             <textarea

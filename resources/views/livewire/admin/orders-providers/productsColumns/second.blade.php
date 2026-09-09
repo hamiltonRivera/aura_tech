@@ -1,39 +1,36 @@
-{{-- primer fila --}}
 <div>
+   {{-- Precio de compra --}}
     <div class="mb-3">
-        <label for="">Precio de compra</label>
-        <input type="number" step="any" name="precio" wire:model="precio" class="inputs-formularios-cortos" required
-            disabled>
-    </div>
-    @error('precio')
-        <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
-    @enderror
-</div>
-
-{{-- segunda fila  --}}
-<div>
-    <div class="mb-3">
-        <button wire:click="addItem([{{ $product_id }}])" class=" boton-verde"><i class="fa-solid fa-cart-plus"></i>
-            Añadir a cesta</button>
+        <label class="label_class">Precio de compra</label>
+        <input type="number" step="any" name="precio" wire:model="precio" class="inputs-formularios-cortos bg-gray-100" required disabled>
+        @error('precio')
+            <p class="text-red-600 font-bold text-sm mt-1">{{ $message }}</p>
+        @enderror
     </div>
 
-    @if (session()->has('productoSel'))
-        <div class="bg-yellow-100 rounded-lg py-5 px-6 mb-3 text-base text-yellow-700 inline-flex items-center w-full"
-            style="width: 80%">
+    {{-- Botón de Añadir a cesta --}}
+    <div class="mb-3">
+        <button type="button" wire:click="addItem([{{ $product_id }}])" class="boton-verde font-bold">
+            <i class="fa-solid fa-cart-plus mr-1"></i> Añadir a cesta
+        </button>
 
-            {{ session('productoSel') }}
+        @if (session()->has('productoSel'))
+            <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-800 p-3 mt-2 rounded font-bold text-sm">
+                {{ session('productoSel') }}
+            </div>
+        @endif
+    </div>
 
-        </div>
-    @endif
+    {{-- Botón de Ver órdenes --}}
+    <div class="mb-3">
+        <a href="{{ route('ordersDone') }}" class="boton-gris font-bold inline-block">
+            <i class="fa-solid fa-eye mr-1"></i> Ver órdenes realizadas
+        </a>
+    </div>
 
-</div>
-{{-- tercer fila --}}
-<div class="mb-3">
-    <a href="{{ route('ordersDone') }}" class="boton-gris"><i class="fa-solid fa-eye"></i> Ver ordenes
-        realizadas</a>
-</div>
-
-{{-- cuarta fila --}}
-<div>
-    @include('calculadora')
+    {{-- Calculadora incluida --}}
+    <div>
+        @include('calculadora')
+    </div>
+    
 </div>

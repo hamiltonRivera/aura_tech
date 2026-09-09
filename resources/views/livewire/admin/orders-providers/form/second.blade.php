@@ -1,7 +1,7 @@
 {{-- primer fila --}}
 <div>
     <div class="mb-3">
-        <label for="" class="form-label">Método de cancelación</label>
+        <label for="" class="form-label label_class">Método de cancelación</label>
         <select name="metodoPago" wire:model="metodoPago" class="select-formularios form-select"
             aria-label="Default select example">
             <option selected>Selecciona una opción</option>
@@ -18,7 +18,7 @@
 {{-- segunda fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Total a pagar</label>
+        <label for="" class="label_class">Total a pagar</label>
         <input type="number" step="any" class="select-formularios form-select" name="totalPagado"
             wire:model="totalPagado" disabled>
         @error('totalPagado')

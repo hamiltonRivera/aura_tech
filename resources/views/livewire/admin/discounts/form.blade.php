@@ -5,7 +5,7 @@
 
     <div class="mt-3 mb-3">
         <div class="mb-3">
-            <label for="">%</label>
+            <label for="" class="label_class">%</label>
             <input type="number" step="any" name="percent" wire:model="percent" placeholder="Ingresa el porcentaje:"class="inputs-formularios-cortos"required>
         </div>
         @error('percent')

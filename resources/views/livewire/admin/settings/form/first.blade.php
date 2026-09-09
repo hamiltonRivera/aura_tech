@@ -1,7 +1,7 @@
 {{-- priimer fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Nombre del negocio</label>
+        <label for="" class="label_class">Nombre del negocio</label>
         <input type="text" name="nombre" wire:model="nombre" class="inputs-formularios-cortos" placeholder="Nombre del negocio:" required>
     </div>
     @error('nombre')
@@ -12,7 +12,7 @@
 {{-- segunda fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Dirección</label>
+        <label for="" class="label_class">Dirección</label>
         <input type="text" name="direccion" wire:model="direccion" class="inputs-formularios-cortos" placeholder="Dirección:" required>
         </div>
         @error('direccion')
@@ -23,7 +23,7 @@
 {{-- tercer fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Número ruc --opcional--</label>
+        <label for="" class="label_class">Número ruc --opcional--</label>
         <input type="text" name="ruc" wire:model="ruc" class="inputs-formularios-cortos" placeholder="Número RUC:"required>
     </div>
     @error('ruc')

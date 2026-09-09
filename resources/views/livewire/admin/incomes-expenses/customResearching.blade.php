@@ -2,7 +2,7 @@
 <div>
     <div>
         <div class="text-center">
-            <label for=""><u>Búsqueda Personalizada</u></label>
+            <label for="" class="label_class"><u>Búsqueda Personalizada</u></label>
             <hr>
         </div><br>
 
@@ -12,7 +12,7 @@
                 {{-- primer fila --}}
                 <div>
                     <div class="ml-5 mb-2">
-                        <label for="">Fecha Inicio</label>
+                        <label for="" class="label_class">Fecha Inicio</label>
                         <input wire:model.lazy="fecha_inicio" wire:change="customResearching()" type="date"
                             class="form-control calendario" min="2021-01-01" max="2030-12-31">
                     </div>
@@ -21,7 +21,7 @@
                 {{-- segunda fila --}}
                 <div>
                     <div class="ml-5">
-                        <label for="">Fecha Fin</label>
+                        <label for="" class="label_class">Fecha Fin</label>
                         <input wire:model.lazy="fecha_fin" wire:change="customResearching()" type="date"
                             class="form-control calendario" min="2021-01-01" max="2030-12-31">
                     </div>
@@ -33,7 +33,7 @@
                 {{-- primer fila --}}
                 <div>
                     <div class="">
-                        <label for="">Monto total</label>
+                        <label for="" class="label_class">Monto total</label>
                         <input type="text" class="inputs-formularios-cortos"
                             placeholder="Monto:" wire:model="custom_date" disabled>
                     </div>

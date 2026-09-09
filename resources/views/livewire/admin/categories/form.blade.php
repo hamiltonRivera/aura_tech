@@ -1,7 +1,7 @@
 <div>
     <div wire:key="{{ $selected_id ?? 'new' }}">
         <div class="mb-3">
-            <label for="">Categoría</label>
+            <label for="" class="label_class">Categoría</label>
             <input type="text" name="name" wire:model.live="name" placeholder="Ingresa el nombre de la categoría:"class="inputs-formularios-cortos"required>
         </div>
         @error('name')

@@ -1,12 +1,12 @@
 <div class="ml-6">
     <div class="mb-3">
-        <label for="">Nombre y apellido</label>
+        <label for="" class="label_class">Nombre y apellido</label>
         <input type="text" class="inputs-formularios-cortos" wire:model="name" placeholder="Nombre:"
             required>
     </div>
 
     <div class="mb-3">
-        <label for="">Correo</label>
+        <label for="" class="label_class">Correo</label>
         <input type="email"
             class="inputs-formularios-cortos"
             wire:model="email" placeholder="Correo:">

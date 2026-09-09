@@ -1,6 +1,6 @@
 <div>
     <div class="mb-3">
-        <label for="">Teléfono</label>
+        <label for="" class="label_class">Teléfono</label>
         <input type="text" name="telefono" max="9" wire:model="telefono" placeholder="teléfono:" class="inputs-formularios-cortos form-control" required>
       </div>
       @error('telefono')

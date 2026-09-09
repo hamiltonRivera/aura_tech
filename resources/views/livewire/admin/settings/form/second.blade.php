@@ -1,7 +1,7 @@
 {{-- primer fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Propietario(a)</label>
+        <label for="" class="label_class">Propietario(a)</label>
         <input type="text" name="propietario" wire:model="propietario" class="inputs-formularios-cortos" placeholder="Propietario(a):" required>
     </div>
     @error('propietario')
@@ -12,7 +12,7 @@
 {{-- segunda fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Teléfono</label>
+        <label for="" class="label_class">Teléfono</label>
         <input type="tel" name="telefono" wire:model="telefono" class="inputs-formularios-cortos" placeholder="Teléfono:" required>
       </div>
       @error('telefono')
@@ -23,7 +23,7 @@
 {{-- tercer fila --}}
 <div>
     <div class="mb-3">
-        <label for="">Correo --opcional--</label>
+        <label for="" class="label_class">Correo --opcional--</label>
         <input type="email" name="email" wire:model="email" class="inputs-formularios-cortos" placeholder="Correo:">
       </div>
       @error('email')

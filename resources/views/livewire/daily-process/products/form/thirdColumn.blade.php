@@ -15,7 +15,7 @@
 
   {{-- cuarta fila --}}
   <div class="mb-3">
-    <label for="">Productos en stock</label>
+    <label for="" class="label_class">Productos en stock</label>
     <input type="number" step="any"
         placeholder="{{ $products_in_stock }}" class="inputs-formularios-cortos form-control" disabled>
 </div>
@@ -24,7 +24,7 @@
 <div>
     @if ($selected_id)
      <div>
-        <label for="">Margen de ganancia</label>
+        <label for="" class="label_class">Margen de ganancia</label>
         <input type="number" step="any" disabled class="inputs-formularios-cortos form-control" placeholder="{{ $profit_percent }}">
      </div>
     @endif

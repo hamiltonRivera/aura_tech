@@ -1,16 +1,16 @@
 <div class="mb-3" wire:key="{{ $selected_id ?? 'new' }}">
     <div class="mb-3">
-        <label for="">Nombre y apellido</label>
+        <label for="" class="label_class">Nombre y apellido</label>
         <input type="text" class="inputs-formularios-cortos" wire:model="name" placeholder="Nombre:" disabled>
     </div>
   <div>
-     <label for="">Correo</label>
+     <label for="" class="label_class">Correo</label>
         <input type="email"
             class="inputs-formularios-cortos"
             wire:model="email" placeholder="Correo:" disabled>
   </div>
   <div class="mt-2">
-    <label for="">Nueva Contraseña</label>
+    <label for="" class="label_class">Nueva Contraseña</label>
     <input type="password" class="inputs-formularios-cortos" wire:model='password' placeholder="Nueva Contraseña" required>
   </div>
   @error('password')

@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="">Categoría del producto</label>
+    <label for="" class="label_class">Categoría del producto</label>
     <select name="category_id" wire:model="category_id" class="select-formularios form-select"
         aria-label="Default select example">
         <option selected>Selecciona una opción</option>

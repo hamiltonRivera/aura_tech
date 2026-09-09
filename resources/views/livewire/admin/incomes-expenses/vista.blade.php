@@ -2,10 +2,10 @@
 <div>
   <div>
       <div class="text-center">
-          <label for=""><u>Productos</u></label><hr>
+          <label for="" class="label_class"><u>Productos</u></label><hr>
       </div><br>
       <div class="text-center">
-        <label for="" class="text-center">Ingresos Totales</label>
+        <label for="" class="text-center label_class">Ingresos Totales</label>
       </div>
       <div class="lg:grid grid-cols-2 sm:grid-col-1">
         {{-- primer columna --}}
@@ -13,7 +13,7 @@
            {{-- primer fila --}}
            <div>
               <div class="ml-5">
-                  <label for="">Selecciona una fecha</label>
+                  <label for="" class="label_class">Selecciona una fecha</label>
                   <input wire:model.lazy="fecha" wire:change="cierreDelDia()" type="date" class="form-control calendario" min="2021-01-01" max="2030-12-31">
               </div>
            </div>
@@ -24,7 +24,7 @@
           {{-- primer fila --}}
           <div>
               <div class="">
-                  <label for="">Cierre del dia</label>
+                  <label for="" class="label_class">Cierre del dia</label>
               <input type="number" step="any" class="inputs-formularios-cortos" placeholder="Cierre del día:" wire:model="cierre" disabled>
               </div>
           </div>

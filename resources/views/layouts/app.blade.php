@@ -15,15 +15,17 @@
         <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.css" rel="stylesheet" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" />
+        
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
+        
         <!-- Styles -->
         @livewireStyles
     </head>
-    <body class="font-sans antialiased">
+    <body class="font-sans antialiased bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col">
         <x-banner />
 
-        <div class="min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div class="flex-grow">
             @livewire('navigation-menu')
 
             <!-- Page Heading -->
@@ -35,20 +37,31 @@
                 </header>
             @endif
 
-            <!-- Page Content -->
-            <main>
+            <!-- Page Content (Agregado contenedor de márgenes estándar) -->
+            <main class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                 {{ $slot }}
             </main>
-            <footer class="w-full text-center py-4 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-t mt-8">
-                Sistema de punto de venta desarrollado por: <b>Hamilton Rivera, Ing en sistemas</b>
-            </footer>
         </div>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
-         <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-        @stack('modals')
 
+        <footer class="w-full text-center py-4 bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700 mt-auto">
+            Sistema de punto de venta desarrollado por: <b>Hamilton Rivera, Ing en sistemas</b>
+        </footer>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.3.0/flowbite.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+        
+        @stack('modals')
         @stack('scripts')
         @livewireScripts
         @include('sweetalert::alert')
+
+        <!-- Evento para re-inicializar Flowbite tras cada navegación SPA de Livewire -->
+        <script>
+            document.addEventListener('livewire:navigated', () => {
+                if (typeof initFlowbite === 'function') {
+                    initFlowbite();
+                }
+            });
+        </script>
     </body>
 </html>

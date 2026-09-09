@@ -1,6 +1,6 @@
 <div>
     <div class="mb-3">
-        <label for="">Empresa</label>
+        <label for="" class="label_class">Empresa</label>
         <input type="text" name="empresa" wire:model="empresa" placeholder="empresa:" class="inputs-formularios-cortos form-control" required>
       </div>
       @error('empresa')
