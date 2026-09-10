@@ -10,7 +10,7 @@
 </div>
 
 <div>
-    <label for="">Subida de archivos</label>
+    <label for="" class="label_class">Subida de archivos</label>
 </div>
 <form wire:submit.prevent="import" enctype="multipart/form-data">
 

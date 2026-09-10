@@ -1,6 +1,6 @@
 <div>
     @if ($month_selected)
-        <label for="">
+        <label for="" class="label_class">
             @if($selected_month_name === 'Total Anual' || $selected_month_name === 'Total Anual 2025')
                 Cierre del año
             @else
@@ -9,7 +9,7 @@
         </label>
        <input type="text" class="inputs-formularios-cortos" wire:model="total" disabled>
         @if ($total == 0)
-            <p>
+            <p class="label_class">
                 @if($selected_month_name === 'Total Anual' || $selected_month_name === 'Total Anual 2025')
                     No hay ingresos en el año
                 @else

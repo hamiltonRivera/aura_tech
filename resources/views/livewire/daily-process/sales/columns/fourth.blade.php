@@ -1,6 +1,6 @@
 {{-- primer fila --}}
 <div class="mb-3">
-    <label for="">Productos</label>
+    <label for="" class="label_class">Productos</label>
     <input type="text" wire:model="product_id" placeholder="{{ optional($productSel)->descripcion }}" disabled
         class="inputs-formularios-cortos" required>
     @error('product_id')
@@ -17,7 +17,7 @@
 </div>
 {{-- segunda fila --}}
 <div class="mb-3">
-    <label for="">Precio</label>
+    <label for="" class="label_class">Precio</label>
     <input type="number" name="precio" wire:model="precio" class="inputs-formularios-cortos" required disabled
         value="{{ optional($productSel)->precio_venta_unidad }}">
     @error('precio')
@@ -27,7 +27,7 @@
 
 {{-- tercer fila --}}
 <div class="mb-3">
-    <label for="">Descuento individual</label>
+    <label for="" class="label_class">Descuento individual</label>
     <div>
         <div class="form-check">
             <input value="Si" wire:model="descuento_individual" wire:change="mostarDescuentoIndividual()"

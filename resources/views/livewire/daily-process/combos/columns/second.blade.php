@@ -1,11 +1,11 @@
 <div class="ml-5 mb-3 mt-3">
-    <label for="">Buscador sensible --Productos--</label>
+    <label for="" class="label_class">Buscador sensible --Productos--</label>
     <input type="text" wire:model.live.debounce.300ms="search" placeholder="Busca por código o descripción..."
         class="inputs-formularios-cortos">
 </div>
 
 <div class="ml-5 mb-3 mt-3">
-    <label for="">Producto Seleccionado</label>
+    <label for="" class="label_class">Producto Seleccionado</label>
     <input type="text" placeholder="{{ optional($this->productSel)->descripcion }}" disabled
         class="inputs-formularios-cortos" required>
 

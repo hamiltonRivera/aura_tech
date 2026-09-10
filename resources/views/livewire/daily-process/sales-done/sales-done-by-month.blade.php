@@ -1,21 +1,21 @@
 <div>
     <div>
-        <label for="" class="ml-3 mb-3">Año 2026</label>
+        <label for="" class="ml-3 mb-3" class="label_class">Año 2026</label>
         @include('livewire.daily-process.sales-done.buttons')
     </div>
 
-    <div class="ml-3">
-
+    <div class="">
+        <button type="button" wire:click="show_total()" class="boton-ingresos-egresos">
+            Total
+        </button>
+        <button type="button" wire:click="clear()" class="boton-ingresos-egresos">
+            Limpiar Búsqueda
+        </button>
     </div>
 
-    <div>
-       <div>
-         <label for="" class="ml-3 mb-3">Año 2025</label>
-        </div>
-         @include('livewire.daily-process.sales-done.buttons-2025')
-    </div>
+
 
     <div class="ml-3 mb-5">
-       @include('livewire.daily-process.sales-done.show-totals')
+        @include('livewire.daily-process.sales-done.show-totals')
     </div>
 </div>

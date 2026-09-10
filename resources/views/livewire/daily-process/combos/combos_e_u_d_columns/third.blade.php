@@ -1,8 +1,8 @@
 <div>
-    <label for="">Árticulos del combo</label>
+    <label for="" class="label_class">Árticulos del combo</label>
 
     <div class="mb-3">
-        <label for="">Cantidad</label>
+        <label for="" class="label_class">Cantidad</label>
         <input type="number" name="cantidad" wire:model="quantity" min="1" max="" class="inputs-formularios-cortos" required>
         @error('quantity')
             <p class="error">{{ $message }}</p>

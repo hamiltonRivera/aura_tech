@@ -1,6 +1,6 @@
 {{-- primer fila --}}
 <div class="mb-3">
-    <label for="">fecha</label>
+    <label for="" class="label_class">fecha</label>
     <input wire:model.lazy="fecha" type="date" name="fecha" class="form-control calendario" min="2021-01-01" max="2030-12-31" required>
     @error('fecha')
     <p class="error">{{ $message }}</p>
@@ -9,7 +9,7 @@
 
 {{-- segunda fila  --}}
 <div class="mb-3">
-    <label for="">Cliente</label>
+    <label for="" class="label_class">Cliente</label>
     <select name="client_id" wire:model="client_id" class="select-formularios form-select"
         aria-label="Default select example">
         <option selected>Selecciona una opción</option>
@@ -22,14 +22,14 @@
 {{-- tercer fila --}}
 <div class="mb-3">
     <div>
-        <label for="">Tasa del día</label>
+        <label for="" class="label_class">Tasa del día</label>
        <input type="text" class="inputs-formularios-cortos" disabled wire:model="exchangeRate" value="{{ $exchangeRate }}">
      </div>
 </div>
 
 {{-- cuarta fila --}}
 <div class="mb-3">
-    <label for="">Total Recibido</label>
+    <label for="" class="label_class">Total Recibido</label>
     <input max="" class="inputs-formularios-cortos" type="number" step="any" name="totalRecibido" wire:model.lazy="totalRecibido"
         wire:input="cambio">
 
@@ -51,7 +51,7 @@
 {{-- quinta fila --}}
 <div class="mb-3">
  @if ($descuentoSel)
- <label for="">Monto Descontado</label>
+ <label for="" class="label_class">Monto Descontado</label>
  <input type="number" step="any" name="totalDescuento" wire:model="totalDescuento" class=" inputs-formularios-cortos"
      required  disabled>
 @error('totalDescuento')
@@ -62,7 +62,7 @@
 {{-- sexta fila --}}
 <div class="mb-3">
   @if ($ocultarTotal)
-  <label for="">Total a pagar</label>
+  <label for="" class="label_class">Total a pagar</label>
   <input type="number" step="any" name="totalPagado" wire:model.lazy="totalPagado" wire:input="cambio" required
       class=" inputs-formularios-cortos" required disabled>
 @error('totalPagado')

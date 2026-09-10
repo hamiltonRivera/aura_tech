@@ -7,7 +7,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max sm:px-6 lg:px-8">
+        <div class="max sm:px-6 lg:px-12">
             <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
              <livewire:daily-process.combos.combos-e-u-d/>
             </div>

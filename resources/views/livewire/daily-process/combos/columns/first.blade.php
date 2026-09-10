@@ -1,5 +1,5 @@
 <div class="ml-5 mb-3 mt-3">
-    <label for="">Descripción</label>
+    <label for="" class="label_class">Descripción</label>
     <input type="text" name="description" wire:model="description" placeholder="Descripción:"
         class="inputs-formularios-cortos form-control" required>
 </div>
@@ -8,11 +8,11 @@
 @enderror
 
 <div class="ml-5 mb-3 mt-3">
-    <label for="">Cantidad</label>
+    <label for="" class="label_class">Cantidad</label>
     <input type="number" name="cantidad" wire:model="quantity" min="1"
         max="{{ $productSel ? $productSel->stock : '' }}" class="inputs-formularios-cortos" required>
     @error('quantity')
-        <p class="error">{{ $message }}</p>
+        <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
     @enderror
 
     

@@ -1,6 +1,6 @@
 <div wire:key="{{ $selected_id ?? 'new' }}">
   <div class="mb-3">
-    <label for="">Fecha</label>
+    <label for="" class="label_class">Fecha</label>
     <div class="relative max-w-sm">
        <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
          <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -15,7 +15,7 @@
  </div>
 
 <div class="mb-3">
-    <label for="">Valor</label>
+    <label for="" class="label_class">Valor</label>
     <input type="number" step="any" placeholder="Valor:" class="inputs-formularios-cortos" wire:model="valor" required>
     @error('valor')
     <p class="error">{{ $message }}</p>

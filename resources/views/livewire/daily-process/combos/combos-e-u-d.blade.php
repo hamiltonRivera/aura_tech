@@ -23,7 +23,7 @@
 
     {{-- buscador --}}
     <div class="ml-5 mb-3 mt-3">
-        <label for="search" class="form-label">Buscador sensible</label>
+        <label for="search" class="label_class">Buscador sensible</label>
         @include('livewire.daily-process.combos.search_combo')
     </div>
 

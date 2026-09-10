@@ -35,7 +35,7 @@ class CombosEUD extends Component
 
     public function refresh()
     {
-        return redirect('/private/combos_e_u_d');
+        return redirect('/private/combos_edit_update');
     }
 
     public function edit($id)

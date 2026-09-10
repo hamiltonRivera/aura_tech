@@ -4,7 +4,7 @@
       <div>
           <div>
             <div class="mb-3">
-                <label for="">Nombre y Apellido</label>
+                <label for="" class="label_class">Nombre y Apellido</label>
                 <input type="text" name="nombreApellido" wire:model="nombreApellido" placeholder="nombre y apellido:" class="inputs-formularios-cortos form-control" required>
             </div>
             @error('nombreApellido')
@@ -14,7 +14,7 @@
 
           <div>
             <div class="mb-3">
-                <label for="">Ciudad</label>
+                <label for="" class="label_class">Ciudad</label>
                 <input type="text" name="ciudad" wire:model="ciudad" placeholder="Ciudad:" class="inputs-formularios-cortos form-control" required>
               </div>
               @error('ciudad')
@@ -27,7 +27,7 @@
       <div>
          <div>
             <div class="mb-3">
-                <label for="">Dirección</label>
+                <label for="" class="label_class">Dirección</label>
                 <input type="text" name="direccion" wire:model="direccion" placeholder="Dirección:" class="inputs-formularios-cortos form-control" required>
               </div>
               @error('direccion')
@@ -37,7 +37,7 @@
 
          <div>
             <div class="mb-3">
-                <label for="">Teléfono</label>
+                <label for="" class="label_class">Teléfono</label>
                 <input type="text" wire:input="addGuiones" name="telefono" wire:model.live="telefono" placeholder="teléfono:" class="inputs-formularios-cortos form-control" required>
               </div>
               @error('telefono')

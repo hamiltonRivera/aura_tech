@@ -1,14 +1,14 @@
 <div class="mt-6">
     {{-- Buscador sensible --}}
     <div class="mb-3">
-        <label for="">Buscador sensible --Productos--</label>
+        <label for="" class="label_class">Buscador sensible --Productos--</label>
         <input type="text" wire:model.live.debounce.300ms="search_items" placeholder="Busca por código o descripción."
             class="inputs-formularios-cortos">
     </div>
 
     {{-- Dropdown de Productos --}}
     <div class="mb-3">
-        <label for="product_id">Producto</label>
+        <label for="product_id" class="label_class">Producto</label>
         <select wire:change="buscarProducto($event.target.value)" id="product_id" class="inputs-formularios-cortos"
             wire:model="product_id">
             <option value="">Seleccione un producto</option>
