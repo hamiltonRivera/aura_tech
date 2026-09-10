@@ -1,13 +1,13 @@
 {{-- primer fila --}}
 <div class="mb-3">
-    <label for="">Búscador sensible --Productos--</label>
+    <label for="" class="label_class">Búscador sensible --Productos--</label>
     <input type="search" wire:input="buscarProducto()" wire:model.live="search_product" class="inputs-formularios-cortos"
         placeholder="Búsqueda de productos" autofocus="autofocus" id="">
 </div>
 
 {{-- segunda fila --}}
 <div class="mb-3">
-    <label for="">Cantidad</label>
+    <label for="" class="label_class">Cantidad</label>
     <input type="number" name="cantidad" wire:model="cantidad" wire:change="calcular" min="1"
         max="{{ $productSel ? $productSel->stock : '' }}" class="inputs-formularios-cortos" required>
     @error('cantidad')
@@ -91,7 +91,7 @@
 {{-- quinta fila --}}
 <div class="mb-3">
  @if ($descuentoSel)
- <label for="">Monto Descontado</label>
+ <label for="" class="label_class">Monto Descontado</label>
  <input type="number" step="any" name="totalDescuento" wire:model="totalDescuento" class=" inputs-formularios-cortos"
      required  disabled>
 @error('totalDescuento')
