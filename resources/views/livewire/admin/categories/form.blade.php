@@ -2,21 +2,25 @@
     <div wire:key="{{ $selected_id ?? 'new' }}">
         <div class="mb-3">
             <label for="" class="label_class">Categoría</label>
-            <input type="text" name="name" wire:model.live="name" placeholder="Ingresa el nombre de la categoría:"class="inputs-formularios-cortos"required>
+            <input type="text" name="name" wire:model.live="name"
+                placeholder="Ingresa el nombre de la categoría:"class="inputs-formularios-cortos" required>
         </div>
         @error('name')
-        <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
+            <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
         @enderror
     </div>
 
     <div wire:key="{{ $selected_id ?? 'new' }}">
         <div class="mb-3">
             @if ($selected_id)
-            <button type="button" class="boton-verde" wire:click="update()"><i class="fa-solid fa-pen"></i> actualizar</button>
+                <button type="button" class="boton-verde" wire:click="update()"><i class="fa-solid fa-pen"></i>
+                    actualizar</button>
             @else
-            <button type="button" class="boton-rosa" wire:click="store()"><i class="fa-solid fa-check"></i> Registrar</button>
+                <button type="button" class="boton-rosa" wire:click="store()"><i class="fa-solid fa-check"></i>
+                    Registrar</button>
             @endif
-            <button type="button" class="boton-lima" wire:click="refresh()"><i class="fa-solid fa-arrows-rotate"></i> Refrescar</button>
+            <button type="button" class="boton-lima" wire:click="refresh()"><i class="fa-solid fa-arrows-rotate"></i>
+                Refrescar</button>
 
 
         </div>
@@ -24,7 +28,7 @@
 
 
 
-<div>
+    {{-- <div>
     <label for="">Subida de archivos</label>
 </div>
 <form wire:submit.prevent="import" enctype="multipart/form-data">
@@ -42,5 +46,5 @@
 
 <div class="mt-3">
     <a href="{{ route('categoryExport') }}" class="boton-carga-excel"><i class="fa-solid fa-file-arrow-down"></i> Exportar archivo</a>
-</div>
+</div> --}}
 </div>
