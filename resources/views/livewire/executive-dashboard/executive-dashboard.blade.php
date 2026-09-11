@@ -74,8 +74,8 @@
             <h3 class="text-lg font-medium text-gray-900 mb-4">Productos con Stock Bajo</h3>
             <ul class="space-y-2">
                 @forelse($lowStockProducts as $product)
-                    <li class="flex justify-between">
-                        <span>{{ $product->descripcion }}</span>
+                    <li class="flex justify-between ">
+                        <span class="label_class">{{ $product->descripcion }}</span>
                         <span class="text-red-600 font-semibold">Stock: {{ $product->stock }}</span>
                     </li>
                 @empty

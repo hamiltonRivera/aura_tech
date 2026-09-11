@@ -2,7 +2,7 @@
 <div>
     <div>
         <div class="text-center">
-            <label for="" class="label_class"><u>Búsqueda Personalizada</u></label>
+            <label for="" class="label_class"><u>Búsqueda Personalizada de ingresos</u></label>
             <hr>
         </div><br>
 
