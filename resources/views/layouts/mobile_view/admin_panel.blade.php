@@ -8,9 +8,10 @@
 
     <div class="py-6 sm:py-12">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-4 sm:p-6">
+            {{-- Tarjeta Blanca Fija --}}
+            <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg p-4 sm:p-6">
                 
-                {{-- Grid Responsive: 1 columna en móvil, 2 en pantallas medianas, 3 en pantallas grandes --}}
+                {{-- Grid Responsive: 1 columna en móvil, 2 en tablets, 3 en escritorio --}}
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
                     <a href="{{ route('userscontrol') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
                         <i class="fa-solid fa-users"></i> Control Usuarios
