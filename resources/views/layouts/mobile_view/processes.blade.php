@@ -21,13 +21,6 @@
                         <i class="fa-solid fa-users"></i> Clientes
                     </a>
 
-                    <a href="{{ route('providers') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
-                        <i class="fa-solid fa-people-arrows"></i> Proveedores
-                    </a>
-
-                    <a href="{{ route('orders') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
-                        <i class="fa-solid fa-note-sticky"></i> Órdenes a proveedores
-                    </a>
 
                     <a href="{{ route('expenses') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
                         <i class="fa-solid fa-money-bill"></i> Gastos
