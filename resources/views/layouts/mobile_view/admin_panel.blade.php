@@ -5,86 +5,51 @@
             {{ __('Panel Administrativo') }}
         </h2>
     </x-slot>
-     <div class="bg-white overflow-hidden shadow-xl sm:rounded-lg">
-       <div class="py-12">
-        <div class="max sm:px-6 lg:px-8 mb-2">
-            <div>
-              {{-- primer flex --}}
-             <div class="flex">
-               {{-- primer fila --}}
-               <div class="ml-3 mr-2 mb-2">
-                <a href="{{route('userscontrol')}}" class="boton-azul"><i class="fa-solid fa-users"></i> Control Usuarios</a>
-               </div>
-               {{-- segunda fila --}}
-               <div class="ml-2 mr-2 mb-2">
-                <a href="{{route('categories')}}" class="boton-azul"><i class="fa-solid fa-boxes"></i> Categoría de productos</a>
-               </div>
-             </div>
-            </div>
-        </div>
 
-        <div class="max sm:px-6 lg:px-8 mt-2 mb-2">
-            <div >
-              {{-- primer flex --}}
-             <div class="flex">
-               {{-- primer fila --}}
-               <div class="ml-3 mr-2 mb-2">
-                <a href="{{route('providers')}}" class="boton-azul"><i class="fa-solid fa-people-arrows"></i>  Proveedores</a>
-               </div>
-               {{-- segunda fila --}}
-               <div class="ml-2 mr-2 mb-2">
-                <a href="{{route('orders')}}" class="boton-azul"><i class="fa-solid fa-note-sticky"></i>  Ordenes a proveedores</a>
-               </div>
-             </div>
-            </div>
-        </div>
+    <div class="py-6 sm:py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-white dark:bg-gray-800 overflow-hidden shadow-xl sm:rounded-lg p-4 sm:p-6">
+                
+                {{-- Grid Responsive: 1 columna en móvil, 2 en pantallas medianas, 3 en pantallas grandes --}}
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                    <a href="{{ route('userscontrol') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-users"></i> Control Usuarios
+                    </a>
 
-        <div class="max sm:px-6 lg:px-8 mt-2 mb-2">
-            <div >
-              {{-- primer flex --}}
-             <div class="flex">
-               {{-- primer fila --}}
-               <div class="ml-3 mr-2 mb-2">
-                 <a href="{{route('incomes_expenses')}}" class="boton-azul"><i class="fa-regular fa-money-bill-1"></i> Ingresos/Egresos</a>
-                </div>
-               {{-- segunda fila --}}
-               <div class="ml-2 mr-2 mb-2">
-                 <a href="{{ route('voucherHistory') }}" class="boton-azul"><i class="fa-solid fa-clock"></i> Historial Facturas</a>
-                </div>
-             </div>
-            </div>
-        </div>
+                    <a href="{{ route('categories') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-boxes"></i> Categoría de productos
+                    </a>
 
-        <div class="max sm:px-6 lg:px-8 mt-2 mb-2">
-            <div >
-              {{-- primer flex --}}
-             <div class="flex">
-               {{-- primer fila --}}
-               <div class="ml-3 mr-2 mb-2">
-                 <a href="{{ route('activity_log') }}" class="boton-azul"><i class="fa-solid fa-note-sticky"></i> Bitacora de actividades</a>
-                </div>
-               {{-- segunda fila --}}
-               <div class="ml-2 mr-2 mb-2">
-                 <a href="{{ route('settings') }}" class="boton-azul"><i class="fa-solid fa-gear"></i> Ajustes de sistema</a>
-                </div>
-             </div>
-            </div>
-        </div>
+                    <a href="{{ route('providers') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-people-arrows"></i> Proveedores
+                    </a>
 
-        <div class="max sm:px-6 lg:px-8 mt-2 mb-2">
-            <div>
-              {{-- primer flex --}}
-             <div class="flex">
-               {{-- primer fila --}}
-               <div class="ml-3 mr-2">
-                 <a href="{{ route('discounts') }}" class="boton-azul"><i class="fa-solid fa-percent"></i> Descuentos</a> 
+                    <a href="{{ route('orders') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-note-sticky"></i> Órdenes a proveedores
+                    </a>
+
+                    <a href="{{ route('incomes_expenses') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-regular fa-money-bill-1"></i> Ingresos/Egresos
+                    </a>
+
+                    <a href="{{ route('voucherHistory') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-clock"></i> Historial Facturas
+                    </a>
+
+                    <a href="{{ route('activity_log') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-note-sticky"></i> Bitácora de actividades
+                    </a>
+
+                    <a href="{{ route('settings') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-gear"></i> Ajustes de sistema
+                    </a>
+
+                    <a href="{{ route('discounts') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-percent"></i> Descuentos
+                    </a>
                 </div>
-               
-               
-             </div>
+
             </div>
         </div>
     </div>
-     </div>
-    
 </x-app-layout>
