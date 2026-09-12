@@ -19,6 +19,7 @@
         "livewire/flux": "^2.0",
         "livewire/livewire": "^4.0",
         "livewire/volt": "*",
+        "nativephp/mobile": "^4.4",
         "pusher/pusher-php-server": "^7.2",
         "realrashid/sweet-alert": "*",
         "spatie/laravel-permission": "^6.16"

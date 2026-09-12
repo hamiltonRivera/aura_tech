@@ -16,9 +16,9 @@
                     <tbody>
                         @foreach ($detailProduct as $key => $item)
                             <tr class="text-center">
-                                <td>{{ $key + 1 }}</td>
-                                <td>{{ $item['descripcion'] }}</td>
-                                <td>{{ $item['precio_venta'] }}</td>
+                                <td class="font-bold text-gray-900">{{ $key + 1 }}</td>
+                                <td class="font-bold text-gray-900">{{ $item['descripcion'] }}</td>
+                                <td class="font-bold text-gray-900">{{ $item['precio_venta'] }}</td>
                                 <td>
                                     <!-- Controles de Cantidad -->
                                     <div class="flex items-center justify-center space-x-2">
@@ -38,7 +38,7 @@
                                         </button>
                                     </div>
                                 </td>
-                                <td>{{ $item['total'] }}</td>
+                                <td class="font-bold text-gray-900">{{ $item['total'] }}</td>
                                 <td>
                                     <button class="boton-eliminar" wire:confirm="Confirmacion de eliminar producto"
                                         wire:click="destroy({{ $key }})">

@@ -44,14 +44,7 @@
 {{-- tercer fila --}}
 <div class="mb-3">
     <button wire:click="limpiarBusqueda()" class="boton-gris"><i class="fa-solid fa-eraser"></i> Limpiar búsqueda</button>
-    @if (session()->has('addItem'))
-        <div class="bg-red-100 rounded-lg py-5 px-6 mb-3 text-base text-red-700 inline-flex items-center w-full mt-2"
-            style="width: 80%">
-
-            {{ session('addItem') }}
-
-        </div>
-    @endif
+    
 
 </div>
 {{-- cuarta fila --}}

@@ -151,13 +151,36 @@ class Sales extends Component
             $this->cantidad = 1;
             $this->precio = floatval($this->productSel->precio_venta_unidad);
 
-            if ($this->productSel->stock <= 0) {
-                session()->flash('producto', '*El producto seleccionado no tiene stock disponible.');
-                // ❌ ya no lo reseteamos a null
+            $descripcionLimpia = trim(strtolower($this->productSel->descripcion));
+            $combo = \App\Models\Combo::whereRaw('TRIM(LOWER(description)) = ?', [$descripcionLimpia])->first();
+
+            if ($combo) {
+                // Verificar cada componente del combo
+                $comboDetails = \App\Models\ComboDetail::where('combo_id', $combo->id)->get();
+                foreach ($comboDetails as $detail) {
+                    $componentProduct = Product::find($detail->product_id);
+                    $yaComprometido = $this->obtenerCantidadComprometidaEnCesta($detail->product_id);
+                    $stockDisponibleReal = $componentProduct ? ($componentProduct->stock - $yaComprometido) : 0;
+
+                    if (!$componentProduct || $stockDisponibleReal < $detail->quantity) {
+                        $nombreArticulo = $componentProduct ? $componentProduct->descripcion : 'Desconocido';
+                        session()->flash('producto', "*No se puede vender el combo. El artículo '{$nombreArticulo}' no tiene stock disponible en la tienda.");
+                        return;
+                    }
+                }
+            } else {
+                // Producto Individual
+                $yaComprometido = $this->obtenerCantidadComprometidaEnCesta($this->productSel->id);
+                $stockDisponibleReal = $this->productSel->stock - $yaComprometido;
+
+                if ($stockDisponibleReal <= 0) {
+                    session()->flash('producto', "*El producto '{$this->productSel->descripcion}' no posee más stock disponible (Stock en tienda: {$this->productSel->stock}, ya en cesta: {$yaComprometido}).");
+                }
             }
         } else {
             session()->flash('producto', '*El producto digitado no existe o es incorrecto.');
         }
+        
     }
 
 
@@ -192,9 +215,6 @@ class Sales extends Component
         $historial->metodoPago = $this->metodoPago;
         $historial->save();
     }
-
-
-
 
     public function calcular()
     {
@@ -285,12 +305,47 @@ class Sales extends Component
     //funcion para agregar el producto al carrito
     public function addItem($array)
     {
-        if ($this->productSel == null) {
+        
+      if ($this->productSel == null) {
             session()->flash('addItem', '*Campos Vacíos. Agrega un producto primero.');
             return false;
         }
 
-        // Determinamos si se aplicó descuento individual para guardar el precio unitario final con descuento
+        $descripcionLimpia = trim(strtolower($this->productSel->descripcion));
+        $combo = \App\Models\Combo::whereRaw('TRIM(LOWER(description)) = ?', [$descripcionLimpia])->first();
+
+        if ($combo) {
+            // Validar stock de los componentes del combo
+            $comboDetails = \App\Models\ComboDetail::where('combo_id', $combo->id)->get();
+
+            foreach ($comboDetails as $detail) {
+                $componentProduct = Product::find($detail->product_id);
+
+                if (!$componentProduct) {
+                    session()->flash('addItem', "*El componente ID {$detail->product_id} no existe.");
+                    return false;
+                }
+
+                $yaComprometido = $this->obtenerCantidadComprometidaEnCesta($detail->product_id);
+                $unidadesRequeridasTotal = $yaComprometido + ($detail->quantity * $this->cantidad);
+
+                if ($componentProduct->stock < $unidadesRequeridasTotal) {
+                    session()->flash('addItem', "*No hay stock suficiente del artículo '{$componentProduct->descripcion}' para agregar este combo.");
+                    return false;
+                }
+            }
+        } else {
+            // Validar stock de Producto Individual acumulado
+            $yaComprometido = $this->obtenerCantidadComprometidaEnCesta($this->productSel->id);
+            $unidadesRequeridasTotal = $yaComprometido + $this->cantidad;
+
+            if ($this->productSel->stock < $unidadesRequeridasTotal) {
+                session()->flash('addItem', "*No hay stock suficiente para '{$this->productSel->descripcion}'. Stock real: {$this->productSel->stock}, ya en la cesta: {$yaComprometido}.");
+                return false;
+            }
+        }
+
+        // Aplicar precio con descuento
         $precioFinalUnitario = $this->precio;
         if ($this->descuento_individual == "Si" && $this->descuento_i) {
             $precioUnitarioBase = $this->precio;
@@ -298,25 +353,25 @@ class Sales extends Component
             $precioFinalUnitario = round($precioUnitarioBase - $montoDescuentoUnitario, 2);
         }
 
-        $datos = [
-            "id" => $this->productSel->id,
-            "descripcion" => $this->productSel->descripcion,
-            "precio_venta" => $precioFinalUnitario, // Guardamos el precio unitario ya descontado
-            "cantidad" => $this->cantidad,
-            "total" => round($precioFinalUnitario * $this->cantidad, 2),
-        ];
-
+        // Agregar o actualizar cesta
         $indexBuscar = array_search($this->productSel->id, array_column($this->detailProduct, 'id'));
 
-        if ($indexBuscar !== false) {
+        if ($indexBuscar !== false && !$combo) {
             $this->detailProduct[$indexBuscar]['cantidad'] += $this->cantidad;
             $this->detailProduct[$indexBuscar]['total'] = round($this->detailProduct[$indexBuscar]['cantidad'] * $this->detailProduct[$indexBuscar]['precio_venta'], 2);
         } else {
+            $datos = [
+                "id" => $this->productSel->id,
+                "descripcion" => $this->productSel->descripcion,
+                "precio_venta" => $precioFinalUnitario, 
+                "cantidad" => $this->cantidad,
+                "total" => round($precioFinalUnitario * $this->cantidad, 2),
+            ];
             array_push($this->detailProduct, $datos);
         }
 
         $this->limpiarBusqueda();
-        $this->recalcularTotales();
+        $this->recalcularTotales();       
     }
 
 
@@ -477,5 +532,32 @@ class Sales extends Component
         if ($this->descuento) {
             $this->mostrarDescuento();
         }
+    }
+
+    private function obtenerCantidadComprometidaEnCesta($productId)
+    {
+        $totalComprometido = 0;
+
+        foreach ($this->detailProduct as $item) {
+            $descripcionLimpia = trim(strtolower($item['descripcion']));
+            $combo = \App\Models\Combo::whereRaw('TRIM(LOWER(description)) = ?', [$descripcionLimpia])->first();
+
+            if ($combo) {
+                // Si el ítem del carrito es un Combo, sumamos las unidades que requiere este productId
+                $comboDetails = \App\Models\ComboDetail::where('combo_id', $combo->id)->get();
+                foreach ($comboDetails as $detail) {
+                    if ($detail->product_id == $productId) {
+                        $totalComprometido += ($detail->quantity * $item['cantidad']);
+                    }
+                }
+            } else {
+                // Si el ítem del carrito es un producto individual con el mismo ID
+                if ($item['id'] == $productId) {
+                    $totalComprometido += $item['cantidad'];
+                }
+            }
+        }
+
+        return $totalComprometido;
     }
 }
