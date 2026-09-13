@@ -560,4 +560,24 @@ class Sales extends Component
 
         return $totalComprometido;
     }
+
+    // Incrementar cantidad desde la tabla
+    public function incrementarCantidad($key)
+    {
+        if (isset($this->detailProduct[$key])) {
+            // Validar stock antes de incrementar si lo deseas
+            $product = Product::find($this->detailProduct[$key]['id']);
+            if ($product && $this->detailProduct[$key]['cantidad'] < $product->stock) {
+                $this->detailProduct[$key]['cantidad']++;
+                
+                // Mantiene el precio unitario que ya tenía (con o sin descuento) y recalcula el total
+                $precioUnitario = $this->detailProduct[$key]['precio_venta'];
+                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
+
+                $this->recalcularTotales();
+            } else {
+                session()->flash('addItem', '*No hay más stock disponible para este producto.');
+            }
+        }
+    }
 }
