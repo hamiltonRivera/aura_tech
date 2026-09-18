@@ -22,6 +22,7 @@ Route::controller(AdminController::class)->group(function(){
       Route::get('discounts', 'discounts')->name('discounts');
       Route::get('resetPassword', 'resetPassword')->name('resetPassword');
       Route::get('backup', 'backup')->name('backup');
+      Route::get('payroll', 'payroll')->name('payroll');
       //panel mobile
       Route::get('admin_panel', 'admin_panel')->name('admin_panel');
     });

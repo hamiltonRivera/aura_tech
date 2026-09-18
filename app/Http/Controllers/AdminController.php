@@ -105,4 +105,9 @@ class AdminController extends Controller
     {
         return view('layouts.mobile_view.admin_panel');
     }
+
+    public function payroll()
+    {
+        return view('admin.payroll');
+    }
 }
