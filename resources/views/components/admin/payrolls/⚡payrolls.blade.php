@@ -4,6 +4,7 @@ use Livewire\Component;
 use App\Models\User;
 use App\Models\ActivityLog;
 use App\Models\Payroll;
+use App\Models\Gasto;
 use RealRashid\SweetAlert\Facades\Alert;
 use Livewire\WithPagination;
 
@@ -162,9 +163,16 @@ new class extends Component {
         $payroll->apply_deductions = $this->apply_deductions;
         $payroll->save();
 
+        $expenses = new Gasto();
+        $expenses->descripcion = 'Pago de planilla' . ' ' .$payroll->user->name;
+        $expenses->fecha = today();
+        $expenses->monto = $payroll->total_payment_quarter;
+        $expenses->tipo_gasto = 'Operacionales';
+        $expenses->save();
+
         $newActivitie = new ActivityLog();
         $newActivitie->user_id = auth()->user()->id;
-        $newActivitie->activity = 'Nuevo Registro - Planilla';
+        $newActivitie->activity = 'Nuevo Registro - Pago de Planilla';
         $newActivitie->detail = $payroll->user->name;
         $newActivitie->save();
         Alert::success('Registro de planilla', ' registro guardado exitosamente');
