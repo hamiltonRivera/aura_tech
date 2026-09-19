@@ -10,7 +10,7 @@ use App\Models\ActivityLog;
 class AdminUser extends Component
 {
 
-    public $name, $email;
+    public $name, $email, $salary;
     public function render()
     {
         return view('livewire.admin.users-control.admin-user');
@@ -33,6 +33,7 @@ class AdminUser extends Component
                 'name' => ucfirst(strtolower($this->name)),
                 'email' => strtolower($this->email),
                 'password' => bcrypt('Sistema123@'),  // Contraseña genérica
+                'salary' => $this->salary
             ]);
 
             // Obtener el rol "Docente" usando el nombre del rol

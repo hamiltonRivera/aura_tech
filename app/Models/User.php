@@ -30,6 +30,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'salary'
     ];
 
     /**
@@ -84,5 +85,10 @@ class User extends Authenticatable
     public function creditSales()
     {
         return $this->hasMany(CreditSale::class);
+    }
+
+    public function payrolls()
+    {
+        return $this->hasMany(Payroll::class);
     }
 }

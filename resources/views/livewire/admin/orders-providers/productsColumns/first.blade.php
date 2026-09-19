@@ -2,7 +2,7 @@
     {{-- Búsqueda sensible --}}
     <div class="mb-3">
         <label class="label_class">Búsqueda sensible</label>
-        <input wire:model.live="search_product" type="search" placeholder="Descripción del producto..." class="inputs-formularios-cortos">
+        <input wire:model.live="users" type="search" placeholder="Descripción del producto..." class="inputs-formularios-cortos">
     </div>
 
     {{-- Selector de productos --}}

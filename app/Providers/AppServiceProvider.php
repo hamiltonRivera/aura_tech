@@ -6,6 +6,7 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\URL;
+use Livewire\Volt\Volt;
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -27,6 +28,10 @@ class AppServiceProvider extends ServiceProvider
         if (config('app.env') === 'production') {
         URL::forceScheme('https');
     }
+
+    Volt::mount([
+        resource_path('views/components'),
+    ]);
     }
     
 }
