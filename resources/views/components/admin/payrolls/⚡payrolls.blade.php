@@ -8,30 +8,39 @@ use RealRashid\SweetAlert\Facades\Alert;
 use Livewire\WithPagination;
 
 new class extends Component {
-     use WithPagination;
+    use WithPagination;
 
-     public $search_user = '';
-     public $search = '';
-     
-     // 1. Agregamos las variables nuevas
-     public $user_id = ''; 
-     public $start_date, $end_date, $monthly_salary, $quarter_salary, $daily_salary;
-     public $total_payment_holly_days = 0, $total_payment_quarter = 0, $total_payment_monthly = 0;
-     public $holly_days = 0;
-     public $selected_id;
+    public $search_user = '';
+    public $search = '';
 
-     // Variables para impuestos
-     public $apply_deductions = 'no'; 
-     public $inss_deduction = 0;
-     public $ir_deduction = 0;
-     public $net_payment_quarter = 0;
+    // 1. Agregamos las variables nuevas
+    public $user_id = '';
+    public $start_date, $end_date, $monthly_salary, $quarter_salary, $daily_salary;
+    public $total_payment_holly_days = 0,
+        $total_payment_quarter = 0,
+        $total_payment_monthly = 0;
+    public $holly_days = 0;
+    public $selected_id;
 
-     public function with(): array
+    // Variables para impuestos
+    public $apply_deductions = 'no';
+    public $inss_deduction = 0;
+    public $ir_deduction = 0;
+    public $net_payment_quarter = 0;
+
+    protected $listeners = ['eliminarRegistro' => 'destroy'];
+
+    public function with(): array
     {
         return [
-            'users' => User::orderBy('id','asc')
-            ->where('name', 'like', '%' . $this->search_user . '%')
-            ->orWhere('email', 'like', '%' . $this->search_user . '%')->get(),
+            'users' => User::orderBy('id', 'asc')
+                ->where('name', 'like', '%' . $this->search_user . '%')
+                ->orWhere('email', 'like', '%' . $this->search_user . '%')
+                ->get(),
+
+            'payrolls' => Payroll::with('user')
+                ->whereRelation('user', 'name', 'like', '%' . $this->search . '%')
+                ->paginate(10),
         ];
     }
 
@@ -52,8 +61,14 @@ new class extends Component {
         $this->calculatePayroll();
     }
 
-    public function updatedHollyDays() { $this->calculatePayroll(); }
-    public function updatedApplyDeductions() { $this->calculatePayroll(); }
+    public function updatedHollyDays()
+    {
+        $this->calculatePayroll();
+    }
+    public function updatedApplyDeductions()
+    {
+        $this->calculatePayroll();
+    }
 
     // 3. Cálculos completos con INSS e IR
     public function calculatePayroll()
@@ -70,8 +85,8 @@ new class extends Component {
         $this->daily_salary = round($this->monthly_salary / 30, 2);
 
         // Feriados
-        $dias = (is_numeric($this->holly_days) && $this->holly_days > 0) ? $this->holly_days : 0;
-        $this->total_payment_holly_days = round(($this->daily_salary * 2) * $dias, 2);
+        $dias = is_numeric($this->holly_days) && $this->holly_days > 0 ? $this->holly_days : 0;
+        $this->total_payment_holly_days = round($this->daily_salary * 2 * $dias, 2);
 
         // Totales Brutos
         $this->total_payment_monthly = $this->monthly_salary + $this->total_payment_holly_days;
@@ -99,35 +114,35 @@ new class extends Component {
         $irAnual = 0;
 
         if ($salarioAnual > 100000 && $salarioAnual <= 200000) {
-            $irAnual = (($salarioAnual - 100000) * 0.15);
+            $irAnual = ($salarioAnual - 100000) * 0.15;
         } elseif ($salarioAnual > 200000 && $salarioAnual <= 350000) {
-            $irAnual = (($salarioAnual - 200000) * 0.20) + 15000;
+            $irAnual = ($salarioAnual - 200000) * 0.2 + 15000;
         } elseif ($salarioAnual > 350000 && $salarioAnual <= 500000) {
-            $irAnual = (($salarioAnual - 350000) * 0.25) + 45000;
+            $irAnual = ($salarioAnual - 350000) * 0.25 + 45000;
         } elseif ($salarioAnual > 500000) {
-            $irAnual = (($salarioAnual - 500000) * 0.30) + 82500;
+            $irAnual = ($salarioAnual - 500000) * 0.3 + 82500;
         }
 
-        return round(($irAnual / 12) / 2, 2);
+        return round($irAnual / 12 / 2, 2);
     }
 
     public function store()
     {
         $this->validate([
-          'user_id' => 'required',
-          'start_date' => 'required|date',
-          'end_date' => 'required|date',
-          'monthly_salary' => 'required|numeric',
-          'quarter_salary' => 'required|numeric',
-          'daily_salary' => 'required|numeric',
-          'holly_days' => 'required|numeric',
-          'total_payment_holly_days' => 'required|numeric',
-          'total_payment_monthly' => 'required|numeric',
-          'total_payment_quarter' => 'required|numeric',
-          'inss_deduction' => 'required|numeric',
-          'ir_deduction' => 'required|numeric',
-          'net_payment_quarter' => 'required|numeric',
-          'apply_deductions' => 'nullable|string'
+            'user_id' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'monthly_salary' => 'required|numeric',
+            'quarter_salary' => 'required|numeric',
+            'daily_salary' => 'required|numeric',
+            'holly_days' => 'required|numeric',
+            'total_payment_holly_days' => 'required|numeric',
+            'total_payment_monthly' => 'required|numeric',
+            'total_payment_quarter' => 'required|numeric',
+            'inss_deduction' => 'required|numeric',
+            'ir_deduction' => 'required|numeric',
+            'net_payment_quarter' => 'required|numeric',
+            'apply_deductions' => 'nullable|string',
         ]);
 
         $payroll = new Payroll();
@@ -149,36 +164,122 @@ new class extends Component {
 
         $newActivitie = new ActivityLog();
         $newActivitie->user_id = auth()->user()->id;
-        $newActivitie->activity = "Nuevo Registro - Planilla";
+        $newActivitie->activity = 'Nuevo Registro - Planilla';
         $newActivitie->detail = $payroll->user->name;
         $newActivitie->save();
         Alert::success('Registro de planilla', ' registro guardado exitosamente');
         $this->refresh();
+    }
 
+    public function edit($id)
+    {
+        $record = Payroll::findOrFail($id);
+        $this->selected_id = $id;
+        $this->user_id = $record->user_id;
+        $this->start_date = $record->start_date;
+        $this->end_date = $record->end_date;
+
+        $this->monthly_salary = $record->monthly_salary;
+        $this->quarter_salary = $record->quarter_salary;
+        $this->daily_salary = $record->daily_salary;
+
+        // Feriados
+        $this->holly_days = $record->holly_days;
+        $this->total_payment_holly_days = $record->total_payment_holly_days;
+
+        // Totales y deducciones
+        $this->total_payment_monthly = $record->total_payment_monthly;
+        $this->total_payment_quarter = $record->total_payment_quarter;
+        $this->apply_deductions = $record->apply_deductions;
+        $this->inss_deduction = $record->inss_deduction;
+        $this->ir_deduction = $record->ir_deduction;
+        $this->net_payment_quarter = $record->net_payment_quarter;
+    }
+
+    public function update()
+    {
+        $validate = $this->validate([
+            'user_id' => 'required',
+            'start_date' => 'required|date',
+            'end_date' => 'required|date',
+            'monthly_salary' => 'required|numeric',
+            'quarter_salary' => 'required|numeric',
+            'daily_salary' => 'required|numeric',
+            'holly_days' => 'required|numeric',
+            'total_payment_holly_days' => 'required|numeric',
+            'total_payment_monthly' => 'required|numeric',
+            'total_payment_quarter' => 'required|numeric',
+            'inss_deduction' => 'required|numeric',
+            'ir_deduction' => 'required|numeric',
+            'net_payment_quarter' => 'required|numeric',
+            'apply_deductions' => 'nullable|string',
+        ]);
+
+       if ($this->selected_id) {
+        // 1. Actualizamos la planilla
+        $record = Payroll::findOrFail($this->selected_id);
+        $record->update($validate);
+
+        // 2. Buscamos al usuario y le actualizamos su salario base
+        $empleado = User::find($this->user_id);
+        if ($empleado) {
+            $empleado->salary = $this->monthly_salary;
+            $empleado->save();
+        }
+
+            $newActivitie = new ActivityLog();
+            $newActivitie->user_id = auth()->user()->id;
+            $newActivitie->activity = 'Nuevo Registro - Planilla';
+            $newActivitie->detail = $record->user->name;
+            $newActivitie->save();
+            Alert::success('Registro de planilla', ' registro guardado exitosamente');
+            $this->refresh();
+        }
+    }
+
+    public function destroy($id)
+    {
+        $record = Payroll::findOrFail($id);
+        // 2. Extraemos el nombre del empleado usando la relación 'user'
+        $nombreEmpleado = $record->user->name;
+
+        Payroll::destroy($id);
+
+        $newActivitie = new ActivityLog();
+        $newActivitie->user_id = auth()->user()->id;
+        $newActivitie->activity = 'Nuevo Eliminado - Planilla';
+        $newActivitie->detail = $record->user->name;
+        $newActivitie->save();
+        Alert::success('Registro de planilla', ' registro guardado exitosamente');
+        $this->refresh();
+    }
+
+    public function updatedMonthlySalary() { 
+        $this->calculatePayroll(); 
     }
 };
 ?>
 
 <div>
-    <div class="lg:grid grid-cols-4 sm:grid-col-1">
+    <div class="lg:grid grid-cols-4 sm:grid-col-1" wire:key="{{ $selected_id ?? 'new' }}">
         {{-- primer columna --}}
         <div>
-          @include('components.admin.payrolls.columns.first')
+            @include('components.admin.payrolls.columns.first')
         </div>
 
         {{-- segunda columna --}}
         <div>
-          @include('components.admin.payrolls.columns.second')
+            @include('components.admin.payrolls.columns.second')
         </div>
 
         {{-- tercera columna --}}
         <div>
-          @include('components.admin.payrolls.columns.third')
+            @include('components.admin.payrolls.columns.third')
         </div>
 
         {{-- cuarta columna --}}
         <div>
-          @include('components.admin.payrolls.columns.fourth')
+            @include('components.admin.payrolls.columns.fourth')
         </div>
     </div>
 
@@ -187,6 +288,6 @@ new class extends Component {
     </div>
 
     <div>
-      @include('components.admin.payrolls.table')
-    </div>    
+        @include('components.admin.payrolls.table')
+    </div>
 </div>

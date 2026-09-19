@@ -19,6 +19,10 @@
     <div class="mb-3">
         <label class=" label_class">Fecha fecha fin</label>
         <input type="date" wire:model.lazy="end_date" class="select-formularios form-select w-full">
+
+         @error('end_date')
+            <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
+        @enderror
     </div>
 
     {{-- tercera fila --}}

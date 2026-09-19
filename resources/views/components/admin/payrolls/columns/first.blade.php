@@ -9,13 +9,18 @@
     <div class= "mb-3">
         <label class=" label_class">Fecha Inicio</label>
         <input type="date" wire:model.lazy="start_date" class="select-formularios form-select w-full">
+
+        @error('start_date')
+            <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
+        @enderror
     </div>
 
     {{-- tercera fila --}}
     <div class= "mb-3">
         <label for="" class="label_class">Salario Mensual</label>
         <input type="number" step="any" wire:model.live="monthly_salary" name="monthly_salary"
-            placeholder="Ingrese el salario Mensual" class="inputs-formularios-cortos form-control" disabled>
+            placeholder="Ingrese el salario Mensual" class="inputs-formularios-cortos form-control"
+            @disabled(!$selected_id)>
 
         @error('monthly_salary')
             <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
