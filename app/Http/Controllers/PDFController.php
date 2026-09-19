@@ -114,4 +114,16 @@ class PDFController extends Controller
     
     return $pdf->stream('factura-' . $ventaData['numFactura'] . '.pdf');
 }
+
+public function paycheck()
+{
+  $paycheckData = session('paycheck');
+  
+  if(!$paycheckData){
+    return response('No hay datos de planilla', 400);
+  }
+
+  $pdf = app('dompdf.wrapper')->loadView('daily-process.PDFs.paycheck', compact('paycheckData'));
+  return $pdf->stream('paycheck.pdf');
+}
 }

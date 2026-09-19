@@ -17,5 +17,6 @@ Route::controller(PDFController::class)->group(function(){
    Route::get('credits', 'credits_record')->name('credits_report');
    Route::get('credits/details/{id}', 'credit_details_pdf')->name('credits_details_pdf');
    Route::get('/venta-pdf', [PDFController::class, 'venta_pdf'])->name('venta.pdf');
+   Route::get('/paycheck-pdf', [PDFController::class, 'paycheck'])->name('paycheck.pdf');
  });
 });

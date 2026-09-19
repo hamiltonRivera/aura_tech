@@ -341,6 +341,7 @@ class Proformas extends Component
     $this->search_product = '';
     $this->productSel = null;
     Alert::success('Proforma', 'Proforma generada exitosamente');
+    
     // Disparamos el evento para que abra el PDF en una pestaña nueva sin perder tu vista limpia
     $this->dispatch('abrir-pdf', url: route('proforma.pdf'));
     

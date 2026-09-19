@@ -164,7 +164,7 @@ new class extends Component {
         $payroll->save();
 
         $expenses = new Gasto();
-        $expenses->descripcion = 'Pago de planilla' . ' ' .$payroll->user->name;
+        $expenses->descripcion = 'Pago de planilla' . ' ' . $payroll->user->name;
         $expenses->fecha = today();
         $expenses->monto = $payroll->total_payment_quarter;
         $expenses->tipo_gasto = 'Operacionales';
@@ -175,7 +175,30 @@ new class extends Component {
         $newActivitie->activity = 'Nuevo Registro - Pago de Planilla';
         $newActivitie->detail = $payroll->user->name;
         $newActivitie->save();
-        Alert::success('Registro de planilla', ' registro guardado exitosamente');
+
+        // 1. Armar los datos para el PDF
+        $paycheckData = [
+            'payroll_id' => $payroll->id,
+            'empleado_nombre' => $payroll->user->name,
+            'start_date' => $payroll->start_date,
+            'end_date' => $payroll->end_date,
+            'monthly_salary' => $payroll->monthly_salary,
+            'total_payment_quarter' => $payroll->total_payment_quarter,
+            'inss_deduction' => $payroll->inss_deduction,
+            'ir_deduction' => $payroll->ir_deduction,
+            'net_payment_quarter' => $payroll->net_payment_quarter,
+        ];
+
+        // 2. Guardarlo en la sesión (como espera PDFController)
+        session()->put('paycheck', $paycheckData);
+
+        // 3. Mostrar alerta de éxito
+        Alert::success('Registro de planilla', 'Registro guardado exitosamente');
+
+        // 4. Despachar el evento para abrir la ruta configurada en routes/pdf.php
+        $this->dispatch('abrir-pdf', url: route('paycheck.pdf'));
+
+        // 5. Refrescar / limpiar campos
         $this->refresh();
     }
 
@@ -223,17 +246,17 @@ new class extends Component {
             'apply_deductions' => 'nullable|string',
         ]);
 
-       if ($this->selected_id) {
-        // 1. Actualizamos la planilla
-        $record = Payroll::findOrFail($this->selected_id);
-        $record->update($validate);
+        if ($this->selected_id) {
+            // 1. Actualizamos la planilla
+            $record = Payroll::findOrFail($this->selected_id);
+            $record->update($validate);
 
-        // 2. Buscamos al usuario y le actualizamos su salario base
-        $empleado = User::find($this->user_id);
-        if ($empleado) {
-            $empleado->salary = $this->monthly_salary;
-            $empleado->save();
-        }
+            // 2. Buscamos al usuario y le actualizamos su salario base
+            $empleado = User::find($this->user_id);
+            if ($empleado) {
+                $empleado->salary = $this->monthly_salary;
+                $empleado->save();
+            }
 
             $newActivitie = new ActivityLog();
             $newActivitie->user_id = auth()->user()->id;
@@ -262,8 +285,9 @@ new class extends Component {
         $this->refresh();
     }
 
-    public function updatedMonthlySalary() { 
-        $this->calculatePayroll(); 
+    public function updatedMonthlySalary()
+    {
+        $this->calculatePayroll();
     }
 };
 ?>
@@ -299,3 +323,12 @@ new class extends Component {
         @include('components.admin.payrolls.table')
     </div>
 </div>
+<script>
+    document.addEventListener('livewire:initialized', () => {
+        Livewire.on('abrir-pdf', (event) => {
+            console.log("Evento recibido:", event);
+            alert("Intentando abrir: " + event[0].url); // Esto forzará una alerta visible
+            window.open(event[0].url, '_blank');
+        });
+    });
+</script>
