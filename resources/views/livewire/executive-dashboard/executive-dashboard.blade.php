@@ -60,8 +60,8 @@
             <ul class="space-y-2">
                 @forelse($topProducts as $product)
                     <li class="flex justify-between">
-                        <span>{{ $product->descripcion }}</span>
-                        <span class="font-semibold">{{ $product->total_sold }}</span>
+                        <span class="label_class">{{ $product->descripcion }}</span>
+                        <span class="label_class">{{ $product->total_sold }}</span>
                     </li>
                 @empty
                     <li class="text-gray-500">No hay datos disponibles</li>
