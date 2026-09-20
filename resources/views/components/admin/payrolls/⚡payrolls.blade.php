@@ -50,25 +50,39 @@ new class extends Component {
         return redirect('/private/admin/payroll');
     }
 
-    // 2. Esta es la función mágica que jala el salario de MySQL
+    // 2. Esta es la función mágica que jala el salario y las vacaciones de MySQL
     public function updatedUserId($value)
     {
         if (!empty($value)) {
             $empleado = User::find($value);
-            $this->monthly_salary = $empleado ? $empleado->salary : null;
+            
+            if ($empleado) {
+                $this->monthly_salary = $empleado->salary ?? null;
+                $this->hire_date = $empleado->hire_date;
+                $this->days_off_taken = $empleado->days_off_taken ?? 0;
+            }
         } else {
             $this->monthly_salary = null;
+            $this->reset(['hire_date', 'total_days_off', 'days_off_taken', 'available_days_off']);
         }
+        
         $this->calculatePayroll();
+        $this->calcularVacaciones();
     }
 
     public function updatedHollyDays()
     {
         $this->calculatePayroll();
     }
+    
     public function updatedApplyDeductions()
     {
         $this->calculatePayroll();
+    }
+
+    public function updatedEndDate($value)
+    {
+        $this->calcularVacaciones();
     }
 
     // 3. Cálculos completos con INSS e IR
@@ -125,6 +139,30 @@ new class extends Component {
         }
 
         return round($irAnual / 12 / 2, 2);
+    }
+
+    public function calcularVacaciones()
+    {
+        if (!$this->hire_date || !$this->end_date) {
+            $this->total_days_off = 0;
+            $this->available_days_off = 0;
+            return;
+        }
+
+        $fechaInicio = Carbon::parse($this->hire_date);
+        $fechaCalculo = Carbon::parse($this->end_date);
+
+        if ($fechaInicio->greaterThan($fechaCalculo)) {
+            $this->total_days_off = 0;
+            $this->available_days_off = 0;
+            return;
+        }
+
+        $mesesTrabajados = $fechaInicio->floatDiffInMonths($fechaCalculo);
+        $this->total_days_off = round($mesesTrabajados * 2.5, 2);
+
+        $tomadas = (float) ($this->days_off_taken ?? 0);
+        $this->available_days_off = round($this->total_days_off - $tomadas, 2);
     }
 
     public function store()
@@ -285,54 +323,11 @@ new class extends Component {
         $this->refresh();
     }
 
-        public function updatedUserId($value)
+    public function updatedMonthlySalary()
     {
-        if (!empty($value)) {
-            $empleado = User::find($value);
-            
-            if ($empleado) {
-                $this->monthly_salary = $empleado->salary ?? null;
-                $this->hire_date = $empleado->hire_date;
-                $this->days_off_taken = $empleado->days_off_taken ?? 0;
-            }
-        } else {
-            $this->monthly_salary = null;
-            $this->reset(['hire_date', 'total_days_off', 'days_off_taken', 'available_days_off']);
-        }
-        
         $this->calculatePayroll();
-        $this->calcularVacaciones();
     }
 
-    public function updatedEndDate($value)
-    {
-        $this->calcularVacaciones();
-    }
-
-    public function calcularVacaciones()
-    {
-        if (!$this->hire_date || !$this->end_date) {
-            $this->total_days_off = 0;
-            $this->available_days_off = 0;
-            return;
-        }
-
-        $fechaInicio = Carbon::parse($this->hire_date);
-        $fechaCalculo = Carbon::parse($this->end_date);
-
-        if ($fechaInicio->greaterThan($fechaCalculo)) {
-            $this->total_days_off = 0;
-            $this->available_days_off = 0;
-            return;
-        }
-
-        $mesesTrabajados = $fechaInicio->floatDiffInMonths($fechaCalculo);
-        $this->total_days_off = round($mesesTrabajados * 2.5, 2);
-
-        $tomadas = (float) ($this->days_off_taken ?? 0);
-        $this->available_days_off = round($this->total_days_off - $tomadas, 2);
-    }
-    
 };
 ?>
 
