@@ -5,6 +5,7 @@ use App\Models\User;
 use App\Models\ActivityLog;
 use App\Models\Payroll;
 use App\Models\Gasto;
+use Carbon\Carbon;
 use RealRashid\SweetAlert\Facades\Alert;
 use Livewire\WithPagination;
 
@@ -17,11 +18,10 @@ new class extends Component {
     // 1. Agregamos las variables nuevas
     public $user_id = '';
     public $start_date, $end_date, $monthly_salary, $quarter_salary, $daily_salary;
-    public $total_payment_holly_days = 0,
-        $total_payment_quarter = 0,
-        $total_payment_monthly = 0;
+    public $total_payment_holly_days = 0, $total_payment_quarter = 0, $total_payment_monthly = 0;
     public $holly_days = 0;
-    public $selected_id;
+    public $selected_id, $available_days_off, $total_days_off, $days_off_taken, $hire_date;
+
 
     // Variables para impuestos
     public $apply_deductions = 'no';
@@ -288,6 +288,69 @@ new class extends Component {
     public function updatedMonthlySalary()
     {
         $this->calculatePayroll();
+    }
+
+    public function calcularVacaciones()
+    {
+        // Si no hay fecha de inicio, dejamos los valores en 0
+        if (!$this->hire_date) {
+            $this->total_days_off = 0;
+            $this->available_days_off = 0;
+            return;
+        }
+
+        $fechaInicio = Carbon::parse($this->hire_date);
+        $fechaActual = Carbon::now();
+
+        // Evitar cálculos negativos si por alguna razón la fecha es futura
+        if ($fechaInicio->greaterThan($fechaActual)) {
+            $this->total_days_off = 0;
+            $this->available_days_off = 0;
+            return;
+        }
+
+        // Obtener la diferencia exacta en meses (incluye fracciones de mes)
+        $mesesTrabajados = $fechaInicio->floatDiffInMonths($fechaActual);
+
+        // Calcular días totales acumulados (2.5 días por mes trabajado)
+        $this->total_days_off = round($mesesTrabajados * 2.5, 2);
+
+        // Asegurar que las vacaciones tomadas sean al menos 0
+        $tomadas = (float) ($this->days_off_taken ?? 0);
+
+        // Calcular los días disponibles restantes
+        $this->available_days_off = round($this->total_days_off - $tomadas, 2);
+    }
+
+    public function updatedSelectedId($value)
+    {
+        if ($value) {
+            $empleado = User::find($value);
+            
+            if ($empleado) {
+                // 1. Cargar la fecha de inicio y las tomadas desde la base de datos
+                $this->hire_date = $empleado->hire_date;
+                $this->days_off_taken = $empleado->days_off_taken ?? 0;
+                
+                // (Aquí cargas también el salario y lo que necesites)
+                // $this->monthly_salary = $empleado->salary;
+                
+                // 2. Ejecutar la matemática de las vacaciones
+                $this->calcularVacaciones();
+            }
+        } else {
+            // Limpiar los campos si se deselecciona el empleado
+            $this->reset(['hire_date', 'total_days_off', 'days_off_taken', 'available_days_off']);
+        }
+    }
+
+    public function updatedDaysOffTaken($value)
+    {
+        // Cada vez que escribes en "Vacaciones Tomadas", se actualiza la disponibilidad
+        $tomadas = (float) $value;
+        $totales = (float) $this->total_days_off;
+        
+        $this->available_days_off = round($totales - $tomadas, 2);
     }
 };
 ?>

@@ -46,4 +46,16 @@
         </div>
     </div>
 
+    {{-- cuarta fila --}}
+    <div>
+        <label for="" class="label_class">Vacaciones disponibles</label>
+        <input type="number" step="any" wire:model.live="available_days_off" name="available_days_off"
+            placeholder="Ingrese el salario Mensual" class="inputs-formularios-cortos form-control"
+            @disabled(!$selected_id)>
+
+        @error('available_days_off')
+            <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
+        @enderror
+    </div>
+
 </div>

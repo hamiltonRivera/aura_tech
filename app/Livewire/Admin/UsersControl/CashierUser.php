@@ -10,7 +10,7 @@ use App\Models\ActivityLog;
 class CashierUser extends Component
 {
 
-    public $name, $email, $salary;
+    public $name, $email, $salary, $hire_date;
     public function render()
     {
         return view('livewire.admin.users-control.cashier-user');
@@ -33,7 +33,8 @@ class CashierUser extends Component
                 'name' => ucfirst(strtolower($this->name)),
                 'email' => strtolower($this->email),
                 'password' => bcrypt('Sistema123@'),  // Contraseña genérica
-                'salary' => $this->salary
+                'salary' => $this->salary, 
+                'hire_date' => $this->hire_date
             ]);
 
             // Obtener el rol "Docente" usando el nombre del rol

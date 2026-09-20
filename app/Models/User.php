@@ -30,7 +30,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        'salary'
+        'salary', 
+        'hire_date',
+        'available_days_off',
+        'total_days_off',
+        'days_off_taken',
     ];
 
     /**
