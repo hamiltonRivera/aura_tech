@@ -50,12 +50,22 @@
     <div>
         <label for="" class="label_class">Vacaciones disponibles</label>
         <input type="number" step="any" wire:model.live="available_days_off" name="available_days_off"
-            placeholder="Ingrese el salario Mensual" class="inputs-formularios-cortos form-control"
+            placeholder="Vacaciones Disponibles" class="inputs-formularios-cortos form-control"
             @disabled(!$selected_id)>
 
         @error('available_days_off')
             <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
         @enderror
     </div>
+
+    {{-- quinta fila --}}
+    <div>
+       <label class=" label_class">Fecha de ingreso</label>
+       <input type="date" wire:model.live="hire_date" class="inputs-formularios-cortos form-control">
+
+        @error('hire_date')
+            <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
+        @enderror  
+    </div>    
 
 </div>

@@ -44,4 +44,18 @@
         @endif
    </div>
 
+   {{-- quinta fila --}}
+   <div>
+       @if($selected_id)
+       <div class="mb-3">
+           <label for="last_day_off_taken" class="label_class text-blue-600 font-semibold">Última fecha de vacaciones</label>
+           <input type="date" wire:model="last_day_off_taken" name="last_day_off_taken"
+               class="select-formularios form-select w-full border-blue-300 focus:border-blue-500">
+           
+           @error('last_day_off_taken')
+               <p class="text-red-600 p-2 rounded text-sm">{{ $message }}</p>
+           @enderror
+       </div>
+       @endif
+   </div>
 </div>

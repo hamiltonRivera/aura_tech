@@ -32,8 +32,8 @@
      <div class= "mb-3">
         <label for="" class="label_class">Vacaciones Acumuladas</label>
         <input type="number" step="any" wire:model.live="total_days_off" name="total_days_off"
-            placeholder="Ingrese el salario Mensual" class="inputs-formularios-cortos form-control"
-            @disabled(!$selected_id)>
+            placeholder="Vacaciones acumuladas" class="inputs-formularios-cortos form-control"
+            @disabled(empty($user_id))>
 
         @error('total_days_off')
             <p class=" text-red-600 p-2 rounded">{{ $message }}</p>

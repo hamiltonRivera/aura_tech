@@ -35,6 +35,7 @@ class User extends Authenticatable
         'available_days_off',
         'total_days_off',
         'days_off_taken',
+        'last_day_off_taken'
     ];
 
     /**
