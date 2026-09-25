@@ -15,6 +15,7 @@ use App\Models\Sale;
 use App\Models\DetailSale;
 use App\Models\Discount;
 use App\Models\ProductSale;
+use App\Models\Combo;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use App\Events\SaleCreated;
@@ -312,66 +313,72 @@ class Sales extends Component
         }
 
         $descripcionLimpia = trim(strtolower($this->productSel->descripcion));
-        $combo = \App\Models\Combo::whereRaw('TRIM(LOWER(description)) = ?', [$descripcionLimpia])->first();
+        $combo = Combo::whereRaw('TRIM(LOWER(description)) = ?', [$descripcionLimpia])->first();
 
+        // Validaciones de stock originales...
         if ($combo) {
-            // Validar stock de los componentes del combo
             $comboDetails = \App\Models\ComboDetail::where('combo_id', $combo->id)->get();
-
             foreach ($comboDetails as $detail) {
                 $componentProduct = Product::find($detail->product_id);
-
-                if (!$componentProduct) {
-                    session()->flash('addItem', "*El componente ID {$detail->product_id} no existe.");
-                    return false;
-                }
-
+                if (!$componentProduct) { session()->flash('addItem', "*El componente ID {$detail->product_id} no existe."); return false; }
                 $yaComprometido = $this->obtenerCantidadComprometidaEnCesta($detail->product_id);
                 $unidadesRequeridasTotal = $yaComprometido + ($detail->quantity * $this->cantidad);
-
                 if ($componentProduct->stock < $unidadesRequeridasTotal) {
                     session()->flash('addItem', "*No hay stock suficiente del artículo '{$componentProduct->descripcion}' para agregar este combo.");
                     return false;
                 }
             }
         } else {
-            // Validar stock de Producto Individual acumulado
             $yaComprometido = $this->obtenerCantidadComprometidaEnCesta($this->productSel->id);
             $unidadesRequeridasTotal = $yaComprometido + $this->cantidad;
-
             if ($this->productSel->stock < $unidadesRequeridasTotal) {
                 session()->flash('addItem', "*No hay stock suficiente para '{$this->productSel->descripcion}'. Stock real: {$this->productSel->stock}, ya en la cesta: {$yaComprometido}.");
                 return false;
             }
         }
 
-        // Aplicar precio con descuento
+        // LÓGICA DE DESCUENTOS PARA EL ARRAY
+        $precioUnitarioBase = $this->precio;
+        $porcentajeDesc = 0;
+        $montoDescuentoUnitario = 0;
         $precioFinalUnitario = $this->precio;
+
         if ($this->descuento_individual == "Si" && $this->descuento_i) {
-            $precioUnitarioBase = $this->precio;
-            $montoDescuentoUnitario = ($precioUnitarioBase * $this->descuento_i) / 100;
+            $porcentajeDesc = $this->descuento_i;
+            $montoDescuentoUnitario = ($precioUnitarioBase * $porcentajeDesc) / 100;
             $precioFinalUnitario = round($precioUnitarioBase - $montoDescuentoUnitario, 2);
         }
+        $montoDescuentoTotalItem = round($montoDescuentoUnitario * $this->cantidad, 2);
 
-        // Agregar o actualizar cesta
         $indexBuscar = array_search($this->productSel->id, array_column($this->detailProduct, 'id'));
 
         if ($indexBuscar !== false && !$combo) {
             $this->detailProduct[$indexBuscar]['cantidad'] += $this->cantidad;
-            $this->detailProduct[$indexBuscar]['total'] = round($this->detailProduct[$indexBuscar]['cantidad'] * $this->detailProduct[$indexBuscar]['precio_venta'], 2);
+            
+            $descUnitario = ($this->detailProduct[$indexBuscar]['precio_venta'] * ($this->detailProduct[$indexBuscar]['descuento_porcentaje'] ?? 0)) / 100;
+            $this->detailProduct[$indexBuscar]['descuento_monto'] = round($descUnitario * $this->detailProduct[$indexBuscar]['cantidad'], 2);
+            $precioFinalArr = $this->detailProduct[$indexBuscar]['precio_venta'] - $descUnitario;
+            $this->detailProduct[$indexBuscar]['total'] = round($this->detailProduct[$indexBuscar]['cantidad'] * $precioFinalArr, 2);
         } else {
             $datos = [
                 "id" => $this->productSel->id,
                 "descripcion" => $this->productSel->descripcion,
-                "precio_venta" => $precioFinalUnitario, 
+                "precio_venta" => $precioUnitarioBase,
                 "cantidad" => $this->cantidad,
+                "descuento_porcentaje" => $porcentajeDesc,
+                "descuento_monto" => $montoDescuentoTotalItem,
                 "total" => round($precioFinalUnitario * $this->cantidad, 2),
             ];
             array_push($this->detailProduct, $datos);
         }
 
         $this->limpiarBusqueda();
-        $this->recalcularTotales();       
+        $this->recalcularTotales();
+
+       
+       
+
+            
     }
 
 
@@ -392,7 +399,8 @@ class Sales extends Component
     
     public function store()
     {
-        $this->validate([
+        
+       $this->validate([
             'numFactura' => 'required|numeric|unique:sales,numFactura',
             'fecha' => 'required|date',
             'client_id' => 'required',
@@ -420,18 +428,37 @@ class Sales extends Component
         $newventa->save();
 
         event(new SaleCreated());
-
         $this->historial();
 
         $setting = Setting::first();
         $setting->consecutivo = $this->numFactura;
         $setting->save();
 
-        foreach ($this->detailProduct as $item) {
+        // 1. CLONAMOS Y PREPARAMOS EL ARRAY PARA EL PDF (Con descuento global si aplica)
+        $detallesParaPDF = $this->detailProduct;
+        if (!empty($this->descuento) && is_numeric($this->descuento) && $this->descuento > 0) {
+            foreach ($detallesParaPDF as $key => $item) {
+                if (empty($item['descuento_porcentaje']) || $item['descuento_porcentaje'] == 0) {
+                    $precioBase = $item['precio_venta'];
+                    $porcentajeGlobal = floatval($this->descuento);
+                    $montoDescontadoUnitario = ($precioBase * $porcentajeGlobal) / 100;
+                    
+                    $detallesParaPDF[$key]['descuento_porcentaje'] = $porcentajeGlobal;
+                    $detallesParaPDF[$key]['descuento_monto'] = round($montoDescontadoUnitario * $item['cantidad'], 2);
+                    $detallesParaPDF[$key]['total'] = round(($precioBase - $montoDescontadoUnitario) * $item['cantidad'], 2);
+                }
+            }
+        }
+
+        // 2. GUARDAMOS EN BASE DE DATOS USANDO EL ARRAY PROCESADO ($detallesParaPDF)
+        // Usamos este array para que en DetailSale quede guardado el precio final real de la venta.
+        foreach ($detallesParaPDF as $item) {
             $detaProduc = new DetailSale();
             $detaProduc->product_id = $item['id'];
             $detaProduc->sale_id = $newventa->id;
-            $detaProduc->precio = $item['precio_venta'];
+            // Para la BD, queremos que el precio unitario refleje el costo YA rebajado para que el total cuadre
+            $precioYaRebajado = $item['precio_venta'] - (($item['descuento_monto'] ?? 0) / $item['cantidad']);
+            $detaProduc->precio = $precioYaRebajado; 
             $detaProduc->cantidad = $item['cantidad'];
             $detaProduc->total = $item['total'];
             $detaProduc->save();
@@ -474,19 +501,18 @@ class Sales extends Component
         $nombreCliente = $clientObj ? $clientObj->nombreApellido : 'Cliente General';
         $totalFinalVenta = $this->descuento ? $this->totalPagadoDescuento : $this->totalPagado;
 
+        // 3. PASAMOS EL ARRAY CON LAS NUEVAS COLUMNAS AL PDF
         session()->forget('ventaData');
         session([
             'ventaData' => [
                 'numFactura'  => $this->numFactura,
                 'cliente'     => $nombreCliente,
                 'fecha'       => $this->fecha,
-                'detalles'    => $this->detailProduct,
+                'detalles'    => $detallesParaPDF, // El array con montos de descuento
                 'totalPagado' => $totalFinalVenta
             ]
         ]);
         session()->save();
-
-        
 
         $this->detailProduct = [];
         $this->total = 0;
@@ -499,11 +525,10 @@ class Sales extends Component
         $this->totalRecibido = null;
         $this->cambio = null;
         Alert::success('Venta', 'Venta realizada exitosamente');
-        // Disparamos el evento para abrir el PDF en otra pestaña
-        $this->dispatch('abrir-pdf', url: route('venta.pdf'));
+        
+        $this->dispatch('abrir-pdf', url: route('venta.pdf'));      
     }
     
-    // Decrementar cantidad desde la tabla
     public function decrementarCantidad($key)
     {
         if (isset($this->detailProduct[$key])) {
@@ -511,7 +536,13 @@ class Sales extends Component
                 $this->detailProduct[$key]['cantidad']--;
 
                 $precioUnitario = $this->detailProduct[$key]['precio_venta'];
-                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
+                $porcentaje = $this->detailProduct[$key]['descuento_porcentaje'] ?? 0;
+                
+                $descUnitario = ($precioUnitario * $porcentaje) / 100;
+                $precioFinalUnit = $precioUnitario - $descUnitario;
+
+                $this->detailProduct[$key]['descuento_monto'] = round($descUnitario * $this->detailProduct[$key]['cantidad'], 2);
+                $this->detailProduct[$key]['total'] = round($precioFinalUnit * $this->detailProduct[$key]['cantidad'], 2);
 
                 $this->recalcularTotales();
             }
@@ -561,18 +592,21 @@ class Sales extends Component
         return $totalComprometido;
     }
 
-    // Incrementar cantidad desde la tabla
     public function incrementarCantidad($key)
     {
         if (isset($this->detailProduct[$key])) {
-            // Validar stock antes de incrementar si lo deseas
             $product = Product::find($this->detailProduct[$key]['id']);
             if ($product && $this->detailProduct[$key]['cantidad'] < $product->stock) {
                 $this->detailProduct[$key]['cantidad']++;
                 
-                // Mantiene el precio unitario que ya tenía (con o sin descuento) y recalcula el total
                 $precioUnitario = $this->detailProduct[$key]['precio_venta'];
-                $this->detailProduct[$key]['total'] = round($this->detailProduct[$key]['cantidad'] * $precioUnitario, 2);
+                $porcentaje = $this->detailProduct[$key]['descuento_porcentaje'] ?? 0;
+                
+                $descUnitario = ($precioUnitario * $porcentaje) / 100;
+                $precioFinalUnit = $precioUnitario - $descUnitario;
+
+                $this->detailProduct[$key]['descuento_monto'] = round($descUnitario * $this->detailProduct[$key]['cantidad'], 2);
+                $this->detailProduct[$key]['total'] = round($precioFinalUnit * $this->detailProduct[$key]['cantidad'], 2);
 
                 $this->recalcularTotales();
             } else {
