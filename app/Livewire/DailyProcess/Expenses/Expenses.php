@@ -71,4 +71,3 @@ class Expenses extends Component
         ));
     }
 
-    // ... (El resto de tus métodos refresh, store, edit, update, destroy se mantienen igual) ...
