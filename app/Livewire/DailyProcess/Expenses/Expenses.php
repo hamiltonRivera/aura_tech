@@ -1,3 +1,5 @@
+<?php
+
 namespace App\Livewire\DailyProcess\Expenses;
 
 use Livewire\Component;
