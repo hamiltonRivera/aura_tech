@@ -60,12 +60,12 @@
 
     {{-- quinta fila --}}
     <div>
-       <label class=" label_class">Fecha de ingreso</label>
-       <input type="date" wire:model.live="hire_date" class="inputs-formularios-cortos form-control">
-
-        @error('hire_date')
-            <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
-        @enderror  
-    </div>    
+    <label class="label_class">Fecha de ingreso</label>
+    <input type="date" wire:model.live="hire_date" class="inputs-formularios-cortos form-control w-full">
+    
+    @error('hire_date')
+        <p class="text-red-600 p-2 rounded">{{ $message }}</p>
+    @enderror
+</div>   
 
 </div>
