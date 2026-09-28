@@ -43,13 +43,13 @@
     {{-- quinta fila --}}
     <div>
         <label for="" class="label_class">Vacaciones Tomadas</label>
-        <input type="number" step="any" wire:model.live="days_off_taken" name="days_off_taken"
-            placeholder="Ingrese el salario Mensual" class="inputs-formularios-cortos form-control"
-            @disabled(!$selected_id)>
+        <input type="number" 
+           step="any" 
+           wire:model.live="days_off_taken" 
+           class="inputs-formularios-cortos form-control w-full" 
+           @disabled(empty($user_id))>
 
         @error('days_off_taken')
             <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
         @enderror
     </div>
-
-</div>
