@@ -1,6 +1,7 @@
 <?php
 
 use Livewire\Component;
+use Livewire\Attributes\On;
 use App\Models\User;
 use App\Models\ActivityLog;
 use App\Models\Payroll;
@@ -16,21 +17,18 @@ new class extends Component {
     public $search = '';
     public $last_day_off_taken;
 
-    // 1. Agregamos las variables nuevas
+    // 1. Agregamos las variables de identidad, fechas y adelantos
     public $user_id = '';
-    public $start_date, $end_date, $monthly_salary, $quarter_salary, $daily_salary;
+    public $start_date, $end_date, $monthly_salary, $quarter_salary, $daily_salary, $salary_advance = 0, $last_advance_date = null;
     public $total_payment_holly_days = 0, $total_payment_quarter = 0, $total_payment_monthly = 0;
     public $holly_days = 0;
     public $selected_id, $available_days_off, $total_days_off, $days_off_taken, $hire_date;
-
 
     // Variables para impuestos
     public $apply_deductions = 'no';
     public $inss_deduction = 0;
     public $ir_deduction = 0;
     public $net_payment_quarter = 0;
-
-    protected $listeners = ['eliminarRegistro' => 'destroy'];
 
     public function with(): array
     {
@@ -64,7 +62,12 @@ new class extends Component {
                 $this->total_days_off = 0;
             }
         } else {
-            $this->total_days_off = 0;
+            if (!empty($this->user_id)) {
+                $empleado = User::find($this->user_id);
+                $this->total_days_off = $empleado ? (float) ($empleado->total_days_off ?? 0) : 0;
+            } else {
+                $this->total_days_off = 0;
+            }
         }
 
         $tomadas = (float) ($this->days_off_taken ?? 0);
@@ -76,7 +79,7 @@ new class extends Component {
         return redirect('/private/admin/payroll');
     }
 
-    // 2. Esta es la función mágica que jala el salario y las vacaciones de MySQL
+    // 2. Función reactiva que jala todos los datos del modelo al seleccionar un empleado
     public function updatedUserId($value)
     {
         if (!empty($value)) {
@@ -84,24 +87,39 @@ new class extends Component {
 
             if ($empleado) {
                 $this->monthly_salary = $empleado->salary ?? null;
-                $this->hire_date = $empleado->hire_date;
+                $this->hire_date = $empleado->hire_date ? Carbon::parse($empleado->hire_date)->format('Y-m-d') : null;
                 $this->days_off_taken = $empleado->days_off_taken ?? 0;
                 
-                // Llamamos a la función de cálculo
+                // Carga de adelantos pendientes
+                $this->salary_advance = $empleado->salary_advance ?? 0;
+                $this->last_advance_date = !empty($empleado->last_advance_date) ? Carbon::parse($empleado->last_advance_date)->format('Y-m-d') : null;
+
                 $this->calculateVacations();
             }
         } else {
-            $this->monthly_salary = null;
-            $this->reset(['hire_date', 'total_days_off', 'days_off_taken', 'available_days_off']);
+            $this->reset([
+                'monthly_salary', 
+                'hire_date', 
+                'total_days_off', 
+                'days_off_taken', 
+                'available_days_off',
+                'quarter_salary',
+                'daily_salary',
+                'total_payment_quarter',
+                'net_payment_quarter',
+                'salary_advance',
+                'last_advance_date'
+            ]);
         }
 
         $this->calculatePayroll();
     }
+
     public function updatedDaysOffTaken($value)
-{
-    $tomadas = (float) ($value ?? 0);
-    $this->available_days_off = round($this->total_days_off - $tomadas, 2);
-}
+    {
+        $tomadas = (float) ($value ?? 0);
+        $this->available_days_off = round($this->total_days_off - $tomadas, 2);
+    }
 
     public function updatedHollyDays()
     {
@@ -113,9 +131,18 @@ new class extends Component {
         $this->calculatePayroll();
     }
 
-    
+    public function updatedMonthlySalary()
+    {
+        $this->calculatePayroll();
+    }
 
-    // 3. Cálculos completos con INSS e IR
+    // Recálculo reactivo si modifican el input del adelanto a mano
+    public function updatedSalaryAdvance()
+    {
+        $this->calculatePayroll();
+    }
+
+    // 3. Cálculos completos con INSS, IR y Adelantos
     public function calculatePayroll()
     {
         if (empty($this->monthly_salary) || $this->monthly_salary <= 0) {
@@ -146,8 +173,16 @@ new class extends Component {
             $this->ir_deduction = 0;
         }
 
-        // Neto
-        $this->net_payment_quarter = round($this->total_payment_quarter - $this->inss_deduction - $this->ir_deduction, 2);
+        // Recuperar y restar el adelanto del neto
+        $adelanto = is_numeric($this->salary_advance) ? (float) $this->salary_advance : 0;
+
+        // Neto descontando impuestos y el adelanto
+        $this->net_payment_quarter = round($this->total_payment_quarter - $this->inss_deduction - $this->ir_deduction - $adelanto, 2);
+        
+        // Evitamos montos negativos
+        if ($this->net_payment_quarter < 0) {
+            $this->net_payment_quarter = 0;
+        }
     }
 
     // Tabla del IR de Nicaragua
@@ -171,12 +206,8 @@ new class extends Component {
         return round($irAnual / 12 / 2, 2);
     }
 
-    
-
     public function store()
     {
-        
-
         $this->validate([
             'user_id' => 'required',
             'start_date' => 'required|date',
@@ -211,15 +242,19 @@ new class extends Component {
         $payroll->apply_deductions = $this->apply_deductions;
         $payroll->save();
 
-        // --- NUEVO: ACTUALIZAMOS EL MODELO USER ---
+        // ACTUALIZAMOS EL MODELO USER
         $empleado = User::find($this->user_id);
         if ($empleado) {
             $empleado->total_days_off = $this->total_days_off;
             $empleado->days_off_taken = $this->days_off_taken;
             $empleado->available_days_off = $this->available_days_off;
+            
+            // Regresamos el adelanto a 0 al guardar la planilla
+            $empleado->salary_advance = 0;
+            $empleado->last_advance_date = Carbon::now()->format('Y-m-d');
+            
             $empleado->save();
         }
-        // ------------------------------------------
 
         $expenses = new Gasto();
         $expenses->descripcion = 'Pago de planilla - ' . $payroll->user->name;
@@ -244,34 +279,34 @@ new class extends Component {
             'inss_deduction' => $payroll->inss_deduction,
             'ir_deduction' => $payroll->ir_deduction,
             'net_payment_quarter' => $payroll->net_payment_quarter,
+            // Guardamos el adelanto para que salga en el PDF
+            'adelanto_descontado' => is_numeric($this->salary_advance) ? $this->salary_advance : 0,
         ];
 
         session()->put('paycheck', $paycheckData);
         Alert::success('Registro de planilla', 'Registro guardado exitosamente');
+        
         $this->dispatch('abrir-pdf', url: route('paycheck.pdf'));
         $this->refresh();
-    
     }
 
     public function edit($id)
     {
-        // Añadimos ->with('user') para tener acceso a los datos del empleado
         $record = Payroll::with('user')->findOrFail($id); 
         
         $this->selected_id = $id;
         $this->user_id = $record->user_id;
-        $this->start_date = $record->start_date;
-        $this->end_date = $record->end_date;
+        
+        $this->start_date = $record->start_date ? Carbon::parse($record->start_date)->format('Y-m-d') : null;
+        $this->end_date = $record->end_date ? Carbon::parse($record->end_date)->format('Y-m-d') : null;
 
         $this->monthly_salary = $record->monthly_salary;
         $this->quarter_salary = $record->quarter_salary;
         $this->daily_salary = $record->daily_salary;
 
-        // Feriados
         $this->holly_days = $record->holly_days;
         $this->total_payment_holly_days = $record->total_payment_holly_days;
 
-        // Totales y deducciones
         $this->total_payment_monthly = $record->total_payment_monthly;
         $this->total_payment_quarter = $record->total_payment_quarter;
         $this->apply_deductions = $record->apply_deductions;
@@ -279,20 +314,22 @@ new class extends Component {
         $this->ir_deduction = $record->ir_deduction;
         $this->net_payment_quarter = $record->net_payment_quarter;
 
-        // --- NUEVO: Cargar los datos de vacaciones del empleado al editar ---
+        // Cargar los datos de vacaciones y adelantos al editar
         if ($record->user) {
-            $this->hire_date = $record->user->hire_date;
+            $this->hire_date = $record->user->hire_date ? Carbon::parse($record->user->hire_date)->format('Y-m-d') : null;
             $this->total_days_off = $record->user->total_days_off ?? 0;
             $this->days_off_taken = $record->user->days_off_taken ?? 0;
             $this->available_days_off = $record->user->available_days_off ?? 0;
             $this->last_day_off_taken = $record->user->last_day_off_taken;
+            
+            $this->salary_advance = $record->user->salary_advance ?? 0;
+            $this->last_advance_date = $record->user->last_advance_date;
         }
     }
 
     public function update()
     {
-        
-      $validate = $this->validate([
+        $validate = $this->validate([
             'user_id' => 'required',
             'start_date' => 'required|date',
             'end_date' => 'required|date',
@@ -310,15 +347,13 @@ new class extends Component {
         ]);
 
         if ($this->selected_id) {
-            // 1. Actualizamos la planilla
             $record = Payroll::findOrFail($this->selected_id);
             $record->update($validate);
 
-            // 2. ACTUALIZAMOS EL MODELO USER
             $empleado = User::find($this->user_id);
             if ($empleado) {
                 $empleado->salary = $this->monthly_salary;
-                $empleado->hire_date = $this->hire_date; // <--- Agregado solo para actualización
+                $empleado->hire_date = $this->hire_date; 
                 $empleado->last_day_off_taken = $this->last_day_off_taken;
                 $empleado->total_days_off = $this->total_days_off;
                 $empleado->days_off_taken = $this->days_off_taken;
@@ -328,35 +363,33 @@ new class extends Component {
 
             $newActivitie = new ActivityLog();
             $newActivitie->user_id = auth()->user()->id;
-            $newActivitie->activity = 'Edición - Planilla'; // Actualizado para que diga Edición
+            $newActivitie->activity = 'Edición - Planilla'; 
             $newActivitie->detail = $record->user->name;
             $newActivitie->save();
             
             Alert::success('Registro de planilla', 'Registro actualizado exitosamente');
             $this->refresh();
         }
-        
     }
 
+    // Atributo de Livewire 4 para reemplazar el protected $listeners
+    #[On('eliminarRegistro')]
     public function destroy($id)
     {
         $record = Payroll::findOrFail($id);
-        // 2. Extraemos el nombre del empleado usando la relación 'user'
         $nombreEmpleado = $record->user->name;
 
         Payroll::destroy($id);
 
         $newActivitie = new ActivityLog();
         $newActivitie->user_id = auth()->user()->id;
-        $newActivitie->activity = 'Nuevo Eliminado - Planilla';
-        $newActivitie->detail = $record->user->name;
+        $newActivitie->activity = 'Registro Eliminado - Planilla';
+        $newActivitie->detail = $nombreEmpleado;
         $newActivitie->save();
-        Alert::success('Registro de planilla', ' registro guardado exitosamente');
+        
+        Alert::success('Registro de planilla', 'Registro eliminado exitosamente');
         $this->refresh();
     }
-
-    
-
 };
 ?>
 
@@ -395,9 +428,8 @@ new class extends Component {
     document.addEventListener('livewire:initialized', () => {
         Livewire.on('abrir-pdf', (event) => {
             console.log("Evento recibido:", event);
-            alert("Intentando abrir: " + event[0].url); // Esto forzará una alerta visible
+            alert("Intentando abrir: " + event[0].url); 
             window.open(event[0].url, '_blank');
         });
     });
 </script>
-
