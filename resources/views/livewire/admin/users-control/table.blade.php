@@ -111,6 +111,20 @@
                     <div class="relative p-6 flex-auto">
                         <p class="mb-4 text-gray-600 font-bold">Empleado: <span class="text-blue-600">{{ $advance_user_name }}</span></p>
                         
+                        <!-- Tarjeta de Acumulado Mensual -->
+                        <div class="mb-5 bg-gray-50 border border-gray-200 p-4 rounded-lg flex justify-between items-center shadow-sm">
+                            <div>
+                                <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Acumulado este mes</p>
+                                <p class="text-2xl font-black text-gray-800">
+                                    <span class="text-sm text-gray-500 font-normal">C$</span> 
+                                    {{ number_format($accumulated_advance, 2) }}
+                                </p>
+                            </div>
+                            <div class="bg-blue-100 text-blue-600 p-3 rounded-full flex items-center justify-center w-12 h-12">
+                                <i class="fa-solid fa-piggy-bank text-xl"></i>
+                            </div>
+                        </div>
+
                         <div class="mb-4">
                             <label class="block text-gray-700 text-sm font-bold mb-2">Monto a Entregar</label>
                             <input type="number" step="any" wire:model="advance_amount" 
