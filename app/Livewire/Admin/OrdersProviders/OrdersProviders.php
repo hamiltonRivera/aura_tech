@@ -11,12 +11,14 @@ use App\Models\DetailOrder;
 use App\Models\Provider;
 use Livewire\WithPagination;
 use App\Models\ActivityLog;
+
 class OrdersProviders extends Component
 {
     use WithPagination;
+    
     public $search_product = '', $search_provider = '';
 
-    public $metodoPagos =[
+    public $metodoPagos = [
         'Efectivo',
         'Cheque',
         'Remesa',
@@ -27,19 +29,22 @@ class OrdersProviders extends Component
     public $detailProduct = [];
     public $productoSel;
 
-      //datos de modelo pedidos
-      public $provider_id, $fecha, $metodoPago, $totalPagado, $total;
+    //datos de modelo pedidos
+    public $provider_id, $fecha, $metodoPago, $totalPagado, $total;
 
-      //datos de modelo producto
-      public $product_id, $cantidad, $precio;
-
+    //datos de modelo producto
+    public $product_id, $cantidad, $precio;
+    
+    // Nuevas variables para el delivery
+    public $incluyeDelivery = 'no';
+    public $montoDelivery = 0;
 
     public function render()
     {
         $providers = Provider::orderBy('id', 'asc')
          ->where('nombreApellido', 'like', '%' . $this->search_provider . '%')->get();
 
-         $products = Product::orderBy('id', 'asc')
+        $products = Product::orderBy('id', 'asc')
           ->where('descripcion', 'like', '%' .$this->search_product . '%')
           ->orWhere('codigo', 'like', '%' . $this->search_product . '%')->get();
 
@@ -52,7 +57,6 @@ class OrdersProviders extends Component
     }
 
     public function buscarProducto(Product $id)
-
     {
         if (!empty($id)) {
             $this->productoSel = $id;
@@ -67,52 +71,41 @@ class OrdersProviders extends Component
             session()->flash('cantidad', '*Error al digitar la cantidad.');
             $this->cantidad = 1;
         }
-
     }
 
     public function updatingProduct(Product $id)
-      {
+    {
         $this->productoSel = Product::find($id);
         $this->cantidad = 1;
         $this->precio = round($this->productoSel->precio_compra, 2);
-      }
-
-
+    }
 
     public function addItem($array)
-    {   if(empty($this->productoSel))
-        {
+    {   
+        if(empty($this->productoSel)) {
             session()->flash('productoSel', '*Tienes que seleccionar al menos un producto.');
-        }else{
+        } else {
             $datos = [
                 "id" => $this->productoSel->id,
                 "descripcion" => $this->productoSel->descripcion,
                 "precio_compra" => $this->productoSel->precio_compra,
                 "cantidad" => $this->cantidad,
                 "total" => round($this->cantidad * $this->productoSel->precio_compra, 2),
-               ];
-               $indexBuscar = array_search($this->productoSel->id, array_column($this->detailProduct, 'id'));
+            ];
+            
+            $indexBuscar = array_search($this->productoSel->id, array_column($this->detailProduct, 'id'));
 
-               //valida si se agrega 2 veces el mismo producto y si lo hace, se suman las cantidades y se deja 1
-              if($indexBuscar !== false ) {
-               $this->detailProduct[$indexBuscar]['cantidad'] = $this->detailProduct[$indexBuscar]['cantidad'] + $this->cantidad;
-               $this->detailProduct[$indexBuscar]['total'] = round($this->detailProduct[$indexBuscar]['cantidad'] * $this->productoSel->precio_compra, 2);
-          }else{
-           array_push($this->detailProduct, $datos);
-          }
+            //valida si se agrega 2 veces el mismo producto y si lo hace, se suman las cantidades y se deja 1
+            if($indexBuscar !== false ) {
+                $this->detailProduct[$indexBuscar]['cantidad'] = $this->detailProduct[$indexBuscar]['cantidad'] + $this->cantidad;
+                $this->detailProduct[$indexBuscar]['total'] = round($this->detailProduct[$indexBuscar]['cantidad'] * $this->productoSel->precio_compra, 2);
+            } else {
+                array_push($this->detailProduct, $datos);
+            }
 
-          $this->resetearcamposTabla();
-          $valorInicial = 0;
-
-               //suma todos los subtotales
-               $suma = array_reduce($this->detailProduct, function ($acc, $arr) {
-                    return $acc + $arr['total'];
-                }, $valorInicial);
-
-            $this->total = $suma;
-            $this->totalPagado = round($this->total, 2);
+            $this->resetearcamposTabla();
+            $this->recalcularTotales();
         }
-
     }
 
     public function resetearCamposTabla()
@@ -126,14 +119,7 @@ class OrdersProviders extends Component
     public function destroy($key)
     {
         array_splice($this->detailProduct, $key, 1);
-        $valorInicial = 0;
-
-        $suma = array_reduce($this->detailProduct, function ($acc, $arr) {
-            return $acc + $arr['total'];
-        }, $valorInicial);
-
-        $this->total = $suma;
-        $this->totalPagado = round($this->total, 2);
+        $this->recalcularTotales();
     }
 
     public function gastos()
@@ -145,7 +131,6 @@ class OrdersProviders extends Component
        $gastos->monto = $this->totalPagado;
        $gastos->tipo_gasto = 'Reinversión de negocio';
        $gastos->save();
-
     }
 
     public function store()
@@ -155,7 +140,6 @@ class OrdersProviders extends Component
             'fecha' => 'required|date',
             'totalPagado' => 'required|numeric',
             'metodoPago' => 'required|string',
-
         ]);
 
         $neworder = New Order();
@@ -184,8 +168,8 @@ class OrdersProviders extends Component
             $newActivitie->activity = "Nuevo registro";
             $newActivitie->detail = "Orden a proveedor";
             $newActivitie->save();
-
         }
+        
         //asignando a gastos
         $this->gastos();
         Alert::success('Pedido', 'Pedido realizado exitosamente');
@@ -221,7 +205,21 @@ class OrdersProviders extends Component
         }
     }
 
-    // Método auxiliar para recalcular el total general de la orden
+    // Hooks de Livewire para actualizar el delivery en tiempo real
+    public function updatedIncluyeDelivery()
+    {
+        if ($this->incluyeDelivery === 'no') {
+            $this->montoDelivery = 0;
+        }
+        $this->recalcularTotales();
+    }
+
+    public function updatedMontoDelivery()
+    {
+        $this->recalcularTotales();
+    }
+
+    // Método centralizado para recalcular totales (limpia código duplicado)
     private function recalcularTotales()
     {
         $suma = array_reduce($this->detailProduct, function ($acc, $arr) {
@@ -229,9 +227,12 @@ class OrdersProviders extends Component
         }, 0);
 
         $this->total = $suma;
-        $this->totalPagado = round($this->total, 2);
+
+        // Se aplica el recargo del delivery si está seleccionado
+        if ($this->incluyeDelivery === 'si') {
+            $this->totalPagado = round($this->total + (float) $this->montoDelivery, 2);
+        } else {
+            $this->totalPagado = round($this->total, 2);
+        }
     }
-
-    
-
 }
