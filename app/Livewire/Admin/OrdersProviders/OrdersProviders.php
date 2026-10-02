@@ -103,7 +103,7 @@ class OrdersProviders extends Component
                 array_push($this->detailProduct, $datos);
             }
 
-            $this->resetearcamposTabla();
+            $this->resetearCamposTabla();
             $this->recalcularTotales();
         }
     }
@@ -114,6 +114,7 @@ class OrdersProviders extends Component
         $this->cantidad = null;
         $this->precio = null;
         $this->product_id = null;
+        $this->search_product = ''; // Búsqueda limpia al añadir a la cesta
     }
 
     public function destroy($key)
@@ -219,7 +220,7 @@ class OrdersProviders extends Component
         $this->recalcularTotales();
     }
 
-    // Método centralizado para recalcular totales (limpia código duplicado)
+    // Método centralizado para recalcular totales
     private function recalcularTotales()
     {
         $suma = array_reduce($this->detailProduct, function ($acc, $arr) {
