@@ -103,6 +103,9 @@ class OrdersProviders extends Component
                 array_push($this->detailProduct, $datos);
             }
 
+            // Aquí nos aseguramos de que el buscador quede limpio al añadir a la cesta
+            $this->search_product = ''; 
+            
             $this->resetearCamposTabla();
             $this->recalcularTotales();
         }
@@ -114,7 +117,7 @@ class OrdersProviders extends Component
         $this->cantidad = null;
         $this->precio = null;
         $this->product_id = null;
-        $this->search_product = ''; // Búsqueda limpia al añadir a la cesta
+        $this->search_product = ''; // Mantenemos esta línea por seguridad adicional
     }
 
     public function destroy($key)
