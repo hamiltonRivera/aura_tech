@@ -59,7 +59,7 @@
                         <i class="fa-solid fa-eye"></i> Ver ventas realizadas totales
                     </a>
 
-                    <a href="{{ route('cash_reconciliation') }}" class="mega-menu-ul-li-a">
+                    <a href="{{ route('cash_reconciliation') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
                         <i class="fa-solid fa-cash-register"></i> Arqueo de Caja
                     </a>
                 </div>
