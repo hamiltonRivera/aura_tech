@@ -39,7 +39,7 @@
                             </li>
                             <li>
                                 <a href="{{ route('cash_reconciliation') }}" class="mega-menu-ul-li-a">
-                                <i class="fa-solid fa-list"></i> Arqueo de Caja
+                                <i class="fa-solid fa-cash-register"></i>Arqueo de Caja
                             </a>
                             </li>    
  
