@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="last_closing_amount">Monto de cierre anterior</label>
+    <label for="last_closing_amount" class="label_class">Monto de cierre anterior</label>
     <input wire:model.lazy="last_closing_amount" type="number" name="last_closing_amount" class="inputs-formularios-cortos form-control" step="0.01" disabled>
     @error('last_closing_amount')
         <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
@@ -7,7 +7,7 @@
 </div>
 
 <div class="mb-3">
-    <label for="closing_amount">Monto de cierre actual</label>
+    <label for="closing_amount" class="label_class">Monto de cierre actual</label>
     <input wire:model.lazy="closing_amount" type="number" name="closing_amount" class="inputs-formularios-cortos form-control" step="0.01" disabled>
     @error('closing_amount')
         <p class=" text-red-600 p-2 rounded">{{ $message }}</p>

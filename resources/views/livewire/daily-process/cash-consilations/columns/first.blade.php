@@ -1,5 +1,5 @@
 <div class="mb-3">
-    <label for="date">Fecha del arqueo</label>
+    <label for="date" class="label_class">Fecha del arqueo</label>
     <input wire:model.lazy="date" type="date" name="date" class="form-control calendario"
         min="2021-01-01" max="2030-12-31">
     @error('date')
@@ -8,7 +8,7 @@
 </div>
 
 <div class="mb-3">
-    <label for="opening_amount">Monto Apertura</label>
+    <label for="opening_amount" class="label_class">Monto Apertura</label>
     <input wire:model.lazy="opening_amount" 
        type="number" 
        name="opening_amount" 
