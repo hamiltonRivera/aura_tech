@@ -256,4 +256,14 @@ class DailyProcessController extends Controller
     {
         return view('layouts.mobile_view.processes');
     }
+
+    public function cash_reconciliation()
+    {
+        return view('daily-process.cash_reconciliation');
+    }
+
+    public function cash_audit()
+    {
+        return view('daily-process.cash_audit');
+    }
 }

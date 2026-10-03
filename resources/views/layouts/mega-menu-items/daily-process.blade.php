@@ -37,7 +37,12 @@
                                     <i class="fa-solid fa-money-bill"></i> Gastos
                                 </a>
                             </li>
-
+                            <li>
+                                <a href="{{ route('cash_reconciliation') }}" class="mega-menu-ul-li-a">
+                                <i class="fa-solid fa-list"></i> Arqueo de Caja
+                            </a>
+                            </li>    
+ 
                         </ul>
                     </div>
                     <div class="mega-menu-button-div">
