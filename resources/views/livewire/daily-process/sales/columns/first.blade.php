@@ -57,7 +57,7 @@
         <div class="mb-3 p-3 rounded" style="background-color: #f8f9fa; border: 1px solid #dee2e6;">
             
             <div class="mb-3">
-                <label class="font-weight-bold" style="font-size: 14px;">1. Monto en Efectivo</label>
+                <label class="label_class" style="font-size: 14px;">1. Monto en Efectivo</label>
                 <input type="number" step="any" wire:model.live="mixed_cash_amount" class="inputs-formularios-cortos" placeholder="0.00">
                 @error('mixed_cash_amount') <p class="error text-danger" style="font-size: 12px;">{{ $message }}</p> @enderror
             </div>
@@ -65,7 +65,7 @@
             <hr>
 
             <div class="mb-3">
-                <label class="font-weight-bold d-block mb-1" style="font-size: 14px;">2. Complemento Digital</label>
+                <label class="label_class" style="font-size: 14px;">2. Complemento Digital</label>
                 <div class="d-flex" style="gap: 10px;">
                     <div style="flex: 1;">
                         <select wire:model.live="tipo_mixto_secundario" class="select-formularios form-select w-100">
