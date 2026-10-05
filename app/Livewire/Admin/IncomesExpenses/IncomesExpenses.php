@@ -14,6 +14,9 @@ class IncomesExpenses extends Component
     $fecha_abono, $abono_dia, $mostrarBalance = false;
 
     public $fecha_efectivo, $fecha_transferencia, $cierre_efectivo, $cierre_transferencia;
+    // NUEVAS VARIABLES PARA TARJETA
+    public $fecha_tarjeta, $cierre_tarjeta;
+    
     public $payments = false;
 
     public $fechaTotalServicio, $cierreServicio, $fechaTotalServicioEfectivo, $cierreServicioEfectivo,
@@ -35,15 +38,15 @@ class IncomesExpenses extends Component
     }
 
     public function show_balance()
-{
-    $this->mostrarVentaProductos = false;
-    $this->mostrarVentaServicios = false;
-    $this->mostrarVentaTotales = false;
-    $this->mostrarGastos = false;
-    $this->mostrarBusquedaPersonalizada = false;
-    $this->payments = false;
-    $this->mostrarBalance = true;
-}
+    {
+        $this->mostrarVentaProductos = false;
+        $this->mostrarVentaServicios = false;
+        $this->mostrarVentaTotales = false;
+        $this->mostrarGastos = false;
+        $this->mostrarBusquedaPersonalizada = false;
+        $this->payments = false;
+        $this->mostrarBalance = true;
+    }
 
     public function calcularBalance()
     {
@@ -64,15 +67,15 @@ class IncomesExpenses extends Component
     }
 
     public function mostrarEgresos()
-{
-    $this->mostrarVentaProductos = false;
-    $this->mostrarVentaServicios = false;
-    $this->mostrarVentaTotales = false;
-    $this->mostrarGastos = true;
-    $this->mostrarBusquedaPersonalizada = false;
-    $this->payments = false;
-    $this->mostrarBalance = false;
-}
+    {
+        $this->mostrarVentaProductos = false;
+        $this->mostrarVentaServicios = false;
+        $this->mostrarVentaTotales = false;
+        $this->mostrarGastos = true;
+        $this->mostrarBusquedaPersonalizada = false;
+        $this->payments = false;
+        $this->mostrarBalance = false;
+    }
 
     public function mostrarVentaProducto()
     {
@@ -98,7 +101,6 @@ class IncomesExpenses extends Component
 
     public function mostrarVentaTotal()
     {
-       
         $this->mostrarVentaProductos = false;
         $this->mostrarVentaServicios = false;
         $this->mostrarVentaTotales = true;
@@ -109,63 +111,65 @@ class IncomesExpenses extends Component
     }
 
     public function limpiarEntorno()
-{
-    // 1. Apagar todas las vistas
-    $this->mostrarVentaProductos = false;
-    $this->mostrarGastos = false;
-    $this->mostrarBusquedaPersonalizada = false;
-    $this->mostrarVentaServicios = false;
-    $this->mostrarVentaTotales = false;
-    $this->payments = false;
-    $this->mostrarBalance = false;
+    {
+        // 1. Apagar todas las vistas
+        $this->mostrarVentaProductos = false;
+        $this->mostrarGastos = false;
+        $this->mostrarBusquedaPersonalizada = false;
+        $this->mostrarVentaServicios = false;
+        $this->mostrarVentaTotales = false;
+        $this->payments = false;
+        $this->mostrarBalance = false;
 
-    // 2. Limpiar inputs de fechas y resultados de cálculos
-    $this->fecha = null;
-    $this->cierre = null;
-    $this->gasto_dia = null;
-    $this->fecha_gasto = null;
-    $this->fecha_inicio = null;
-    $this->fecha_fin = null;
-    $this->custom_date = null;
-    $this->fecha_abono = null;
-    $this->abono_dia = null;
+        // 2. Limpiar inputs de fechas y resultados de cálculos
+        $this->fecha = null;
+        $this->cierre = null;
+        $this->gasto_dia = null;
+        $this->fecha_gasto = null;
+        $this->fecha_inicio = null;
+        $this->fecha_fin = null;
+        $this->custom_date = null;
+        $this->fecha_abono = null;
+        $this->abono_dia = null;
 
-    $this->fecha_efectivo = null;
-    $this->fecha_transferencia = null;
-    $this->cierre_efectivo = null;
-    $this->cierre_transferencia = null;
+        $this->fecha_efectivo = null;
+        $this->fecha_transferencia = null;
+        $this->cierre_efectivo = null;
+        $this->cierre_transferencia = null;
+        
+        // Limpiar inputs de tarjeta
+        $this->fecha_tarjeta = null;
+        $this->cierre_tarjeta = null;
 
-    $this->fechaTotalServicio = null;
-    $this->cierreServicio = null;
-    $this->fechaTotalServicioEfectivo = null;
-    $this->cierreServicioEfectivo = null;
-    $this->fechaServicioTransferencia = null;
-    $this->cierreServicioTransferencia = null;
+        $this->fechaTotalServicio = null;
+        $this->cierreServicio = null;
+        $this->fechaTotalServicioEfectivo = null;
+        $this->cierreServicioEfectivo = null;
+        $this->fechaServicioTransferencia = null;
+        $this->cierreServicioTransferencia = null;
 
-    $this->fechaTotalGeneral = null;
-    $this->cierreTotalGeneral = null;
-    $this->totalGeneralProducto = null;
-    $this->totalGeneralServicio = null;
+        $this->fechaTotalGeneral = null;
+        $this->cierreTotalGeneral = null;
+        $this->totalGeneralProducto = null;
+        $this->totalGeneralServicio = null;
 
-    $this->fecha_abono_efectivo = null;
-    $this->cierre_abono_efectivo = null;
-    $this->fecha_abono_transferencia = null;
-    $this->cierre_abono_transferencia = null;
+        $this->fecha_abono_efectivo = null;
+        $this->cierre_abono_efectivo = null;
+        $this->fecha_abono_transferencia = null;
+        $this->cierre_abono_transferencia = null;
 
-    // 3. Limpiar variables de Balance
-    $this->start_date_ingresos = null;
-    $this->end_date_ingresos = null;
-    $this->start_date_egresos = null;
-    $this->end_date_egresos = null;
-    $this->total_ingresos = 0;
-    $this->total_egresos = 0;
-    $this->diferencia_balance = 0;
-}
-    
+        // 3. Limpiar variables de Balance
+        $this->start_date_ingresos = null;
+        $this->end_date_ingresos = null;
+        $this->start_date_egresos = null;
+        $this->end_date_egresos = null;
+        $this->total_ingresos = 0;
+        $this->total_egresos = 0;
+        $this->diferencia_balance = 0;
+    }
 
     public function busquedaPersonalizada()
     {
-       
         $this->mostrarVentaProductos = false;
         $this->mostrarVentaServicios = false;
         $this->mostrarVentaTotales = false;
@@ -200,14 +204,42 @@ class IncomesExpenses extends Component
 
     public function cierreEfectivo()
     {
-        $ventasEfectivo = Sale::whereFecha($this->fecha_efectivo)->get();
-        $this->cierre_efectivo = $ventasEfectivo->where('metodoPago', 'Efectivo')->sum('totalPagado');
+        // 1. Suma las ventas que fueron 100% Efectivo
+        $ventasEfectivoPuro = Sale::whereFecha($this->fecha_efectivo)
+                                  ->where('metodoPago', 'Efectivo')
+                                  ->sum('totalPagado');
+
+        // 2. Extraer solo el efectivo físico de las ventas Mixtas
+        $ventasMixtasEfectivo = Sale::whereFecha($this->fecha_efectivo)
+                                    ->where('metodoPago', 'Mixto')
+                                    ->sum('mixed_cash_amount');
+
+        // 3. Total en Gaveta
+        $this->cierre_efectivo = $ventasEfectivoPuro + $ventasMixtasEfectivo;
     }
 
     public function cierreTransferencia()
     {
-        $ventasTransferencia = Sale::whereFecha($this->fecha_transferencia)->get();
-        $this->cierre_transferencia = $ventasTransferencia->where('metodoPago', 'Transferencia Bancaria')->sum('totalPagado');
+        // 1. Ventas que fueron 100% Transferencia Bancaria
+        $ventasTransferenciaPura = Sale::whereFecha($this->fecha_transferencia)
+                                       ->where('metodoPago', 'Transferencia Bancaria')
+                                       ->sum('totalPagado');
+
+        // 2. Extraer solo la porción digital de las ventas Mixtas
+        $ventasMixtasDigital = Sale::whereFecha($this->fecha_transferencia)
+                                   ->where('metodoPago', 'Mixto')
+                                   ->sum('mixed_transfer_amount');
+
+        // 3. Total en Banco (por transferencias)
+        $this->cierre_transferencia = $ventasTransferenciaPura + $ventasMixtasDigital;
+    }
+
+    public function cierreTarjeta()
+    {
+        // Suma directa de las ventas 100% con Tarjeta
+        $this->cierre_tarjeta = Sale::whereFecha($this->fecha_tarjeta)
+                                    ->where('metodoPago', 'Tarjeta')
+                                    ->sum('totalPagado');
     }
 
     public function cierreDelDiaGeneral()
