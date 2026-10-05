@@ -4,7 +4,7 @@
         
         {{-- primer fila --}}
         <div class="mb-3">
-            <label for="">No de factura</label>
+            <label for="" class="label_class">No de factura</label>
             <input type="number" step="any" name="numFactura" wire:model="numFactura"
                 class="inputs-formularios-cortos" required disabled>
             @error('numFactura')
@@ -14,7 +14,7 @@
 
         {{-- segunda fila --}}
         <div class="mb-3">
-            <label for="">Búsqueda sensible --cliente--</label>
+            <label for="" class="label_class">Búsqueda sensible --cliente--</label>
             <input type="search" wire:model.live="search_client" class="inputs-formularios-cortos"
                 placeholder="Búsqueda de cliente">
             @error('client_id')
@@ -24,7 +24,7 @@
 
         @if ($search_client)
             <div class="mb-3">
-                <label for="">Selecciona al cliente</label>
+                <label for="" class="label_class">Selecciona al cliente</label>
                 <select wire:model="client_id" class="select-formularios form-select"
                     aria-label="Default select example">
                     <option selected>Seleccione</option>
@@ -40,7 +40,7 @@
 
         {{-- tercer fila --}}
         <div class="mb-3">
-            <label for="">Método de pago</label>
+            <label for="" class="label_class">Método de pago</label>
             <select wire:model="metodoPago" wire:change="pagoTransferencia" class="select-formularios form-select" aria-label="Default select example">
                 <option selected>Selecciona una opción</option>
                 @foreach ($metodos as $metodo)
@@ -90,7 +90,7 @@
 
         {{-- cuarta fila --}}
         <div class="mb-3">
-            <label for="">Descuento total de la venta</label>
+            <label for="" class="label_class">Descuento total de la venta</label>
             <select name="descuento" wire:model="descuento" wire:change="mostrarDescuento()"
                 class="select-formularios form-select" aria-label="Default select example">
                 <option selected>Selecciona el descuento</option>
@@ -102,7 +102,7 @@
 
         {{-- quinta fila --}}
         <div class="mb-3">
-            <label for="">Total recibido</label>
+            <label for="" class="label_class">Total recibido</label>
             <input type="number" step="any" name="totalRecibido" wire:model.live="totalRecibido"
                 class="inputs-formularios-cortos">
             @error('totalRecibido')
@@ -115,7 +115,7 @@
 
         {{-- sexta fila --}}
         <div class="mb-3">
-            <label for="">Cambio</label>
+            <label for="" class="label_class">Cambio</label>
             <input type="number" step="any" name="cambio" wire:model="cambio"
                 class="inputs-formularios-cortos" required disabled>
             @error('cambio')
@@ -126,7 +126,7 @@
         {{-- septima fila --}}
         <div class="mb-3">
             @if ($ocultarTotal)
-                <label for="">Total a pagar</label>
+                <label for="" class="label_class">Total a pagar</label>
                 <input type="number" name="totalPagado" wire:model="totalPagado"
                     class="inputs-formularios-cortos" disabled>
                 @error('totalPagado')
@@ -134,7 +134,7 @@
                 @enderror
             @endif
             @if ($descuento)
-                <label for="">Total a pagar --descuento aplicado--</label>
+                <label for="" class="label_class">Total a pagar --descuento aplicado--</label>
                 <input type="number" name="totalPagadoDescuento" wire:model="totalPagadoDescuento"
                     class="inputs-formularios-cortos" disabled>
                 @error('totalPagadoDescuento')
