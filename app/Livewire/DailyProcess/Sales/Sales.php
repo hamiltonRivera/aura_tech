@@ -36,12 +36,17 @@ class Sales extends Component
 
     public $metodos = [
         'Efectivo',
-        'Transferencia Bancaria'
+        'Transferencia Bancaria',
+        'Tarjeta',
+        'Mixto'
     ];
 
+    // Variables para pago mixto y validación reactiva
+    public $mixed_cash_amount = 0;
+    public $mixed_transfer_amount = 0;
+    public $boton_deshabilitado = false;
 
     public $descuento_i, $ver_descuento_individual = false, $descuento_individual, $precio_descuento, $monto_descontado_individual;
-
 
     //mostrar y ocultar total cuando hay descuento
     public $descuentoSel = false, $ocultarTotal = true;
@@ -107,6 +112,7 @@ class Sales extends Component
             $this->totalPagadoDescuento = round($this->total - $this->totalDescuento, 2);
             $this->totalPagado = $this->totalPagadoDescuento;
         }
+        $this->validarPagoMixto();
     }
 
     public function mostarDescuentoIndividual()
@@ -248,6 +254,30 @@ class Sales extends Component
         }
     }
 
+    public function validarPagoMixto()
+    {
+        if ($this->metodoPago === 'Mixto') {
+            $efectivo = $this->mixed_cash_amount === '' ? 0 : floatval($this->mixed_cash_amount);
+            $transferencia = $this->mixed_transfer_amount === '' ? 0 : floatval($this->mixed_transfer_amount);
+            
+            $totalDigitado = round($efectivo + $transferencia, 2);
+            $totalReal = round($this->descuento ? floatval($this->totalPagadoDescuento) : floatval($this->totalPagado), 2);
+
+            if ($totalDigitado < $totalReal) {
+                $this->addError('error_mixto', '* Faltan C$ ' . number_format($totalReal - $totalDigitado, 2) . ' para completar el pago.');
+                $this->boton_deshabilitado = true;
+            } elseif ($totalDigitado > $totalReal) {
+                $this->addError('error_mixto', '* Te pasaste por C$ ' . number_format($totalDigitado - $totalReal, 2) . '. El monto debe ser exacto.');
+                $this->boton_deshabilitado = true;
+            } else {
+                $this->resetErrorBag('error_mixto');
+                $this->boton_deshabilitado = false;
+            }
+        } else {
+            $this->resetErrorBag('error_mixto');
+            $this->boton_deshabilitado = false;
+        }
+    }
 
     public function comprobarPago()
     {
@@ -272,16 +302,27 @@ class Sales extends Component
 
     public function pagoTransferencia()
     {
-        if ($this->metodoPago == "Transferencia Bancaria") {
-            $this->totalRecibido = $this->totalPagado;
+        if (in_array($this->metodoPago, ['Transferencia Bancaria', 'Tarjeta', 'Mixto'])) {
+            $this->totalRecibido = $this->descuento ? $this->totalPagadoDescuento : $this->totalPagado;
             $this->cambio = 0;
         }
+
+        if ($this->metodoPago != 'Mixto') {
+            $this->mixed_cash_amount = 0;
+            $this->mixed_transfer_amount = 0;
+        }
+
+        $this->validarPagoMixto();
     }
 
     public function updated($field)
     {
         if ($field === 'totalRecibido' || $field === 'totalPagadoDescuento' || $field === 'totalPagado') {
             $this->cambio();
+        }
+
+        if (in_array($field, ['mixed_cash_amount', 'mixed_transfer_amount', 'metodoPago'])) {
+            $this->validarPagoMixto();
         }
     }
 
@@ -374,11 +415,6 @@ class Sales extends Component
 
         $this->limpiarBusqueda();
         $this->recalcularTotales();
-
-       
-       
-
-            
     }
 
 
@@ -394,6 +430,8 @@ class Sales extends Component
 
         $this->total = $suma;
         $this->totalPagado = round($this->total, 2);
+
+        $this->validarPagoMixto();
     }
 
     
@@ -413,6 +451,22 @@ class Sales extends Component
             'metodoPago' => 'required|string'
         ]);
 
+        // --- VALIDACIÓN ESTRICTA PAGO MIXTO ---
+        if ($this->metodoPago === 'Mixto') {
+            $this->validate([
+                'mixed_cash_amount' => 'required|numeric|min:0',
+                'mixed_transfer_amount' => 'required|numeric|min:0',
+            ]);
+
+            $totalDigitado = round(floatval($this->mixed_cash_amount) + floatval($this->mixed_transfer_amount), 2);
+            $totalReal = round($this->descuento ? floatval($this->totalPagadoDescuento) : floatval($this->totalPagado), 2);
+
+            if ($totalDigitado !== $totalReal) {
+                $this->addError('error_mixto', 'La suma del efectivo y la transferencia no coincide con el total a pagar. Monto ingresado: C$ ' . number_format($totalDigitado, 2) . ' / Total real: C$ ' . number_format($totalReal, 2));
+                return; // Detiene la ejecución
+            }
+        }
+
         $newventa = new Sale();
         $newventa->client_id = $this->client_id;
         $newventa->descuento = $this->descuento;
@@ -425,6 +479,11 @@ class Sales extends Component
         $newventa->totalPagadoDescuento = $this->totalPagadoDescuento;
         $newventa->user_id = auth()->user()->id;
         $newventa->metodoPago = $this->metodoPago;
+        
+        // Guardar montos mixtos si aplica
+        $newventa->mixed_cash_amount = $this->metodoPago == 'Mixto' ? $this->mixed_cash_amount : null;
+        $newventa->mixed_transfer_amount = $this->metodoPago == 'Mixto' ? $this->mixed_transfer_amount : null;
+
         $newventa->save();
 
         event(new SaleCreated());
@@ -524,6 +583,12 @@ class Sales extends Component
         $this->descuento = null;
         $this->totalRecibido = null;
         $this->cambio = null;
+        
+        // Reset variables mixtas
+        $this->mixed_cash_amount = 0;
+        $this->mixed_transfer_amount = 0;
+        $this->boton_deshabilitado = false;
+        
         Alert::success('Venta', 'Venta realizada exitosamente');
         
         $this->dispatch('abrir-pdf', url: route('venta.pdf'));      
@@ -562,6 +627,8 @@ class Sales extends Component
         // Si ya había un descuento general aplicado, lo recalculamos también
         if ($this->descuento) {
             $this->mostrarDescuento();
+        } else {
+            $this->validarPagoMixto();
         }
     }
 
