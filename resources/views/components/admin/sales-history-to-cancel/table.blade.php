@@ -2,22 +2,22 @@
     <table class="min-w-full leading-normal">
         <thead>
             <tr>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-blue-600 text-left text-xs font-semibold text-white uppercase tracking-wider">
                     No. Factura
                 </th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-blue-600 text-left text-xs font-semibold text-white uppercase tracking-wider">
                     Fecha
                 </th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-blue-600 text-left text-xs font-semibold text-white uppercase tracking-wider">
                     Método
                 </th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-blue-600 text-left text-xs font-semibold text-white uppercase tracking-wider">
                     Total Pagado
                 </th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-blue-600 text-left text-xs font-semibold text-white uppercase tracking-wider">
                     Vendedor
                 </th>
-                <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                <th class="px-5 py-3 border-b-2 border-gray-200 bg-blue-600 text-center text-xs font-semibold text-white uppercase tracking-wider">
                     Acción
                 </th>
             </tr>
@@ -42,8 +42,8 @@
                     </td>
                     <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
                         @if($sale->estado !== 'Anulada')
-                            <button wire:click="anularVenta({{ $sale->id }})" wire:confirm="¿Estás seguro de anular esta venta? Esta acción revertirá el inventario." class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-xs">
-                                Anular
+                            <button wire:click="anularVenta({{ $sale->id }})" wire:confirm="¿Estás seguro de anular esta venta? Esta acción revertirá el inventario." class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-3 rounded text-xs inline-flex items-center gap-2 justify-center">
+                                <i class="fa-solid fa-trash"></i> Anular
                             </button>
                         @else
                             <span class="text-red-500 text-xs italic font-semibold">Anulada</span>
