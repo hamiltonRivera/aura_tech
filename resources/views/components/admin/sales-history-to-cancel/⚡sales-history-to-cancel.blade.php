@@ -37,7 +37,7 @@ new class extends Component
     {
         $venta = Sale::find($id);
 
-        if ($venta && $venta->estado !== 'Anulada') {
+        if ($venta && $venta->status !== 'Anulada') {
             
             // 1. Devolver el stock al inventario
             $detalles = DetailSale::where('sale_id', $venta->id)->get();
