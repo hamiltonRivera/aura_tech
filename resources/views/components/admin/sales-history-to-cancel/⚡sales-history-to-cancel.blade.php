@@ -26,6 +26,11 @@ new class extends Component
     ];
 }
 
+public function refresh()
+  {
+    return redirect('/private/admin/sales_to_cancel');
+  }
+
 
 
 };
