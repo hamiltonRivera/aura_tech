@@ -10,7 +10,8 @@ use Livewire\WithPagination;
 
 new class extends Component
 {
-    //
+    use WithPagination;
+    public $search = '';
 };
 ?>
 
