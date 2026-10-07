@@ -48,6 +48,16 @@
     @endif
 </div>
 
+{{-- sexta fila --}}
+        <div class="mb-3">
+            <label for="" class="label_class">Cambio</label>
+            <input type="number" step="any" name="cambio" wire:model="cambio"
+                class="inputs-formularios-cortos" required disabled>
+            @error('cambio')
+                <p class="error"> {{ $message }} </p>
+            @enderror
+        </div>
+
 {{-- quinta fila --}}
 <div class="mb-3">
  @if ($descuentoSel)
@@ -70,12 +80,4 @@
 @enderror
   @endif
 </div>
-{{-- septima fila --}}
-<div class="mb-3">
-     @include('calculadora')
-</div>
 
-{{-- octava fila --}}
-<div class="mb-3">
- @include('newClient')
-</div>

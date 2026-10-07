@@ -236,10 +236,18 @@ class IncomesExpenses extends Component
 
     public function cierreTarjeta()
     {
-        // Suma directa de las ventas 100% con Tarjeta
-        $this->cierre_tarjeta = Sale::whereFecha($this->fecha_tarjeta)
+        // 1. Suma directa de las ventas 100% con Tarjeta
+        $ventasTarjetaPura = Sale::whereFecha($this->fecha_tarjeta)
                                     ->where('metodoPago', 'Tarjeta')
                                     ->sum('totalPagado');
+
+        // 2. Extraer solo la porción de tarjeta de las ventas Mixtas
+        $ventasMixtasTarjeta = Sale::whereFecha($this->fecha_tarjeta)
+                                   ->where('metodoPago', 'Mixto')
+                                   ->sum('mixed_tarjeta_amount');
+
+        // 3. Total cobrado por POS (Tarjeta)
+        $this->cierre_tarjeta = $ventasTarjetaPura + $ventasMixtasTarjeta;
     }
 
     public function cierreDelDiaGeneral()

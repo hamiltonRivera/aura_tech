@@ -44,8 +44,16 @@
 {{-- tercer fila --}}
 <div class="mb-3">
     <button wire:click="limpiarBusqueda()" class="boton-gris"><i class="fa-solid fa-eraser"></i> Limpiar búsqueda</button>
-    
+</div>
 
+{{-- septima fila --}}
+<div class="mb-3">
+     @include('calculadora')
+</div>
+
+{{-- octava fila --}}
+<div class="mb-3">
+ @include('newClient')
 </div>
 {{-- cuarta fila --}}
 <div class="mb-3">

@@ -34,8 +34,6 @@
 
     @include('livewire.admin.incomes-expenses.metodos-pagos.efectivo')
     @include('livewire.admin.incomes-expenses.metodos-pagos.transferencia')
-    @include('livewire.admin.incomes-expenses.metodos-pagos.tarjeta')
-
   </div>
 
 </div>

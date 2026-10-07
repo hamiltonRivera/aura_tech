@@ -70,7 +70,6 @@
                     <div style="flex: 1;">
                         <select wire:model.live="tipo_mixto_secundario" class="select-formularios form-select w-100">
                             <option value="Transferencia Bancaria">Transferencia</option>
-                            <option value="Tarjeta">Tarjeta</option>
                         </select>
                     </div>
                     <div style="flex: 1;">
@@ -100,28 +99,7 @@
             </select>
         </div>
 
-        {{-- quinta fila --}}
-        <div class="mb-3">
-            <label for="" class="label_class">Total recibido</label>
-            <input type="number" step="any" name="totalRecibido" wire:model.live="totalRecibido"
-                class="inputs-formularios-cortos">
-            @error('totalRecibido')
-                <p class="error"> {{ $message }} </p>
-            @enderror
-            @if (session()->has('message'))
-                <p class="alerta-inputs">{{ session('message') }}</p>
-            @endif
-        </div>
-
-        {{-- sexta fila --}}
-        <div class="mb-3">
-            <label for="" class="label_class">Cambio</label>
-            <input type="number" step="any" name="cambio" wire:model="cambio"
-                class="inputs-formularios-cortos" required disabled>
-            @error('cambio')
-                <p class="error"> {{ $message }} </p>
-            @enderror
-        </div>
+        
 
         {{-- septima fila --}}
         <div class="mb-3">

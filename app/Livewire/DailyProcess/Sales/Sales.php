@@ -16,6 +16,7 @@ use App\Models\DetailSale;
 use App\Models\Discount;
 use App\Models\ProductSale;
 use App\Models\Combo;
+use App\Models\ComboDetail;
 use Mike42\Escpos\PrintConnectors\WindowsPrintConnector;
 use Mike42\Escpos\Printer;
 use App\Events\SaleCreated;
@@ -37,7 +38,6 @@ class Sales extends Component
     public $metodos = [
         'Efectivo',
         'Transferencia Bancaria',
-        'Tarjeta',
         'Mixto'
     ];
 
@@ -187,7 +187,6 @@ class Sales extends Component
         } else {
             session()->flash('producto', '*El producto digitado no existe o es incorrecto.');
         }
-        
     }
 
 
@@ -259,7 +258,7 @@ class Sales extends Component
         if ($this->metodoPago === 'Mixto') {
             $efectivo = $this->mixed_cash_amount === '' ? 0 : floatval($this->mixed_cash_amount);
             $transferencia = $this->mixed_transfer_amount === '' ? 0 : floatval($this->mixed_transfer_amount);
-            
+
             $totalDigitado = round($efectivo + $transferencia, 2);
             $totalReal = round($this->descuento ? floatval($this->totalPagadoDescuento) : floatval($this->totalPagado), 2);
 
@@ -302,7 +301,7 @@ class Sales extends Component
 
     public function pagoTransferencia()
     {
-        if (in_array($this->metodoPago, ['Transferencia Bancaria', 'Tarjeta', 'Mixto'])) {
+        if (in_array($this->metodoPago, ['Transferencia Bancaria', 'Mixto'])) {
             $this->totalRecibido = $this->descuento ? $this->totalPagadoDescuento : $this->totalPagado;
             $this->cambio = 0;
         }
@@ -347,8 +346,8 @@ class Sales extends Component
     //funcion para agregar el producto al carrito
     public function addItem($array)
     {
-        
-      if ($this->productSel == null) {
+
+        if ($this->productSel == null) {
             session()->flash('addItem', '*Campos Vacíos. Agrega un producto primero.');
             return false;
         }
@@ -358,10 +357,13 @@ class Sales extends Component
 
         // Validaciones de stock originales...
         if ($combo) {
-            $comboDetails = \App\Models\ComboDetail::where('combo_id', $combo->id)->get();
+            $comboDetails = ComboDetail::where('combo_id', $combo->id)->get();
             foreach ($comboDetails as $detail) {
                 $componentProduct = Product::find($detail->product_id);
-                if (!$componentProduct) { session()->flash('addItem', "*El componente ID {$detail->product_id} no existe."); return false; }
+                if (!$componentProduct) {
+                    session()->flash('addItem', "*El componente ID {$detail->product_id} no existe.");
+                    return false;
+                }
                 $yaComprometido = $this->obtenerCantidadComprometidaEnCesta($detail->product_id);
                 $unidadesRequeridasTotal = $yaComprometido + ($detail->quantity * $this->cantidad);
                 if ($componentProduct->stock < $unidadesRequeridasTotal) {
@@ -395,7 +397,7 @@ class Sales extends Component
 
         if ($indexBuscar !== false && !$combo) {
             $this->detailProduct[$indexBuscar]['cantidad'] += $this->cantidad;
-            
+
             $descUnitario = ($this->detailProduct[$indexBuscar]['precio_venta'] * ($this->detailProduct[$indexBuscar]['descuento_porcentaje'] ?? 0)) / 100;
             $this->detailProduct[$indexBuscar]['descuento_monto'] = round($descUnitario * $this->detailProduct[$indexBuscar]['cantidad'], 2);
             $precioFinalArr = $this->detailProduct[$indexBuscar]['precio_venta'] - $descUnitario;
@@ -434,11 +436,11 @@ class Sales extends Component
         $this->validarPagoMixto();
     }
 
-    
+
     public function store()
     {
-        
-       $this->validate([
+
+        $this->validate([
             'numFactura' => 'required|numeric|unique:sales,numFactura',
             'fecha' => 'required|date',
             'client_id' => 'required',
@@ -479,7 +481,7 @@ class Sales extends Component
         $newventa->totalPagadoDescuento = $this->totalPagadoDescuento;
         $newventa->user_id = auth()->user()->id;
         $newventa->metodoPago = $this->metodoPago;
-        
+
         // Guardar montos mixtos si aplica
         $newventa->mixed_cash_amount = $this->metodoPago == 'Mixto' ? $this->mixed_cash_amount : null;
         $newventa->mixed_transfer_amount = $this->metodoPago == 'Mixto' ? $this->mixed_transfer_amount : null;
@@ -501,7 +503,7 @@ class Sales extends Component
                     $precioBase = $item['precio_venta'];
                     $porcentajeGlobal = floatval($this->descuento);
                     $montoDescontadoUnitario = ($precioBase * $porcentajeGlobal) / 100;
-                    
+
                     $detallesParaPDF[$key]['descuento_porcentaje'] = $porcentajeGlobal;
                     $detallesParaPDF[$key]['descuento_monto'] = round($montoDescontadoUnitario * $item['cantidad'], 2);
                     $detallesParaPDF[$key]['total'] = round(($precioBase - $montoDescontadoUnitario) * $item['cantidad'], 2);
@@ -517,7 +519,7 @@ class Sales extends Component
             $detaProduc->sale_id = $newventa->id;
             // Para la BD, queremos que el precio unitario refleje el costo YA rebajado para que el total cuadre
             $precioYaRebajado = $item['precio_venta'] - (($item['descuento_monto'] ?? 0) / $item['cantidad']);
-            $detaProduc->precio = $precioYaRebajado; 
+            $detaProduc->precio = $precioYaRebajado;
             $detaProduc->cantidad = $item['cantidad'];
             $detaProduc->total = $item['total'];
             $detaProduc->save();
@@ -583,17 +585,17 @@ class Sales extends Component
         $this->descuento = null;
         $this->totalRecibido = null;
         $this->cambio = null;
-        
+
         // Reset variables mixtas
         $this->mixed_cash_amount = 0;
         $this->mixed_transfer_amount = 0;
         $this->boton_deshabilitado = false;
-        
+
         Alert::success('Venta', 'Venta realizada exitosamente');
-        
-        $this->dispatch('abrir-pdf', url: route('venta.pdf'));      
+
+        $this->dispatch('abrir-pdf', url: route('venta.pdf'));
     }
-    
+
     public function decrementarCantidad($key)
     {
         if (isset($this->detailProduct[$key])) {
@@ -602,7 +604,7 @@ class Sales extends Component
 
                 $precioUnitario = $this->detailProduct[$key]['precio_venta'];
                 $porcentaje = $this->detailProduct[$key]['descuento_porcentaje'] ?? 0;
-                
+
                 $descUnitario = ($precioUnitario * $porcentaje) / 100;
                 $precioFinalUnit = $precioUnitario - $descUnitario;
 
@@ -665,10 +667,10 @@ class Sales extends Component
             $product = Product::find($this->detailProduct[$key]['id']);
             if ($product && $this->detailProduct[$key]['cantidad'] < $product->stock) {
                 $this->detailProduct[$key]['cantidad']++;
-                
+
                 $precioUnitario = $this->detailProduct[$key]['precio_venta'];
                 $porcentaje = $this->detailProduct[$key]['descuento_porcentaje'] ?? 0;
-                
+
                 $descUnitario = ($precioUnitario * $porcentaje) / 100;
                 $precioFinalUnit = $precioUnitario - $descUnitario;
 
