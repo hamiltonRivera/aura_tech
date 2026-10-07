@@ -57,7 +57,7 @@ new class extends Component
             $newActivity->save();
 
             // 3. Cambiar estado y poner en 0 todos los montos para que no afecten los reportes
-            $venta->estado = 'Anulada';
+            $venta->status = 'Anulada';
             $venta->totalPagado = 0;
             $venta->totalRecibido = 0;
             $venta->cambio = 0;
