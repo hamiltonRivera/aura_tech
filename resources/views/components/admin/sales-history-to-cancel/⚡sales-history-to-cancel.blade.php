@@ -34,6 +34,10 @@ new class extends Component
 <div>
       <div class="mb-3">
         @include('components.admin.sales-history-to-cancel.search')
-    </div>
+      </div>
+    
+     <div class="mb-3">
+        @include('components.admin.sales-history-to-cancel.table')
+      </div>
 
 </div>
