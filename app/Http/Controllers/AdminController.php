@@ -110,4 +110,9 @@ class AdminController extends Controller
     {
         return view('admin.payroll');
     }
+
+    public function sales_to_cancel()
+    {
+        return view('admin.sales_to_cancel');
+    }
 }
