@@ -19,7 +19,8 @@ class Sale extends Model
         'totalDescuento',
         'totalPagadoDescuento',
         'user_id',
-        'metodoPago'
+        'metodoPago',
+        'status'
     ];
 
     protected $casts = [
