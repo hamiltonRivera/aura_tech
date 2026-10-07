@@ -52,6 +52,9 @@
                     <a href="{{ route('payroll') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
                         <i class="fa-solid fa-money-check-dollar"></i> Planilla
                     </a>
+                      <a href="{{ route('sales_to_cancel') }}" class="boton-azul flex items-center justify-center gap-2 w-full text-center py-2.5">
+                        <i class="fa-solid fa-backward-step"></i> Cancelación de ventas erróneas
+                    </a>
                 </div>
 
             </div>
