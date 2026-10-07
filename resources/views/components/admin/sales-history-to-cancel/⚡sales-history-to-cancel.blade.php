@@ -33,7 +33,7 @@ new class extends Component
 
 <div>
       <div class="mb-3">
-        @include('components.admin.sa.search')
+        @include('components.admin.sales-history-to-cancel.search')
     </div>
 
 </div>
