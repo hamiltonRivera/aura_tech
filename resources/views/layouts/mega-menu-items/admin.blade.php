@@ -80,6 +80,11 @@
                                     <i class="fa-solid fa-money-check-dollar"></i> Planilla
                                 </a>
                             </li> 
+                            <li>
+                                <a href="{{ route('sales_to_cancel') }}" class="mega-menu-ul-li-a">
+                                    <i class="fa-solid fa-money-check-dollar"></i> cancelación de ventas erróneas 
+                                </a>
+                            </li>
 
                         </ul>
                     </div>
