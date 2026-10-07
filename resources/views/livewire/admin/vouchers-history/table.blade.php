@@ -14,6 +14,7 @@
                                 <th scope="col" class="px-6 py-3 text-left">Descripción</th>
                                 <th scope="col" class="px-6 py-3 text-left">Cliente</th>
                                 <th scope="col" class="px-6 py-3">Realizado por</th>
+                                <th scope="col" class="px-6 py-3">Estado de la factura</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-200 bg-white">
@@ -27,6 +28,7 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-left">{{ $historial->descripcion }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-left">{{ $historial->client->nombreApellido ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $historial->user->name ?? 'N/A' }}</td>
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $historial->status ?? 'N/A' }}</td>
                                 </tr>
                             @endforeach
                         </tbody>

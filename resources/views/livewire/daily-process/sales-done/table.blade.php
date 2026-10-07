@@ -9,6 +9,7 @@
                 <th scope="col" class="px-6 py-3">Método Pago</th>
                 <th scope="col" class="px-6 py-3">Total Pagado</th>
                 <th scope="col" class="px-6 py-3">Realizado Por</th>
+                <th scope="col" class="px-6 py-3">Estado</th>
                 <th scope="col" class="px-6 py-3 text-center">Opciones</th>
             </tr>
         </thead>
@@ -22,6 +23,7 @@
                 <td class="td">{{ $sale->metodoPago }}</td>
                 <td class="td">{{ $sale->totalPagado }}</td>
                 <td class="td">{{ $sale->user->name }}</td>
+                <td class="td">{{ $sale->status }}</td>
                 <td class="td !px-2 whitespace-nowrap">
                     <div class="flex flex-col sm:flex-row items-center justify-center gap-1.5">
                         <a href="{{ route('detailItems', $sale->id) }}" class="boton-azul inline-flex items-center gap-1 text-xs" target="_blank">
