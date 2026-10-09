@@ -12,8 +12,6 @@ class CashAudit extends Component
     use WithPagination;
 
     public $search_audit = '';
-
-    //Si necesitas auditar días anteriores luego, puedes usar esta variable
     public $fechaAuditoria; 
 
     public function mount()
@@ -22,28 +20,26 @@ class CashAudit extends Component
         $this->fechaAuditoria = Carbon::today()->format('Y-m-d');
     }
 
-    // Resetear paginación cuando se busca algo
     public function updatingSearchAudit()
     {
         $this->resetPage();
     }
 
-
     public function render()
     {  
-        // Recuperar ventas solo en efectivo, de la fecha seleccionada
-        $ventas = Sale::whereDate('created_at', $this->fechaAuditoria)
-            ->where('metodoPago', 'Efectivo') // Ajusta 'metodoPago' si tu columna se llama distinto
-            ->where(function($query) {
-                // Lógica del buscador por número de factura
-               $query->where('numFactura', 'like', '%' . $this->search_audit . '%');
-            })
-            // Ordenar de las más recientes a las más antiguas
-            ->orderBy('created_at', 'desc') 
-            // Paginación a 10 registros
-            ->paginate(10);
-        return view('livewire.daily-process.cash-consilations.cash-audit', compact('ventas'));
+        // Consulta base con los filtros de fecha y método de pago
+        $query = Sale::whereDate('created_at', $this->fechaAuditoria)
+            ->where('metodoPago', 'Efectivo')
+            ->where(function($q) {
+                $q->where('numFactura', 'like', '%' . $this->search_audit . '%');
+            });
+
+        // 1. Calculamos la suma total acumulada de todas las ventas en efectivo
+        $total_efectivo = (clone $query)->sum('totalPagado');
+
+        // 2. Obtenemos las ventas paginadas ordenadas por hora
+        $ventas = $query->orderBy('created_at', 'desc')->paginate(10);
+
+        return view('livewire.daily-process.cash-consilations.cash-audit', compact('ventas', 'total_efectivo'));
     }
-
-
 }
