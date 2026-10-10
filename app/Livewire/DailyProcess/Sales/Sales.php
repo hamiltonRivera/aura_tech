@@ -38,12 +38,14 @@ class Sales extends Component
     public $metodos = [
         'Efectivo',
         'Transferencia Bancaria',
-        'Mixto'
+        'Mixto',
+        'Tarjeta'
     ];
 
     // Variables para pago mixto y validación reactiva
     public $mixed_cash_amount = 0;
     public $mixed_transfer_amount = 0;
+    public $tipo_mixto_secundario = 'Transferencia Bancaria';
     public $boton_deshabilitado = false;
 
     public $descuento_i, $ver_descuento_individual = false, $descuento_individual, $precio_descuento, $monto_descontado_individual;
@@ -301,7 +303,7 @@ class Sales extends Component
 
     public function pagoTransferencia()
     {
-        if (in_array($this->metodoPago, ['Transferencia Bancaria', 'Mixto'])) {
+        if (in_array($this->metodoPago, ['Transferencia Bancaria', 'Tarjeta', 'Mixto'])) {
             $this->totalRecibido = $this->descuento ? $this->totalPagadoDescuento : $this->totalPagado;
             $this->cambio = 0;
         }
@@ -320,7 +322,7 @@ class Sales extends Component
             $this->cambio();
         }
 
-        if (in_array($field, ['mixed_cash_amount', 'mixed_transfer_amount', 'metodoPago'])) {
+        if (in_array($field, ['mixed_cash_amount', 'mixed_transfer_amount', 'metodoPago', 'tipo_mixto_secundario'])) {
             $this->validarPagoMixto();
         }
     }
@@ -482,9 +484,22 @@ class Sales extends Component
         $newventa->user_id = auth()->user()->id;
         $newventa->metodoPago = $this->metodoPago;
 
-        // Guardar montos mixtos si aplica
-        $newventa->mixed_cash_amount = $this->metodoPago == 'Mixto' ? $this->mixed_cash_amount : null;
-        $newventa->mixed_transfer_amount = $this->metodoPago == 'Mixto' ? $this->mixed_transfer_amount : null;
+        // Guardar montos mixtos evaluando si eligió Tarjeta o Transferencia
+        if ($this->metodoPago === 'Mixto') {
+            $newventa->mixed_cash_amount = $this->mixed_cash_amount;
+            
+            if ($this->tipo_mixto_secundario === 'Tarjeta') {
+                $newventa->mixed_transfer_amount = null;
+                $newventa->mixed_tarjeta_amount = floatval($this->mixed_transfer_amount); 
+            } else {
+                $newventa->mixed_transfer_amount = floatval($this->mixed_transfer_amount);
+                $newventa->mixed_tarjeta_amount = null; 
+            }
+        } else {
+            $newventa->mixed_cash_amount = null;
+            $newventa->mixed_transfer_amount = null;
+            $newventa->mixed_tarjeta_amount = null;
+        }
 
         $newventa->save();
 
@@ -589,6 +604,7 @@ class Sales extends Component
         // Reset variables mixtas
         $this->mixed_cash_amount = 0;
         $this->mixed_transfer_amount = 0;
+        $this->tipo_mixto_secundario = 'Transferencia Bancaria';
         $this->boton_deshabilitado = false;
 
         Alert::success('Venta', 'Venta realizada exitosamente');

@@ -20,7 +20,10 @@ class Sale extends Model
         'totalPagadoDescuento',
         'user_id',
         'metodoPago',
-        'status'
+        'status',
+        'mixed_cash_amount',
+        'mixed_transfer_amount',
+        'mixed_tarjeta_amount',
     ];
 
     protected $casts = [

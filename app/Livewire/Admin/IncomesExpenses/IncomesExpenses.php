@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Gasto;
 use App\Models\Sale;
 use App\Models\CreditPayment;
+// Se eliminó la importación de CashRegister porque en Aura & Tech no se suma la caja
 
 class IncomesExpenses extends Component
 {
@@ -14,7 +15,8 @@ class IncomesExpenses extends Component
     $fecha_abono, $abono_dia, $mostrarBalance = false;
 
     public $fecha_efectivo, $fecha_transferencia, $cierre_efectivo, $cierre_transferencia;
-    // NUEVAS VARIABLES PARA TARJETA
+    
+    // VARIABLES PARA TARJETA
     public $fecha_tarjeta, $cierre_tarjeta;
     
     public $payments = false;
@@ -198,6 +200,8 @@ class IncomesExpenses extends Component
 
     public function cierreDelDia()
     {
+        // Gran total: Suma exacta del valor final de todas las facturas del día (Efectivo + Transferencia + Tarjeta + Mixtos).
+        // Al sumar 'totalPagado', se excluye por defecto cualquier dato de caja.
         $ventas = Sale::whereFecha($this->fecha)->get();
         $this->cierre = $ventas->sum('totalPagado');
     }
@@ -214,7 +218,7 @@ class IncomesExpenses extends Component
                                     ->where('metodoPago', 'Mixto')
                                     ->sum('mixed_cash_amount');
 
-        // 3. Total en Gaveta
+        // 3. Total Efectivo (Sin incluir Caja)
         $this->cierre_efectivo = $ventasEfectivoPuro + $ventasMixtasEfectivo;
     }
 
