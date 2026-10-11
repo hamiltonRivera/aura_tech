@@ -32,6 +32,7 @@ Route::controller(DailyProcessController::class)->group(function(){
   Route::get('combos_edit_update', 'combos_e_u_d')->name('combos_e_u_d');
   Route::get('cash-reconciliation', 'cash_reconciliation')->name('cash_reconciliation');
   Route::get('cash-audit', 'cash_audit')->name('cash_audit');
+  Route::get('audit', 'audit')->name('audit');
   //vista movil
   Route::get('processes', 'processes')->name('processes');
   });
