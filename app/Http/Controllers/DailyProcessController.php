@@ -269,6 +269,6 @@ class DailyProcessController extends Controller
     
     public function audit()
     {
-        return view('daily-process.audit);
+        return view('daily-process.audit');
     }
 }
