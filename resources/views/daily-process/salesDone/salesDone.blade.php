@@ -1,7 +1,5 @@
 <x-app-layout>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-js'])
-
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-200 leading-tight">
             {{ __('Ventas realizadas') }}
