@@ -1,29 +1,31 @@
-<div class="px-4 mt-4 mb-4">
-    <div class="flex flex-col sm:flex-row gap-4 items-end">
-        <!-- Input Fecha (w-full en móvil, w-48 en escritorio) -->
-        <div class="w-full sm:w-48">
-            <label for="filterDate" class="block text-xs font-medium text-gray-500 mb-1">Fecha</label>
-            <input 
-                type="date" 
-                id="filterDate" 
-                wire:model.live="filterDate" 
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm py-2 px-3"
-            >
-        </div>
+<div class="ml-5 flex flex-wrap gap-4 items-end mb-4 mt-2">
+    <!-- Input Fecha -->
+    <div class="w-48">
+        <!-- Label en negrita y más oscura -->
+        <label for="filterDate" class="block text-xs font-bold text-gray-800 mb-1">Fecha</label>
+        <input 
+            type="date" 
+            id="filterDate" 
+            wire:model.live="filterDate" 
+            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-bold text-gray-900"
+        >
+        <!-- 'font-bold text-gray-900' aplicará la negrita y color oscuro a la fecha ingresada -->
+    </div>
 
-        <!-- Select Método de Pago (w-full en móvil, w-64 en escritorio) -->
-        <div class="w-full sm:w-64">
-            <label for="filterMethod" class="block text-xs font-medium text-gray-500 mb-1">Método de pago</label>
-            <select 
-                id="filterMethod" 
-                wire:model.live="filterMethod" 
-                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 text-sm py-2 px-3 bg-white"
-            >
-                <option value="">Todos los métodos</option>
-                @foreach($metodos as $metodo)
-                    <option value="{{ $metodo }}">{{ $metodo }}</option>
-                @endforeach
-            </select>
-        </div>
+    <!-- Select Método de Pago -->
+    <div class="w-64">
+        <!-- Label en negrita y más oscura -->
+        <label for="filterMethod" class="block text-xs font-bold text-gray-800 mb-1">Método de pago</label>
+        <select 
+            id="filterMethod" 
+            wire:model.live="filterMethod" 
+            class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-bold text-gray-900 bg-white"
+        >
+            <!-- 'font-bold text-gray-900' en el select aplica al elemento seleccionado -->
+            <option value="" class="font-bold text-gray-900">Todos los métodos</option>
+            @foreach($metodos as $metodo)
+                <option value="{{ $metodo }}" class="font-bold text-gray-900">{{ $metodo }}</option>
+            @endforeach
+        </select>
     </div>
 </div>
