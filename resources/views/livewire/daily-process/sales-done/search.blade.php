@@ -22,7 +22,7 @@
         >
             <option value="">Todos los métodos</option>
             @foreach($metodos as $metodo)
-                <option value="{{ $metodo }}">{{ $metodo }}</option>
+                <option class="label_class" value="{{ $metodo }}">{{ $metodo }}</option>
             @endforeach
         </select>
     </div>
