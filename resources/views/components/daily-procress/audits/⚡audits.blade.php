@@ -9,15 +9,16 @@ new class extends Component
 ?>
 
 <div>
-   <div>
-    @include('components.daily-process.audits.search')
-   </div>
+   <div class = “lg:grid grid-cols-4 sm:grid-col-1”>
 
-   <div>
+{{-- primer fila --}}
+  <div>
     @include('components.daily-process.audits.sales')
-   </div>
+  </div>
 
-    <div>
-    @include('components.daily-process.audits.cashier')
-    </div>
+{{-- segunda fila --}}
+  <div>
+  @include('components.daily-process.audits.cashier')
+  </div>
+</div>
 </div>
