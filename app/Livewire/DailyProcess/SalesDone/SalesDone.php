@@ -5,10 +5,12 @@ namespace App\Livewire\DailyProcess\SalesDone;
 use Livewire\Component;
 use App\Models\Sale;
 use Livewire\WithPagination;
+
 class SalesDone extends Component
 {
     use WithPagination;
     protected $paginationTheme = 'tailwind';
+    
     public $search = '';
     public $filterDate = '';
     public $filterMethod = '';
@@ -17,16 +19,16 @@ class SalesDone extends Component
     public $metodos = [
         'Efectivo',
         'Transferencia Bancaria',
-        'Efectivo Mixto', //mixed_cash_amount
-        'Tarjeta Mixto', //mixed_transfer_amount
-        'Transferencia Mixto', //mixed_tarjeta_amount
+        'Efectivo Mixto',
+        'Tarjeta Mixto',
+        'Transferencia Mixto',
         'Tarjeta'
     ];
+
     public function render()
     {
         $query = Sale::with('user', 'client');
 
-        // Mantenemos tu búsqueda de texto original agrupada
         if (!empty($this->search)) {
             $query->where(function($q) {
                 $q->whereRelation('user', 'name', 'like', '%' . $this->search . '%')
@@ -35,21 +37,39 @@ class SalesDone extends Component
             });
         }
 
-        // 1. APLICAMOS EL FILTRO DE FECHA
         if (!empty($this->filterDate)) {
             $query->whereDate('fecha', $this->filterDate);
         }
 
-        // 2. APLICAMOS EL FILTRO DE MÉTODO DE PAGO
+        $columnaASumar = 'totalPagado';
+
         if (!empty($this->filterMethod)) {
-            $query->where('metodoPago', $this->filterMethod);
+            if (in_array($this->filterMethod, ['Efectivo Mixto', 'Transferencia Mixto', 'Tarjeta Mixto'])) {
+                $query->where('metodoPago', 'Mixto');
+
+                if ($this->filterMethod === 'Efectivo Mixto') {
+                    $columnaASumar = 'mixed_cash_amount';
+                    $query->where('mixed_cash_amount', '>', 0); 
+                } elseif ($this->filterMethod === 'Transferencia Mixto') {
+                    $columnaASumar = 'mixed_transfer_amount';
+                    $query->where('mixed_transfer_amount', '>', 0);
+                } elseif ($this->filterMethod === 'Tarjeta Mixto') {
+                    $columnaASumar = 'mixed_tarjeta_amount';
+                    $query->where('mixed_tarjeta_amount', '>', 0);
+                }
+            } else {
+                $query->where('metodoPago', $this->filterMethod);
+            }
         }
 
-        // CALCULAMOS EL TOTAL: Esta línea toma en cuenta ambos filtros automáticamente
-        $this->totalSuma = (clone $query)->sum('totalPagado');
+        $this->totalSuma = (clone $query)->sum($columnaASumar);
 
         $sales = $query->paginate(10);
+        
+        // Pasamos todo limpio por el compact
+        $filterMethod = $this->filterMethod;
+        $metodos = $this->metodos;
 
-        return view('livewire.daily-process.sales-done.sales-done', compact('sales'));
+        return view('livewire.daily-process.sales-done.sales-done', compact('sales', 'filterMethod', 'metodos'));
     }
 }
