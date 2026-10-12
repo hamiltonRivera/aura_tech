@@ -13,12 +13,12 @@ new class extends Component
 
 {{-- primer fila --}}
   <div>
-    @include('components.daily-process.audits.sales')
+    @include('components.daily-procress.audits.sales')
   </div>
 
 {{-- segunda fila --}}
   <div>
-  @include('components.daily-process.audits.cashier')
+  @include('components.daily-procress.audits.cashier')
   </div>
 </div>
 </div>
