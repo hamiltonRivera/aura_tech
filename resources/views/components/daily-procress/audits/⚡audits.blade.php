@@ -9,5 +9,15 @@ new class extends Component
 ?>
 
 <div>
-    {{-- When there is no desire, all things are at peace. - Laozi --}}
+   <div>
+    @include('components.daily-process.audits.search')
+   </div>
+
+   <div>
+    @include('components.daily-process.audits.sales')
+   </div>
+
+    <div>
+    @include('components.daily-process.audits.cashier')
+    </div>
 </div>
