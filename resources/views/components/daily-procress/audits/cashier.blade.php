@@ -9,5 +9,5 @@
 {{-- segunda fila --}}
   <div>
     b
-  <\div>
+  </div>
 </div>
