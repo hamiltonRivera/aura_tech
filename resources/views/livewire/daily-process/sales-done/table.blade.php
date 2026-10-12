@@ -25,7 +25,15 @@
                 <td class="td px-4 py-3">{{ optional($sale->client)->nombreApellido ?? 'Cliente Default' }}</td>
                 <td class="td px-4 py-3 whitespace-nowrap">{{ $sale->metodoPago }}</td>
                 <td class="td px-4 py-3 whitespace-nowrap font-bold">
-                    C$ {{ number_format($sale->totalPagado, 2) }}
+                    @if($filterMethod === 'Efectivo Mixto')
+                        C$ {{ number_format($sale->mixed_cash_amount, 2) }}
+                    @elseif($filterMethod === 'Transferencia Mixto')
+                        C$ {{ number_format($sale->mixed_transfer_amount, 2) }}
+                    @elseif($filterMethod === 'Tarjeta Mixto')
+                        C$ {{ number_format($sale->mixed_tarjeta_amount, 2) }}
+                    @else
+                        C$ {{ number_format($sale->totalPagado, 2) }}
+                    @endif
                 </td>
                 <td class="td px-4 py-3 text-xs">{{ optional($sale->user)->name ?? 'N/A' }}</td>
                 <td class="td px-4 py-3 text-center whitespace-nowrap">
