@@ -67,7 +67,8 @@ class CashConsilations extends Component
     public function updatedDifference()
     {
         if ($this->closing_amount !== null) {
-            $this->physical_amount = floatval($this->closing_amount) + floatval($this->difference);
+            $diff = floatval($this->difference ?? 0);
+            $this->physical_amount = round(floatval($this->closing_amount) + $diff, 2);
         }
     }
 
@@ -75,7 +76,7 @@ class CashConsilations extends Component
     {
         $arqueos = CashRegister::with('user')
             ->where('date', 'like', '%' . $this->search . '%')
-            ->orderBy('date', 'desc')
+            ->orderBy('id', 'asc')
             ->paginate(5);
             
         return view('livewire.daily-process.cash-consilations.cash-consilations', compact('arqueos'));
@@ -86,7 +87,7 @@ class CashConsilations extends Component
         return redirect('/private/cash-reconciliation');
     }
 
-        public function storecalculate()
+    public function storecalculate()
     {
         $this->validate([
             'opening_amount' => 'required|numeric'
@@ -97,15 +98,29 @@ class CashConsilations extends Component
         $fechaSeleccionada = $this->date ?: Carbon::today()->format('Y-m-d');
         $fechaAyer = Carbon::parse($fechaSeleccionada)->subDay()->format('Y-m-d');
 
-        // 1. Cierre anterior (ayer) - Solo ventas activas
-        $this->last_closing_amount = Sale::whereDate('fecha', $fechaAyer)
-            ->where(function ($q) {
-                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
-            })
-            ->where('metodoPago', 'Efectivo') 
-            ->sum('totalPagado'); 
+        // 1. Cierre anterior (ayer): Toma el cierre real registrado ayer, o calcula ventas activas de ayer
+        $arqueoAyer = CashRegister::whereDate('date', $fechaAyer)->latest('id')->first();
+        if ($arqueoAyer) {
+            $this->last_closing_amount = round($arqueoAyer->closing_amount, 2);
+        } else {
+            $ayerPuras = Sale::whereDate('fecha', $fechaAyer)
+                ->where(function ($q) {
+                    $q->where('status', '!=', 'Anulada')->orWhereNull('status');
+                })
+                ->where('metodoPago', 'Efectivo')
+                ->sum('totalPagado');
 
-        // 2. Ventas en efectivo de hoy (puras + mixtas) - Solo ventas activas
+            $ayerMixtas = Sale::whereDate('fecha', $fechaAyer)
+                ->where(function ($q) {
+                    $q->where('status', '!=', 'Anulada')->orWhereNull('status');
+                })
+                ->where('metodoPago', 'Mixto')
+                ->sum('mixed_cash_amount');
+
+            $this->last_closing_amount = round(floatval($ayerPuras) + floatval($ayerMixtas), 2);
+        }
+
+        // 2. Ventas en efectivo de hoy (puras + mixtas) excluyendo ventas anuladas
         $ventasHoyPuras = Sale::whereDate('fecha', $fechaSeleccionada)
             ->where(function ($q) {
                 $q->where('status', '!=', 'Anulada')->orWhereNull('status');
@@ -166,7 +181,7 @@ class CashConsilations extends Component
             $this->excedent_justification = null;
         }
 
-        // Calculamos cuánto hubo en transferencia hoy solo para dejar evidencia en el Log
+        // Calculamos transferencias del día para dejar constancia en el ActivityLog
         $fechaSeleccionada = $this->date ?: Carbon::today()->format('Y-m-d');
         $transferenciasHoy = Sale::whereDate('fecha', $fechaSeleccionada)
             ->where(function ($q) {
@@ -192,7 +207,6 @@ class CashConsilations extends Component
             'user_id' => auth()->id(),
         ]);
         
-        // RADIOGRAFÍA DE AUDITORÍA EN EL LOG
         $newActivity = new ActivityLog();
         $newActivity->user_id = auth()->user()->id;
         $newActivity->activity = "Nuevo Registro - Arqueo de Caja";
@@ -203,54 +217,6 @@ class CashConsilations extends Component
         $newActivity->save();
 
         $this->resetPage();
-        Alert::success('Arqueo Registrado', 'El cierre de caja se ha guardado correctamente.');
-        $this->refresh();
-    }
-
-
-    public function store()
-    {
-        $this->validate([
-            'date' => 'required|date',
-            'opening_amount' => 'required|numeric',
-            'last_closing_amount' => 'required|numeric',
-            'closing_amount' => 'required|numeric',
-        ]);
-
-        if ($this->has_surplus == 'si') {
-            $this->validate([
-                'difference' => 'required|numeric|min:0.01',
-                'excedent_justification' => 'required|string|min:5|max:255',
-            ], [
-                'difference.required' => 'Debe ingresar el monto del excedente.',
-                'difference.min' => 'El excedente debe ser mayor a 0.',
-                'excedent_justification.required' => 'Debe escribir una justificación para el excedente.'
-            ]);
-            
-            $this->physical_amount = floatval($this->closing_amount) + floatval($this->difference);
-        } else {
-            $this->difference = 0;
-            $this->physical_amount = $this->closing_amount;
-            $this->excedent_justification = null;
-        }
-
-        CashRegister::create([
-            'date' => $this->date,
-            'opening_amount' => $this->opening_amount,
-            'last_closing_amount' => $this->last_closing_amount,
-            'closing_amount' => $this->closing_amount,
-            'physical_amount' => $this->physical_amount,
-            'difference' => $this->difference,
-            'excedent_justification' => $this->excedent_justification,
-            'user_id' => auth()->id(),
-        ]);
-        
-        $newActivity = new ActivityLog();
-        $newActivity->user_id = auth()->user()->id;
-        $newActivity->activity = "Nuevo Registro - Arqueo de Caja";
-        $newActivity->detail = "Nuevo Registro - Arqueo de Caja";
-        $newActivity->save();
-
         Alert::success('Arqueo Registrado', 'El cierre de caja se ha guardado correctamente.');
         $this->refresh();
     }
