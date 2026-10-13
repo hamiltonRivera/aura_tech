@@ -125,7 +125,7 @@ new class extends Component
 <div>
     <!-- Fila de Búsqueda (Fecha) -->
     <div class="mb-6">
-        @include('livewire.daily-process.audits.search')
+        @include('components.daily-process.audits.search')
     </div>
 
     <!-- Títulos de las Secciones -->
