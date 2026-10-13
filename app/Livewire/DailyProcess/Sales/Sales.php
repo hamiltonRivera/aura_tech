@@ -453,7 +453,6 @@ class Sales extends Component
             'totalDescuento' => 'nullable|numeric',
             'totalPagadoDescuento' => 'nullable|numeric',
             'metodoPago' => 'required|string|in:Efectivo,Transferencia Bancaria,Mixto,Tarjeta'
-'
         ]);
 
         // --- VALIDACIÓN ESTRICTA PAGO MIXTO ---
