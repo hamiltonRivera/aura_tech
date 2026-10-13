@@ -39,18 +39,19 @@
         @endif
 
         {{-- tercer fila --}}
-        <div class="mb-3">
-            <label for="" class="label_class">Método de pago</label>
-            <select wire:model="metodoPago" wire:change="pagoTransferencia" class="select-formularios form-select" aria-label="Default select example">
-                <option selected>Selecciona una opción</option>
-                @foreach ($metodos as $metodo)
-                    <option value="{{ $metodo }}">{{ $metodo }}</option>
-                @endforeach
-            </select>
-            @error('metodoPago')
-                <p class="error">{{ $message }}</p>
-            @enderror
-        </div>
+<div class="mb-3">
+    <label for="">Método de pago</label>
+    <select wire:model.live="metodoPago" wire:change="pagoTransferencia" class="select-formularios form-select">
+      <option value="">Selecciona una opción</option>
+      @foreach ($metodos as $metodo)
+         <option value="{{ $metodo }}">{{ $metodo }}</option>
+      @endforeach
+    </select>
+    @error('metodoPago')
+        <p class="error">{{ $message }}</p>
+    @enderror
+</div>
+
 
         {{-- PANEL MIXTO CONDICIONAL --}}
         @if($metodoPago === 'Mixto')
