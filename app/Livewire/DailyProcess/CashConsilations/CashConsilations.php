@@ -9,6 +9,7 @@ use Livewire\Component;
 use Carbon\Carbon;
 use App\Models\Sale;
 use App\Models\CashRegister;
+use App\Models\Gasto; // <-- Importamos el modelo de Gastos
 
 class CashConsilations extends Component
 {  
@@ -98,48 +99,42 @@ class CashConsilations extends Component
         $fechaSeleccionada = $this->date ?: Carbon::today()->format('Y-m-d');
         $fechaAyer = Carbon::parse($fechaSeleccionada)->subDay()->format('Y-m-d');
 
-        // 1. Cierre anterior (ayer): Toma el cierre real registrado ayer, o calcula ventas activas de ayer
+        // 1. Cierre anterior
         $arqueoAyer = CashRegister::whereDate('date', $fechaAyer)->latest('id')->first();
         if ($arqueoAyer) {
             $this->last_closing_amount = round($arqueoAyer->closing_amount, 2);
         } else {
             $ayerPuras = Sale::whereDate('fecha', $fechaAyer)
-                ->where(function ($q) {
-                    $q->where('status', '!=', 'Anulada')->orWhereNull('status');
-                })
-                ->where('metodoPago', 'Efectivo')
-                ->sum('totalPagado');
+                ->where(function ($q) { $q->where('status', '!=', 'Anulada')->orWhereNull('status'); })
+                ->where('metodoPago', 'Efectivo')->sum('totalPagado');
 
             $ayerMixtas = Sale::whereDate('fecha', $fechaAyer)
-                ->where(function ($q) {
-                    $q->where('status', '!=', 'Anulada')->orWhereNull('status');
-                })
-                ->where('metodoPago', 'Mixto')
-                ->sum('mixed_cash_amount');
+                ->where(function ($q) { $q->where('status', '!=', 'Anulada')->orWhereNull('status'); })
+                ->where('metodoPago', 'Mixto')->sum('mixed_cash_amount');
 
             $this->last_closing_amount = round(floatval($ayerPuras) + floatval($ayerMixtas), 2);
         }
 
-        // 2. Ventas en efectivo de hoy (puras + mixtas) excluyendo ventas anuladas
+        // 2. Ventas Efectivo Hoy
         $ventasHoyPuras = Sale::whereDate('fecha', $fechaSeleccionada)
-            ->where(function ($q) {
-                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
-            })
-            ->where('metodoPago', 'Efectivo')
-            ->sum('totalPagado');
+            ->where(function ($q) { $q->where('status', '!=', 'Anulada')->orWhereNull('status'); })
+            ->where('metodoPago', 'Efectivo')->sum('totalPagado');
 
         $ventasHoyMixtas = Sale::whereDate('fecha', $fechaSeleccionada)
-            ->where(function ($q) {
-                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
-            })
-            ->where('metodoPago', 'Mixto')
-            ->sum('mixed_cash_amount');
+            ->where(function ($q) { $q->where('status', '!=', 'Anulada')->orWhereNull('status'); })
+            ->where('metodoPago', 'Mixto')->sum('mixed_cash_amount');
+
+        // 3. Gastos que salieron de la caja hoy
+        $gastosDeCajaHoy = Gasto::whereDate('fecha', $fechaSeleccionada)
+            ->where('from_cash_register', 'Si')
+            ->sum('monto');
 
         $ventasHoy = floatval($ventasHoyPuras) + floatval($ventasHoyMixtas);
         $apertura = floatval($this->opening_amount); 
+        $gastosCaja = floatval($gastosDeCajaHoy);
 
-        // Base de caja = Apertura + Ventas en efectivo
-        $this->closing_amount = round($apertura + $ventasHoy, 2);
+        // FÓRMULA FINAL BLINDADA: Apertura + Ventas - Gastos de Gaveta
+        $this->closing_amount = round(($apertura + $ventasHoy) - $gastosCaja, 2);
         
         if ($this->has_surplus == 'no') {
             $this->difference = 0;
@@ -159,10 +154,8 @@ class CashConsilations extends Component
             'opening_amount.required' => 'El monto de apertura es obligatorio.',
         ]);
 
-        // Recalculamos todo limpio antes de guardar
         $this->storecalculate();
 
-        // Manejo de excedente
         if ($this->has_surplus == 'si') {
             $this->validate([
                 'difference' => 'required|numeric|min:0.01',
@@ -181,20 +174,17 @@ class CashConsilations extends Component
             $this->excedent_justification = null;
         }
 
-        // Calculamos transferencias del día para dejar constancia en el ActivityLog
+        // Datos extra para el Log
         $fechaSeleccionada = $this->date ?: Carbon::today()->format('Y-m-d');
         $transferenciasHoy = Sale::whereDate('fecha', $fechaSeleccionada)
-            ->where(function ($q) {
-                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
-            })
-            ->where('metodoPago', 'Transferencia Bancaria')
-            ->sum('totalPagado')
+            ->where(function ($q) { $q->where('status', '!=', 'Anulada')->orWhereNull('status'); })
+            ->where('metodoPago', 'Transferencia Bancaria')->sum('totalPagado')
             + Sale::whereDate('fecha', $fechaSeleccionada)
-            ->where(function ($q) {
-                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
-            })
-            ->where('metodoPago', 'Mixto')
-            ->sum('mixed_transfer_amount');
+            ->where(function ($q) { $q->where('status', '!=', 'Anulada')->orWhereNull('status'); })
+            ->where('metodoPago', 'Mixto')->sum('mixed_transfer_amount');
+
+        $gastosDeCajaHoy = Gasto::whereDate('fecha', $fechaSeleccionada)
+            ->where('from_cash_register', 'Si')->sum('monto');
 
         CashRegister::create([
             'date' => $this->date,
@@ -210,10 +200,10 @@ class CashConsilations extends Component
         $newActivity = new ActivityLog();
         $newActivity->user_id = auth()->user()->id;
         $newActivity->activity = "Nuevo Registro - Arqueo de Caja";
-        $newActivity->detail = "Cierre Sistema (Apertura+Efectivo): C$ " . $this->closing_amount 
-                             . " | Físico Reportado: C$ " . $this->physical_amount 
-                             . " | Excedente: C$ " . $this->difference 
-                             . " | Transferencias del día (No van en caja): C$ " . round($transferenciasHoy, 2);
+        $newActivity->detail = "Cierre Sistema: C$ " . $this->closing_amount 
+                             . " | Físico: C$ " . $this->physical_amount 
+                             . " | Gastos Restados: C$ " . round($gastosDeCajaHoy, 2)
+                             . " | Transferencias: C$ " . round($transferenciasHoy, 2);
         $newActivity->save();
 
         $this->resetPage();
