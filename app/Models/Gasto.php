@@ -11,6 +11,7 @@ class Gasto extends Model
         'descripcion',
         'fecha',
         'monto',
-        'tipo_gasto'
+        'tipo_gasto',
+        'from_cash_register',
     ];
 }
