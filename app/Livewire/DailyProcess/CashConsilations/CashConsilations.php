@@ -86,7 +86,7 @@ class CashConsilations extends Component
         return redirect('/private/cash-reconciliation');
     }
 
-    public function storecalculate()
+        public function storecalculate()
     {
         $this->validate([
             'opening_amount' => 'required|numeric'
@@ -94,26 +94,119 @@ class CashConsilations extends Component
             'opening_amount.required' => 'Debe ingresar el monto de apertura para calcular.'
         ]);
 
-        $this->last_closing_amount = Sale::whereDate('created_at', Carbon::yesterday())
+        $fechaSeleccionada = $this->date ?: Carbon::today()->format('Y-m-d');
+        $fechaAyer = Carbon::parse($fechaSeleccionada)->subDay()->format('Y-m-d');
+
+        // 1. Cierre anterior (ayer) - Solo ventas activas
+        $this->last_closing_amount = Sale::whereDate('fecha', $fechaAyer)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
+            })
             ->where('metodoPago', 'Efectivo') 
             ->sum('totalPagado'); 
 
-        $ventasHoy = Sale::whereDate('created_at', Carbon::today())
+        // 2. Ventas en efectivo de hoy (puras + mixtas) - Solo ventas activas
+        $ventasHoyPuras = Sale::whereDate('fecha', $fechaSeleccionada)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
+            })
             ->where('metodoPago', 'Efectivo')
             ->sum('totalPagado');
 
+        $ventasHoyMixtas = Sale::whereDate('fecha', $fechaSeleccionada)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
+            })
+            ->where('metodoPago', 'Mixto')
+            ->sum('mixed_cash_amount');
+
+        $ventasHoy = floatval($ventasHoyPuras) + floatval($ventasHoyMixtas);
         $apertura = floatval($this->opening_amount); 
-        $this->closing_amount = $apertura + $ventasHoy;
+
+        // Base de caja = Apertura + Ventas en efectivo
+        $this->closing_amount = round($apertura + $ventasHoy, 2);
         
         if ($this->has_surplus == 'no') {
             $this->difference = 0;
             $this->physical_amount = $this->closing_amount;
         } else {
-            if ($this->difference !== null) {
-                $this->physical_amount = floatval($this->closing_amount) + floatval($this->difference);
-            }
+            $excedente = floatval($this->difference ?? 0);
+            $this->physical_amount = round($this->closing_amount + $excedente, 2);
         }
     }
+
+    public function store()
+    {
+        $this->validate([
+            'date' => 'required|date',
+            'opening_amount' => 'required|numeric|min:0',
+        ], [
+            'opening_amount.required' => 'El monto de apertura es obligatorio.',
+        ]);
+
+        // Recalculamos todo limpio antes de guardar
+        $this->storecalculate();
+
+        // Manejo de excedente
+        if ($this->has_surplus == 'si') {
+            $this->validate([
+                'difference' => 'required|numeric|min:0.01',
+                'excedent_justification' => 'required|string|min:3|max:255',
+            ], [
+                'difference.required' => 'Debe ingresar el monto del excedente.',
+                'difference.min' => 'El excedente debe ser mayor a 0.',
+                'excedent_justification.required' => 'Debe escribir una justificación para el excedente.'
+            ]);
+
+            $this->difference = floatval($this->difference);
+            $this->physical_amount = round($this->closing_amount + $this->difference, 2);
+        } else {
+            $this->difference = 0;
+            $this->physical_amount = $this->closing_amount;
+            $this->excedent_justification = null;
+        }
+
+        // Calculamos cuánto hubo en transferencia hoy solo para dejar evidencia en el Log
+        $fechaSeleccionada = $this->date ?: Carbon::today()->format('Y-m-d');
+        $transferenciasHoy = Sale::whereDate('fecha', $fechaSeleccionada)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
+            })
+            ->where('metodoPago', 'Transferencia Bancaria')
+            ->sum('totalPagado')
+            + Sale::whereDate('fecha', $fechaSeleccionada)
+            ->where(function ($q) {
+                $q->where('status', '!=', 'Anulada')->orWhereNull('status');
+            })
+            ->where('metodoPago', 'Mixto')
+            ->sum('mixed_transfer_amount');
+
+        CashRegister::create([
+            'date' => $this->date,
+            'opening_amount' => $this->opening_amount,
+            'last_closing_amount' => $this->last_closing_amount,
+            'closing_amount' => $this->closing_amount,
+            'physical_amount' => $this->physical_amount,
+            'difference' => $this->difference,
+            'excedent_justification' => $this->excedent_justification,
+            'user_id' => auth()->id(),
+        ]);
+        
+        // RADIOGRAFÍA DE AUDITORÍA EN EL LOG
+        $newActivity = new ActivityLog();
+        $newActivity->user_id = auth()->user()->id;
+        $newActivity->activity = "Nuevo Registro - Arqueo de Caja";
+        $newActivity->detail = "Cierre Sistema (Apertura+Efectivo): C$ " . $this->closing_amount 
+                             . " | Físico Reportado: C$ " . $this->physical_amount 
+                             . " | Excedente: C$ " . $this->difference 
+                             . " | Transferencias del día (No van en caja): C$ " . round($transferenciasHoy, 2);
+        $newActivity->save();
+
+        $this->resetPage();
+        Alert::success('Arqueo Registrado', 'El cierre de caja se ha guardado correctamente.');
+        $this->refresh();
+    }
+
 
     public function store()
     {
