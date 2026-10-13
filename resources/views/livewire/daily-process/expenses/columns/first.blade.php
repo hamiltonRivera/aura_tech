@@ -7,10 +7,10 @@
       <p class="error">{{ $message }}</p>
       @enderror
     </div>
- </div>
+</div>
 
- {{-- segunda fila --}}
- <div>
+{{-- segunda fila --}}
+<div>
    <div class="mb-3">
       <label for="">Fecha</label>
       <div class="relative max-w-sm">
@@ -25,10 +25,10 @@
        <p class="error">{{ $message }}</p>
        @enderror
    </div>
- </div>
+</div>
 
- {{-- tercer fila --}}
- <div>
+{{-- tercer fila --}}
+<div>
    <div class="mb-3">
      <label for="" class="label_class">Monto</label>
      <input type="number" step="any" wire:model='monto' placeholder="monto:" class="inputs-formularios-cortos" required>
@@ -36,4 +36,22 @@
      <p class="error">{{ $message }}</p>
      @enderror
    </div>
- </div>
+</div>
+
+{{-- cuarta fila (Agregada para radio buttons de caja) --}}
+<div>
+    <div class="mb-3">
+      <label for="" class="label_class">¿El gasto sale de caja?</label>
+      <div class="d-flex" style="gap: 15px; margin-top: 8px;">
+          <label style="cursor: pointer;">
+              <input type="radio" wire:model="from_cash_register" value="Si"> Sí (Restar de gaveta)
+          </label>
+          <label style="cursor: pointer;">
+              <input type="radio" wire:model="from_cash_register" value="No"> No (Dinero del dueño)
+          </label>
+      </div>
+      @error('from_cash_register')
+      <p class="error">{{ $message }}</p>
+      @enderror
+    </div>
+</div>
