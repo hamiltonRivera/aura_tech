@@ -15,6 +15,7 @@ class HistorialFactura extends Model
         'descripcion',
         'client_id',
         'user_id',
+        'sale_id',
         'metodoPago'
     ];
 
@@ -31,5 +32,10 @@ class HistorialFactura extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+    
+    public function sale()
+    {
+        return $this->belongsTo(Sale::class);
     }
 }
