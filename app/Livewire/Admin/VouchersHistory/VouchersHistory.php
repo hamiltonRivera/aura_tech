@@ -13,26 +13,24 @@ class VouchersHistory extends Component
     public $search = '';
     public $cantidad_seleccionada, $monto_del_dia = 0, $fecha_del_dia;
 
-    public function render()
+        public function render()
     {
-        $busqueda = '%' . $this->search . '%';
-        
-        // Agregamos 'sale' al eager loading
-        $histories = HistorialFactura::with(['user', 'client', 'sale'])
-         ->where(function($query) use ($busqueda) {
-             $query->whereRelation('user', 'name', 'like', $busqueda)
-                   ->orWhereRelation('client', 'nombreApellido', 'like', $busqueda)
-                   ->orWhere('numFactura', 'like', $busqueda)
-                   ->orWhere('fecha', 'like', $busqueda)
-                   ->orWhere('descripcion', 'like', $busqueda)
-                   ->orWhere('metodoPago', 'like', $busqueda);
-         })
-         ->paginate(10);
+        $query = HistorialFactura::with(['user', 'client', 'sale']);
 
-         // recupera la fecha que digite y suma el total de todo el dia
-         $this->fecha_del_dia = HistorialFactura::whereFecha($this->search)->get();
-         $this->monto_del_dia = $this->fecha_del_dia->sum('monto');
-         
+        // Si hay una fecha seleccionada, filtramos la tabla
+        if (!empty($this->search)) {
+            $query->whereDate('fecha', $this->search);
+            
+            // Calculamos el total solo si hay fecha
+            $this->fecha_del_dia = HistorialFactura::whereDate('fecha', $this->search)->get();
+            $this->monto_del_dia = $this->fecha_del_dia->sum('monto');
+        } else {
+            // Si el input está vacío, el total es 0
+            $this->monto_del_dia = 0;
+        }
+
+        $histories = $query->paginate(10);
+
         return view('livewire.admin.vouchers-history.vouchers-history', compact('histories'));
     }
 }
