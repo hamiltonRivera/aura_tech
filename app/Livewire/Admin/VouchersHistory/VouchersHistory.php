@@ -32,9 +32,4 @@ class VouchersHistory extends Component
         return view('livewire.admin.vouchers-history.vouchers-history', compact('histories'));
     }
 
-    public function limpiarBusqueda()
-    {
-        $this->search = null;
-        $this->monto_del_dia = 0;
-    }
 }
