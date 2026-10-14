@@ -28,7 +28,15 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-left">{{ $historial->descripcion }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 text-left">{{ $historial->client->nombreApellido ?? 'N/A' }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $historial->user->name ?? 'N/A' }}</td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ $historial->status ?? 'N/A' }}</td>
+                                    
+                                    {{-- Aquí está la corrección del estado --}}
+                                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                                        @if(isset($historial->sale) && $historial->sale->status === 'Anulada')
+                                            <span class="text-red-500 font-bold">Anulada</span>
+                                        @else
+                                            <span class="text-green-500 font-bold">Activa</span>
+                                        @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
