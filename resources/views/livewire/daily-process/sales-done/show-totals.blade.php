@@ -1,6 +1,6 @@
 <div>
     @if ($month_selected)
-        <label for="">
+        <label for="" class="label_class">
             @if($selected_month_name === 'Total Anual')
                 Cierre del año
             @else
