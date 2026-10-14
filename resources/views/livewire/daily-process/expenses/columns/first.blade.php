@@ -12,7 +12,7 @@
 {{-- segunda fila --}}
 <div>
    <div class="mb-3">
-      <label for="">Fecha</label>
+      <label for="" class="label_class">Fecha</label>
       <div class="relative max-w-sm">
          <div class="absolute inset-y-0 start-0 flex items-center ps-3.5 pointer-events-none">
            <svg class="w-4 h-4 text-gray-500 dark:text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
@@ -38,20 +38,20 @@
    </div>
 </div>
 
-{{-- cuarta fila (Agregada para radio buttons de caja) --}}
+{{-- cuarta fila (Radio buttons arreglados) --}}
 <div>
     <div class="mb-3">
       <label for="" class="label_class">¿El gasto sale de caja?</label>
-      <div class="d-flex" style="gap: 15px; margin-top: 8px;">
-          <label style="cursor: pointer;">
-              <input type="radio" wire:model="from_cash_register" value="Si"> Sí (Restar de gaveta)
+      <div style="margin-top: 8px; display: flex; flex-direction: column; gap: 8px;">
+          <label style="cursor: pointer; color: #1f2937; font-size: 14px; font-weight: 500;">
+              <input type="radio" wire:model="from_cash_register" value="Si" style="margin-right: 5px;"> Sí (Restar de gaveta)
           </label>
-          <label style="cursor: pointer;">
-              <input type="radio" wire:model="from_cash_register" value="No"> No (Dinero del dueño)
+          <label style="cursor: pointer; color: #1f2937; font-size: 14px; font-weight: 500;">
+              <input type="radio" wire:model="from_cash_register" value="No" style="margin-right: 5px;"> No (Dinero del dueño)
           </label>
       </div>
       @error('from_cash_register')
-      <p class="error">{{ $message }}</p>
+      <p class="error text-danger mt-1">{{ $message }}</p>
       @enderror
     </div>
 </div>

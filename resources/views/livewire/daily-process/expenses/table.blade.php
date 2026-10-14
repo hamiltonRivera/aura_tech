@@ -9,6 +9,7 @@
                 <th scope="col" class="px-6 py-3">Fecha</th>
                 <th scope="col" class="px-6 py-3">Monto</th>
                 <th scope="col" class="px-6 py-3">Tipo de gasto</th>
+                <th scope="col" class="px-6 py-3">Salió de caja</th>
                 <th scope="col" class="px-6 py-3">Opciones</th>
             </tr>
         </thead>
@@ -20,6 +21,7 @@
                 <td class="td">{{ $expense->fecha }} </td>
                 <td class="td">{{ $expense->monto }}</td>
                 <td class="td">{{ $expense->tipo_gasto }}</td>
+                <td class="td">{{ $expense->from_cash_register }}</td>
                 <td class="td">
                     <button type="button" class="boton-azul" wire:click="edit({{ $expense->id }})">
                         <i class="fa-solid fa-pen-to-square"></i>
