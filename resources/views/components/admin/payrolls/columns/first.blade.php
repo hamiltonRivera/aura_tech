@@ -53,3 +53,4 @@
             <p class=" text-red-600 p-2 rounded">{{ $message }}</p>
         @enderror
     </div>
+</div>

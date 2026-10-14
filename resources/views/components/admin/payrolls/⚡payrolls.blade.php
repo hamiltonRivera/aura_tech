@@ -19,8 +19,16 @@ new class extends Component {
 
     // 1. Agregamos las variables de identidad, fechas y adelantos
     public $user_id = '';
-    public $start_date, $end_date, $monthly_salary, $quarter_salary, $daily_salary, $salary_advance = 0, $last_advance_date = null;
-    public $total_payment_holly_days = 0, $total_payment_quarter = 0, $total_payment_monthly = 0;
+    public $start_date,
+        $end_date,
+        $monthly_salary,
+        $quarter_salary,
+        $daily_salary,
+        $salary_advance = 0,
+        $last_advance_date = null;
+    public $total_payment_holly_days = 0,
+        $total_payment_quarter = 0,
+        $total_payment_monthly = 0;
     public $holly_days = 0;
     public $selected_id, $available_days_off, $total_days_off, $days_off_taken, $hire_date;
 
@@ -54,7 +62,7 @@ new class extends Component {
         if (!empty($this->hire_date)) {
             $fechaInicio = Carbon::parse($this->hire_date);
             $fechaActual = Carbon::now();
-            
+
             if ($fechaInicio->lessThanOrEqualTo($fechaActual)) {
                 $mesesTrabajados = $fechaInicio->floatDiffInMonths($fechaActual);
                 $this->total_days_off = round($mesesTrabajados * 2.5, 2);
@@ -89,7 +97,7 @@ new class extends Component {
                 $this->monthly_salary = $empleado->salary ?? null;
                 $this->hire_date = $empleado->hire_date ? Carbon::parse($empleado->hire_date)->format('Y-m-d') : null;
                 $this->days_off_taken = $empleado->days_off_taken ?? 0;
-                
+
                 // Carga de adelantos pendientes
                 $this->salary_advance = $empleado->salary_advance ?? 0;
                 $this->last_advance_date = !empty($empleado->last_advance_date) ? Carbon::parse($empleado->last_advance_date)->format('Y-m-d') : null;
@@ -97,19 +105,7 @@ new class extends Component {
                 $this->calculateVacations();
             }
         } else {
-            $this->reset([
-                'monthly_salary', 
-                'hire_date', 
-                'total_days_off', 
-                'days_off_taken', 
-                'available_days_off',
-                'quarter_salary',
-                'daily_salary',
-                'total_payment_quarter',
-                'net_payment_quarter',
-                'salary_advance',
-                'last_advance_date'
-            ]);
+            $this->reset(['monthly_salary', 'hire_date', 'total_days_off', 'days_off_taken', 'available_days_off', 'quarter_salary', 'daily_salary', 'total_payment_quarter', 'net_payment_quarter', 'salary_advance', 'last_advance_date']);
         }
 
         $this->calculatePayroll();
@@ -125,7 +121,7 @@ new class extends Component {
     {
         $this->calculatePayroll();
     }
-    
+
     public function updatedApplyDeductions()
     {
         $this->calculatePayroll();
@@ -178,7 +174,7 @@ new class extends Component {
 
         // Neto descontando impuestos y el adelanto
         $this->net_payment_quarter = round($this->total_payment_quarter - $this->inss_deduction - $this->ir_deduction - $adelanto, 2);
-        
+
         // Evitamos montos negativos
         if ($this->net_payment_quarter < 0) {
             $this->net_payment_quarter = 0;
@@ -248,11 +244,11 @@ new class extends Component {
             $empleado->total_days_off = $this->total_days_off;
             $empleado->days_off_taken = $this->days_off_taken;
             $empleado->available_days_off = $this->available_days_off;
-            
+
             // Regresamos el adelanto a 0 al guardar la planilla
             $empleado->salary_advance = 0;
             $empleado->last_advance_date = Carbon::now()->format('Y-m-d');
-            
+
             $empleado->save();
         }
 
@@ -285,18 +281,18 @@ new class extends Component {
 
         session()->put('paycheck', $paycheckData);
         Alert::success('Registro de planilla', 'Registro guardado exitosamente');
-        
+
         $this->dispatch('abrir-pdf', url: route('paycheck.pdf'));
         $this->refresh();
     }
 
     public function edit($id)
     {
-        $record = Payroll::with('user')->findOrFail($id); 
-        
+        $record = Payroll::with('user')->findOrFail($id);
+
         $this->selected_id = $id;
         $this->user_id = $record->user_id;
-        
+
         $this->start_date = $record->start_date ? Carbon::parse($record->start_date)->format('Y-m-d') : null;
         $this->end_date = $record->end_date ? Carbon::parse($record->end_date)->format('Y-m-d') : null;
 
@@ -321,7 +317,7 @@ new class extends Component {
             $this->days_off_taken = $record->user->days_off_taken ?? 0;
             $this->available_days_off = $record->user->available_days_off ?? 0;
             $this->last_day_off_taken = $record->user->last_day_off_taken;
-            
+
             $this->salary_advance = $record->user->salary_advance ?? 0;
             $this->last_advance_date = $record->user->last_advance_date;
         }
@@ -353,7 +349,7 @@ new class extends Component {
             $empleado = User::find($this->user_id);
             if ($empleado) {
                 $empleado->salary = $this->monthly_salary;
-                $empleado->hire_date = $this->hire_date; 
+                $empleado->hire_date = $this->hire_date;
                 $empleado->last_day_off_taken = $this->last_day_off_taken;
                 $empleado->total_days_off = $this->total_days_off;
                 $empleado->days_off_taken = $this->days_off_taken;
@@ -363,10 +359,10 @@ new class extends Component {
 
             $newActivitie = new ActivityLog();
             $newActivitie->user_id = auth()->user()->id;
-            $newActivitie->activity = 'Edición - Planilla'; 
+            $newActivitie->activity = 'Edición - Planilla';
             $newActivitie->detail = $record->user->name;
             $newActivitie->save();
-            
+
             Alert::success('Registro de planilla', 'Registro actualizado exitosamente');
             $this->refresh();
         }
@@ -386,7 +382,7 @@ new class extends Component {
         $newActivitie->activity = 'Registro Eliminado - Planilla';
         $newActivitie->detail = $nombreEmpleado;
         $newActivitie->save();
-        
+
         Alert::success('Registro de planilla', 'Registro eliminado exitosamente');
         $this->refresh();
     }
@@ -396,39 +392,56 @@ new class extends Component {
 <div>
     <div class="lg:grid grid-cols-4 sm:grid-col-1" wire:key="{{ $selected_id ?? 'new' }}">
         {{-- primer columna --}}
+
         <div>
+
             @include('components.admin.payrolls.columns.first')
+
         </div>
 
         {{-- segunda columna --}}
+
         <div>
+
             @include('components.admin.payrolls.columns.second')
+
         </div>
 
         {{-- tercera columna --}}
+
         <div>
-            @include('components.admin.payrolls.columns.third')
+
+            @include('.admin.payrolls.columns.third')
+
         </div>
 
         {{-- cuarta columna --}}
+
         <div>
+
             @include('components.admin.payrolls.columns.fourth')
+
         </div>
     </div>
 
     <div class="mb-3">
+
         @include('components.admin.payrolls.search')
+
     </div>
 
     <div>
+
         @include('components.admin.payrolls.table')
+
     </div>
 </div>
+
 <script>
     document.addEventListener('livewire:initialized', () => {
         Livewire.on('abrir-pdf', (event) => {
             console.log("Evento recibido:", event);
-            alert("Intentando abrir: " + event[0].url); 
+            alert("Intentando abrir: " + event[0].url);
             window.open(event[0].url, '_blank');
         });
     });
