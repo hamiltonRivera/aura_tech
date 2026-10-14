@@ -11,13 +11,7 @@ class VouchersHistory extends Component
     public $search = '';
     public $cantidad_seleccionada, $monto_del_dia = 0, $fecha_del_dia;
 
-    public $entradas = [
-        5,
-        10,
-        15,
-        20,
-        30
-    ];
+    
     public function render()
     {
         $busqueda = '%' . $this->search . '%';
