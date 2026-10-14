@@ -52,12 +52,6 @@
                 @if ($mostrarBusquedaPersonalizada)
                     @include('livewire.admin.incomes-expenses.customResearching')
                 @endif
-
-                {{-- mostrar abonos --}}
-                @if ($payments)
-                    @include('livewire.admin.incomes-expenses.abonosCredito')
-                @endif
-
                 {{-- mostrar balance --}}
                 @if ($mostrarBalance)
                     @include('livewire.admin.incomes-expenses.balance')
