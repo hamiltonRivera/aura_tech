@@ -37,6 +37,6 @@ class HistorialFactura extends Model
     public function sale()
 {
     // Si en la tabla sales el campo es "numero_factura"
-    return $this->belongsTo(Sale::class, 'numFactura', 'numero_factura'); 
+    return $this->belongsTo(Sale::class, 'numFactura', 'numFactura'); 
 }
 }
