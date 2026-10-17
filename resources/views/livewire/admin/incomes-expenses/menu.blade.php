@@ -22,9 +22,7 @@
                     <button type="button" wire:click="limpiarEntorno()" class="boton-ingresos-egresos">
                         Limpiar Búsqueda
                     </button>
-                    <button type="button" wire:click="show_credits_payments()" class="boton-ingresos-egresos">
-                        Abonos a créditos
-                    </button>
+                   
                     <button type="button" wire:click="show_balance()" class="boton-ingresos-egresos">
                         Mostrar Balance
                     </button>
